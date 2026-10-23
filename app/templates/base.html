@@ -64,6 +64,11 @@
                     Skill Gap Recommender
                     <span style="background: rgba(13,148,136,0.25); color: #5eead4; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Recommender</span>
                 </a>
+                <a href="{{ url_for('ats.index') }}" class="nav-item {% if 'ats' in request.endpoint %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    AI Resume ATS Matcher
+                    <span style="background: rgba(245,158,11,0.25); color: #fde68a; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">NLP</span>
+                </a>
 
                 <div class="nav-section-title">Deep Analytics</div>
                 <a href="{{ url_for('analytics.index') }}" class="nav-item {% if request.endpoint == 'analytics.index' %}active{% endif %}">
