@@ -88,17 +88,41 @@ def view_student(student_id):
         flash("Student record not found.", "warning")
         return redirect(url_for("students.list_students"))
     
-    from app.services.ml_service import predictor_service
+    from app.services.ml_service import predictor_service, salary_predictor_service
     from app.services.skill_recommender_service import analyze_student_skill_gap
     prediction = predictor_service.predict_student(student_id)
+    salary_pred = salary_predictor_service.predict_student(student_id)
     dream_gap = analyze_student_skill_gap(student_id, target_type="tier", target_value="Dream")
     super_dream_gap = analyze_student_skill_gap(student_id, target_type="tier", target_value="Super Dream")
     return render_template(
         "students/view.html",
         student=student,
         prediction=prediction,
+        salary_pred=salary_pred,
         dream_gap=dream_gap,
         super_dream_gap=super_dream_gap
+    )
+
+@students_bp.route("/<int:student_id>/resume")
+def student_resume(student_id):
+    """
+    Automated Student Placement Bio-Data & Verified Credential Document.
+    Print-ready and PDF-exportable for campus recruitment drives.
+    """
+    student = get_student_by_id(student_id)
+    if not student:
+        flash("Student record not found.", "warning")
+        return redirect(url_for("students.list_students"))
+
+    from app.services.ml_service import predictor_service, salary_predictor_service
+    prediction = predictor_service.predict_student(student_id)
+    salary_pred = salary_predictor_service.predict_student(student_id)
+
+    return render_template(
+        "students/resume.html",
+        student=student,
+        prediction=prediction,
+        salary_pred=salary_pred
     )
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])

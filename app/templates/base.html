@@ -49,10 +49,15 @@
                 </a>
 
                 <div class="nav-section-title">AI & Machine Learning</div>
-                <a href="{{ url_for('predictor.index') }}" class="nav-item {% if 'predictor' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('predictor.index') }}" class="nav-item {% if request.endpoint == 'predictor.index' %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                     Placement Predictor
                     <span style="background: rgba(99,102,241,0.25); color: #a5b4fc; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">AI / ML</span>
+                </a>
+                <a href="{{ url_for('predictor.salary_predictor') }}" class="nav-item {% if request.endpoint == 'predictor.salary_predictor' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Salary CTC Predictor
+                    <span style="background: rgba(16,185,129,0.25); color: #6ee7b7; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Regression</span>
                 </a>
                 <a href="{{ url_for('skills.recommender') }}" class="nav-item {% if 'recommender' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><path d="M22 12h-4"></path></svg>

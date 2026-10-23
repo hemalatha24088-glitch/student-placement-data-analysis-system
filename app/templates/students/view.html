@@ -24,14 +24,18 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="{{ url_for('students.student_resume', student_id=student.student_id) }}" class="btn btn-secondary btn-sm" target="_blank" title="Generate Verified Placement Bio-Data / Resume">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Print Bio-Data / Resume
+                </a>
                 <a href="{{ url_for('students.edit_student', student_id=student.student_id) }}" class="btn btn-secondary btn-sm">Edit Profile</a>
                 <a href="{{ url_for('placements.add_placement') }}" class="btn btn-indigo btn-sm">+ Record Offer</a>
             </div>
         </div>
 
         <!-- Academic & Contact Metadata Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
             <div>
                 <span class="form-label">CGPA</span>
                 <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary-900);">
@@ -65,6 +69,19 @@
                     </span>
                     <span class="badge {{ prediction.badge_class }}" style="font-size: 0.72rem;">
                         {{ prediction.risk_tier.split('(')[0] }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+            {% if salary_pred %}
+            <div>
+                <span class="form-label">AI Projected CTC</span>
+                <div style="display: flex; align-items: baseline; gap: 0.35rem; margin-top: 0.2rem;">
+                    <span style="font-size: 1.15rem; font-weight: 800; color: #059669;">
+                        ₹{{ "%.2f"|format(salary_pred.predicted_ctc) }} LPA
+                    </span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">
+                        ({{ salary_pred.tier.split(' ')[0] }})
                     </span>
                 </div>
             </div>

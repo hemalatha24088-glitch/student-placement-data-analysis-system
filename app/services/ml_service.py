@@ -5,9 +5,9 @@ feature importance rankings, and tailored improvement recommendations.
 """
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_error, mean_squared_error, r2_score
 from app.database.connection import get_db_cursor
 from app.services.student_service import get_student_by_id
 
@@ -326,3 +326,255 @@ class PlacementPredictorModel:
 
 # Global Singleton instance
 predictor_service = PlacementPredictorModel()
+
+
+class SalaryPackageRegressorModel:
+    """
+    Supervised Machine Learning Regression Service for Annual CTC Prediction.
+    Trained on verified placement compensation packages in MySQL using Random Forest Regression.
+    """
+    def __init__(self):
+        self.model = None
+        self.feature_names = []
+        self.metrics = {}
+        self.feature_importances = []
+        self._is_trained = False
+
+    def _extract_training_dataframe(self):
+        """Extract placed students with package amounts and skill counts from MySQL."""
+        query = """
+            SELECT 
+                s.student_id,
+                s.department,
+                s.graduation_year,
+                COALESCE(s.cgpa, 7.50) AS cgpa,
+                (SELECT COUNT(*) FROM student_skills ss WHERE ss.student_id = s.student_id) AS total_skills,
+                (SELECT GROUP_CONCAT(sk.skill_name SEPARATOR '||') 
+                 FROM student_skills ss 
+                 JOIN skills sk ON ss.skill_id = sk.skill_id 
+                 WHERE ss.student_id = s.student_id) AS skills_str,
+                MAX(p.package_amount) AS package_amount
+            FROM students s
+            JOIN placements p ON s.student_id = p.student_id AND p.status IN ('Placed', 'Offer Accepted')
+            GROUP BY s.student_id;
+        """
+        with get_db_cursor(commit=False) as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+        if not rows or len(rows) < 8:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(rows)
+        df["cgpa"] = df["cgpa"].astype(float)
+        df["package_amount"] = df["package_amount"].astype(float)
+        return df
+
+    def _prepare_features(self, df):
+        """Engineer numerical and categorical feature matrix for CTC regression."""
+        X = pd.DataFrame()
+        X["cgpa"] = df["cgpa"].astype(float)
+        X["total_skills"] = df["total_skills"].astype(int)
+
+        # Key High-Valuation Skill Flags
+        skills_series = df["skills_str"].fillna("").astype(str).str.lower()
+        X["has_dsa"] = skills_series.apply(lambda s: 1 if "data structures" in s or "algorithms" in s else 0)
+        X["has_python"] = skills_series.apply(lambda s: 1 if "python" in s else 0)
+        X["has_sql"] = skills_series.apply(lambda s: 1 if "sql" in s else 0)
+        X["has_ai_ml"] = skills_series.apply(lambda s: 1 if "machine learning" in s or "deep learning" in s or "ai" in s else 0)
+        X["has_cloud"] = skills_series.apply(lambda s: 1 if "cloud" in s or "aws" in s or "gcp" in s else 0)
+        X["has_web"] = skills_series.apply(lambda s: 1 if "react" in s or "flask" in s or "html" in s else 0)
+        X["has_embedded"] = skills_series.apply(lambda s: 1 if "embedded" in s or "iot" in s or "c++" in s else 0)
+
+        # One-Hot Encode Department
+        for dept in DEPARTMENTS_LIST:
+            col_name = "dept_" + dept.replace(" ", "_").lower()
+            X[col_name] = (df["department"] == dept).astype(int)
+
+        return X
+
+    def train(self):
+        """Train Random Forest Regressor on historical compensation data."""
+        df = self._extract_training_dataframe()
+        if df.empty:
+            return False, "Insufficient placement compensation records for model training."
+
+        X = self._prepare_features(df)
+        y = df["package_amount"]
+
+        self.feature_names = list(X.columns)
+
+        # Train/Test Split (80/20)
+        if len(df) >= 12:
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+        else:
+            X_train, X_test, y_train, y_test = X, X, y, y
+
+        # Fit Random Forest Regressor
+        rf_regressor = RandomForestRegressor(
+            n_estimators=100,
+            max_depth=6,
+            min_samples_split=2,
+            random_state=42
+        )
+        rf_regressor.fit(X_train, y_train)
+
+        # Evaluate model performance
+        y_pred = rf_regressor.predict(X_test)
+        mae = float(mean_absolute_error(y_test, y_pred))
+        mse = float(mean_squared_error(y_test, y_pred))
+        rmse = float(np.sqrt(mse))
+        r2 = float(r2_score(y_test, y_pred))
+
+        self.model = rf_regressor
+        self._is_trained = True
+
+        # Feature Importance Analysis
+        importances = rf_regressor.feature_importances_
+        feature_importance_list = []
+        for name, imp in zip(self.feature_names, importances):
+            clean_name = name.replace("dept_", "Dept: ").replace("has_", "Skill: ").replace("_", " ").title()
+            feature_importance_list.append({
+                "feature": clean_name,
+                "importance_pct": round(float(imp) * 100, 2)
+            })
+        feature_importance_list.sort(key=lambda x: x["importance_pct"], reverse=True)
+        self.feature_importances = feature_importance_list
+
+        self.metrics = {
+            "algorithm": "Random Forest Regressor (Ensemble)",
+            "training_samples": len(df),
+            "mae": round(mae, 2),
+            "rmse": round(rmse, 2),
+            "r2_score": round(max(0.0, r2) * 100, 2),
+            "mean_package": round(float(y.mean()), 2),
+            "max_package": round(float(y.max()), 2),
+            "min_package": round(float(y.min()), 2)
+        }
+
+        return True, f"Random Forest CTC Regressor successfully trained on {len(df)} placement packages."
+
+    def predict_custom(self, cgpa, department, skills_list):
+        """
+        Inference: Predict expected salary package (in LPA) for simulated parameters.
+        Includes dynamic salary band, tier classification, and skill value uplift suggestions.
+        """
+        if not self._is_trained or self.model is None:
+            self.train()
+
+        skills_joined = "||".join(skills_list or [])
+        sample_df = pd.DataFrame([{
+            "cgpa": float(cgpa),
+            "total_skills": len(skills_list or []),
+            "skills_str": skills_joined,
+            "department": department
+        }])
+
+        X_sample = self._prepare_features(sample_df)
+
+        for col in self.feature_names:
+            if col not in X_sample.columns:
+                X_sample[col] = 0
+        X_sample = X_sample[self.feature_names]
+
+        # Raw prediction bounded realistically
+        predicted_ctc = float(self.model.predict(X_sample)[0])
+        predicted_ctc = max(3.5, min(45.0, round(predicted_ctc, 2)))
+
+        mae = self.metrics.get("mae", 1.8)
+        range_low = round(max(3.0, predicted_ctc - mae), 2)
+        range_high = round(predicted_ctc + mae, 2)
+
+        # Tier classification
+        if predicted_ctc >= 15.0:
+            tier = "Super Dream Tier"
+            tier_badge = "badge-super-dream"
+            description = "High-package tier commanding product engineering & cutting-edge AI compensation."
+        elif predicted_ctc >= 8.0:
+            tier = "Dream Tier"
+            tier_badge = "badge-dream"
+            description = "Specialized technology consulting & fast-growing tech product compensation."
+        elif predicted_ctc >= 6.0:
+            tier = "Core Engineering"
+            tier_badge = "badge-mass"
+            description = "Core domain systems, hardware, and engineering solutions compensation."
+        else:
+            tier = "Mass / IT Services"
+            tier_badge = "badge-pending"
+            description = "High-volume recruitment and enterprise services baseline compensation."
+
+        # What-If Skill Uplift Simulation (What skills would add the most value?)
+        uplift_opportunities = []
+        valuable_test_skills = [
+            ("Data Structures & Algorithms", "DSA & Algorithmic Problem Solving"),
+            ("Cloud Computing (AWS/GCP)", "Cloud Architectures & DevOps"),
+            ("Machine Learning", "AI & Applied Machine Learning"),
+            ("Python", "Advanced Python Development"),
+            ("SQL", "Complex SQL & Relational Databases")
+        ]
+
+        current_skills_lower = {s.strip().lower() for s in (skills_list or [])}
+        for skill_name, label in valuable_test_skills:
+            if skill_name.lower() not in current_skills_lower:
+                test_skills = list(skills_list or []) + [skill_name]
+                test_df = pd.DataFrame([{
+                    "cgpa": float(cgpa),
+                    "total_skills": len(test_skills),
+                    "skills_str": "||".join(test_skills),
+                    "department": department
+                }])
+                X_test = self._prepare_features(test_df)[self.feature_names]
+                sim_ctc = float(self.model.predict(X_test)[0])
+                delta = round(sim_ctc - predicted_ctc, 2)
+                if delta > 0.2:
+                    uplift_opportunities.append({
+                        "skill": skill_name,
+                        "label": label,
+                        "uplift_lpa": delta,
+                        "projected_ctc": round(sim_ctc, 2)
+                    })
+
+        uplift_opportunities.sort(key=lambda x: x["uplift_lpa"], reverse=True)
+
+        # CGPA Uplift Simulation (+0.5 CGPA)
+        test_cgpa_df = pd.DataFrame([{
+            "cgpa": min(10.0, float(cgpa) + 0.5),
+            "total_skills": len(skills_list or []),
+            "skills_str": skills_joined,
+            "department": department
+        }])
+        X_cgpa = self._prepare_features(test_cgpa_df)[self.feature_names]
+        sim_cgpa_ctc = float(self.model.predict(X_cgpa)[0])
+        cgpa_delta = round(max(0.1, sim_cgpa_ctc - predicted_ctc), 2)
+
+        return {
+            "predicted_ctc": predicted_ctc,
+            "range_low": range_low,
+            "range_high": range_high,
+            "tier": tier,
+            "tier_badge": tier_badge,
+            "description": description,
+            "uplift_opportunities": uplift_opportunities[:3],
+            "cgpa_delta": cgpa_delta,
+            "cgpa": float(cgpa),
+            "department": department,
+            "skills_count": len(skills_list or [])
+        }
+
+    def predict_student(self, student_id):
+        """Inference for an existing registered student."""
+        student = get_student_by_id(student_id)
+        if not student:
+            return None
+
+        skills_list = [s["skill_name"] for s in student.get("skills", [])]
+        cgpa = float(student.get("cgpa") or 7.50)
+        dept = student.get("department", "Computer Science and Engineering")
+
+        result = self.predict_custom(cgpa=cgpa, department=dept, skills_list=skills_list)
+        result["student"] = student
+        return result
+
+# Global Singleton instance for CTC regression
+salary_predictor_service = SalaryPackageRegressorModel()
+

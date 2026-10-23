@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Salary Package (CTC) Predictor | B.Tech CSE (AI/ML){% endblock %}
+{% block page_title %}Salary Package (CTC) Predictor (Machine Learning Regression){% endblock %}
+
+{% block content %}
+<!-- Top Header & Model Status -->
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <div style="display: inline-block; padding: 0.25rem 0.65rem; background: var(--emerald-50); color: var(--emerald-600); border: 1px solid #a7f3d0; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">
+            Machine Learning Regression &bull; B.Tech CSE (AI/ML)
+        </div>
+        <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--primary-900);">
+            Candidate Salary Package (CTC) Predictor
+        </h2>
+        <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 800px;">
+            A supervised <strong>Random Forest Regression</strong> model trained on verified campus placement compensation packages. Estimates annual CTC (in ₹ LPA), expected compensation bands, recruiter tier placement, and high-impact skill valuation drivers.
+        </p>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <a href="{{ url_for('predictor.index') }}" class="btn btn-secondary btn-sm" title="Switch to Probability Classifier">
+            <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Probability Classifier
+        </a>
+        <form method="POST" action="{{ url_for('predictor.retrain_salary_model') }}">
+            <button type="submit" class="btn btn-secondary btn-sm" title="Retrain Random Forest Regressor on live MySQL compensation data">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                Retrain CTC Model
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Main 2-Column Grid -->
+<div style="display: grid; grid-template-columns: 1.15fr 1.35fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start;">
+    <!-- Column 1: Interactive Compensation Calculator Form -->
+    <div class="table-card" style="padding: 1.75rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.35rem;">
+            Candidate Parameters Simulator
+        </h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Select a registered student or adjust academic GPA and skill competencies to project market CTC.
+        </p>
+
+        <form method="POST" action="{{ url_for('predictor.salary_predictor') }}">
+            <!-- Student Quick-Fill -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="student_id">Select Registered Student (Optional Auto-Fill)</label>
+                <select name="student_id" id="student_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Manual Custom Simulation --</option>
+                    {% for st in students %}
+                        <option value="{{ st.student_id }}" {% if selected_student_id|string == st.student_id|string %}selected{% endif %}>
+                            {{ st.student_name }} ({{ st.roll_no }}) &bull; {{ st.department[:15] }}... &bull; CGPA: {{ "%.2f"|format(st.cgpa) if st.cgpa else 'N/A' }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Department Selection -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="department">Engineering Department</label>
+                <select name="department" id="department" class="form-select">
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if form_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- CGPA Range Slider -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <label class="form-label" for="cgpa" style="margin: 0;">Cumulative GPA (CGPA)</label>
+                    <span id="cgpaVal" style="font-size: 1.05rem; font-weight: 800; color: var(--emerald-600);">
+                        {{ "%.2f"|format(form_cgpa) }}
+                    </span>
+                </div>
+                <input type="range" min="5.0" max="10.0" step="0.05" name="cgpa" id="cgpa" class="form-control" value="{{ form_cgpa }}" style="padding: 0; cursor: pointer;" oninput="document.getElementById('cgpaVal').innerText = parseFloat(this.value).toFixed(2)">
+            </div>
+
+            <!-- Skills Multi-Select -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label class="form-label" style="margin: 0;">Verified Technical Competencies</label>
+                    <span style="font-size: 0.75rem; color: var(--emerald-600); font-weight: 700;">
+                        {{ form_skills|length }} Selected
+                    </span>
+                </div>
+                <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; background: #ffffff; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.4rem;">
+                    {% for sk in all_skills %}
+                        <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; cursor: pointer;">
+                            <input type="checkbox" name="skills" value="{{ sk.skill_name }}" {% if sk.skill_name in form_skills %}checked{% endif %}>
+                            <span>{{ sk.skill_name }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-emerald" style="width: 100%; padding: 0.65rem; font-size: 0.95rem; background: var(--emerald-600); color: #ffffff; border: none; font-weight: 700;">
+                <svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Calculate Estimated CTC Package
+            </button>
+        </form>
+    </div>
+
+    <!-- Column 2: ML Regression Output & Sensitivity Analysis -->
+    <div>
+        {% if prediction %}
+            <!-- Hero CTC Output Card -->
+            <div class="table-card" style="padding: 1.75rem; margin-bottom: 1.5rem; border-top: 4px solid var(--emerald-600);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                            Projected Compensation
+                        </div>
+                        <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
+                            <span style="font-size: 2.2rem; font-weight: 900; color: var(--primary-900); letter-spacing: -0.02em;">
+                                ₹{{ "%.2f"|format(prediction.predicted_ctc) }} LPA
+                            </span>
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">(Estimated Annual CTC)</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                            Expected Compensation Range: <strong>₹{{ "%.2f"|format(prediction.range_low) }} – ₹{{ "%.2f"|format(prediction.range_high) }} LPA</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="badge {{ prediction.tier_badge }}" style="font-size: 0.85rem; padding: 0.45rem 0.85rem;">
+                            {{ prediction.tier }}
+                        </span>
+                    </div>
+                </div>
+
+                <div style="background: var(--surface-bg); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-bottom: 1.25rem; font-size: 0.84rem; color: var(--text-secondary); line-height: 1.45;">
+                    {{ prediction.description }}
+                </div>
+
+                <!-- Sensitivity Drivers: Skill Uplift & CGPA Impact -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <!-- Skill Uplift Potential -->
+                    <div style="border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: var(--radius-sm); padding: 1rem;">
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #166534; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
+                            <svg class="icon" viewBox="0 0 24 24" style="color: #16a34a;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            High-Impact Skill Uplift
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+                            {% for up in prediction.uplift_opportunities %}
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 0.35rem 0.55rem; border-radius: 4px; border: 1px solid #dcfce7; font-size: 0.78rem;">
+                                    <span style="font-weight: 600; color: #15803d;">+ {{ up.skill }}</span>
+                                    <span style="font-weight: 800; color: #059669;">+₹{{ up.uplift_lpa }} LPA</span>
+                                </div>
+                            {% else %}
+                                <div style="font-size: 0.78rem; color: #15803d; font-style: italic;">
+                                    Candidate has mastered all top high-value technical competencies!
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Academic GPA Sensitivity -->
+                    <div style="border: 1px solid #c7d2fe; background: #eef2ff; border-radius: var(--radius-sm); padding: 1rem;">
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #3730a3; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
+                            <svg class="icon" viewBox="0 0 24 24" style="color: #4f46e5;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                            Academic GPA Leverage
+                        </div>
+                        <div style="font-size: 0.8rem; color: #4338ca; line-height: 1.45;">
+                            A <strong>+0.50 increase in CGPA</strong> is projected to enhance expected recruitment CTC by:
+                        </div>
+                        <div style="font-size: 1.35rem; font-weight: 900; color: var(--indigo-700); margin-top: 0.35rem;">
+                            +₹{{ "%.2f"|format(prediction.cgpa_delta) }} LPA
+                        </div>
+                        <div style="font-size: 0.72rem; color: #6366f1; margin-top: 0.2rem;">
+                            Based on regression coefficients across campus recruitment drives.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Feature Importance Bar Chart -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900); margin: 0;">
+                            Top Compensation Value Drivers (Model Weights)
+                        </h4>
+                        <span style="font-size: 0.72rem; color: var(--text-muted);">Feature Importance %</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        {% for f in feature_importances %}
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 0.2rem;">
+                                    <span style="font-weight: 600; color: var(--text-primary);">{{ f.feature }}</span>
+                                    <span style="font-weight: 700; color: var(--text-secondary);">{{ f.importance_pct }}%</span>
+                                </div>
+                                <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+                                    <div style="height: 100%; width: {{ f.importance_pct }}%; background: var(--emerald-600); border-radius: 9999px;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Architecture & Training Diagnostics -->
+            <div class="table-card" style="padding: 1.25rem;">
+                <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.75rem;">
+                    Model Evaluation & Training Metrics
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; text-align: center;">
+                    <div style="background: var(--surface-bg); padding: 0.65rem; border-radius: var(--radius-sm);">
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">Training Records</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-900);">{{ model_metrics.training_samples }} Placements</div>
+                    </div>
+                    <div style="background: var(--surface-bg); padding: 0.65rem; border-radius: var(--radius-sm);">
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">Mean Absolute Error</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: var(--emerald-600);">±₹{{ model_metrics.mae }} LPA</div>
+                    </div>
+                    <div style="background: var(--surface-bg); padding: 0.65rem; border-radius: var(--radius-sm);">
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">Average Historical CTC</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: var(--navy-blue);">₹{{ model_metrics.mean_package }} LPA</div>
+                    </div>
+                    <div style="background: var(--surface-bg); padding: 0.65rem; border-radius: var(--radius-sm);">
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">Peak Historical CTC</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #7c3aed;">₹{{ model_metrics.max_package }} LPA</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
