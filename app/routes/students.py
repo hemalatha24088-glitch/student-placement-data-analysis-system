@@ -89,8 +89,17 @@ def view_student(student_id):
         return redirect(url_for("students.list_students"))
     
     from app.services.ml_service import predictor_service
+    from app.services.skill_recommender_service import analyze_student_skill_gap
     prediction = predictor_service.predict_student(student_id)
-    return render_template("students/view.html", student=student, prediction=prediction)
+    dream_gap = analyze_student_skill_gap(student_id, target_type="tier", target_value="Dream")
+    super_dream_gap = analyze_student_skill_gap(student_id, target_type="tier", target_value="Super Dream")
+    return render_template(
+        "students/view.html",
+        student=student,
+        prediction=prediction,
+        dream_gap=dream_gap,
+        super_dream_gap=super_dream_gap
+    )
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
 def edit_student(student_id):

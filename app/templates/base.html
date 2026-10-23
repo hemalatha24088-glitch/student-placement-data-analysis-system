@@ -54,6 +54,11 @@
                     Placement Predictor
                     <span style="background: rgba(99,102,241,0.25); color: #a5b4fc; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">AI / ML</span>
                 </a>
+                <a href="{{ url_for('skills.recommender') }}" class="nav-item {% if 'recommender' in request.endpoint %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><path d="M22 12h-4"></path></svg>
+                    Skill Gap Recommender
+                    <span style="background: rgba(13,148,136,0.25); color: #5eead4; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Recommender</span>
+                </a>
 
                 <div class="nav-section-title">Deep Analytics</div>
                 <a href="{{ url_for('analytics.index') }}" class="nav-item {% if request.endpoint == 'analytics.index' %}active{% endif %}">

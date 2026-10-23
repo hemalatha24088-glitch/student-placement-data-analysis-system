@@ -222,3 +222,17 @@ def delete_student(student_id):
         cursor.execute("DELETE FROM students WHERE student_id = %s;", (student_id,))
         affected = cursor.rowcount
     return affected > 0
+
+def get_all_students_simple():
+    """Retrieve simple list of registered students for dropdowns and selectors."""
+    with get_db_cursor(commit=False) as cursor:
+        cursor.execute("""
+            SELECT s.student_id, s.roll_no, s.student_name, s.department, s.cgpa,
+                   CASE WHEN COUNT(p.placement_id) > 0 THEN 'Placed' ELSE 'Unplaced' END AS placement_status
+            FROM students s
+            LEFT JOIN placements p ON s.student_id = p.student_id AND p.status IN ('Placed', 'Offer Accepted')
+            GROUP BY s.student_id
+            ORDER BY s.student_name ASC;
+        """)
+        return cursor.fetchall()
+
