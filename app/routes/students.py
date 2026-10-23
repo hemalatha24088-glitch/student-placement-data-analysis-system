@@ -87,7 +87,10 @@ def view_student(student_id):
     if not student:
         flash("Student record not found.", "warning")
         return redirect(url_for("students.list_students"))
-    return render_template("students/view.html", student=student)
+    
+    from app.services.ml_service import predictor_service
+    prediction = predictor_service.predict_student(student_id)
+    return render_template("students/view.html", student=student, prediction=prediction)
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
 def edit_student(student_id):

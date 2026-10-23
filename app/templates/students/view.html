@@ -56,6 +56,19 @@
                 <span class="form-label">Phone</span>
                 <div style="font-size: 0.9rem; color: var(--text-primary);">{{ student.phone or 'Not provided' }}</div>
             </div>
+            {% if prediction %}
+            <div>
+                <span class="form-label">AI Placement Probability</span>
+                <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.2rem;">
+                    <span style="font-size: 1.15rem; font-weight: 800; color: {% if prediction.probability_pct >= 75 %}#059669{% elif prediction.probability_pct >= 50 %}#d97706{% else %}#dc2626{% endif %};">
+                        {{ prediction.probability_pct }}%
+                    </span>
+                    <span class="badge {{ prediction.badge_class }}" style="font-size: 0.72rem;">
+                        {{ prediction.risk_tier.split('(')[0] }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
