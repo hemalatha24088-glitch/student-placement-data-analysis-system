@@ -21,3 +21,8 @@ Desktop.ini
 
 # Static generated files
 app/static/charts/temp_*.png
+
+# Executables & Binaries
+*.exe
+cloudflared.exe
+
