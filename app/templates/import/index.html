@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk CSV Data Import | Placement System{% endblock %}
+{% block page_title %}CSV Bulk Data Import & Validation{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary-900); margin-bottom: 0.35rem;">
+            Bulk Placement & Student Data Import
+        </h2>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Upload spreadsheet callsets in CSV format. All records undergo schema verification, foreign-key resolution, range checks, and duplicate rejection.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.75rem;">
+        <!-- Student CSV Upload Card -->
+        <div class="table-card" style="padding: 1.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--primary-900);">1. Student Profiles CSV</h3>
+                <a href="{{ url_for('import_bp.download_template', template_type='students') }}" class="btn btn-secondary btn-sm">
+                    Download Template
+                </a>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Columns: <code>roll_no, student_name, department, graduation_year, cgpa, email, phone, gender, eligible_for_placement</code>
+            </p>
+
+            <form method="POST" action="{{ url_for('import_bp.upload_students') }}" enctype="multipart/form-data">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" for="student_csv">Select .CSV File</label>
+                    <input type="file" name="csv_file" id="student_csv" class="form-control" accept=".csv" required>
+                </div>
+                <button type="submit" class="btn btn-indigo" style="width: 100%;">
+                    Validate & Import Students
+                </button>
+            </form>
+        </div>
+
+        <!-- Placement CSV Upload Card -->
+        <div class="table-card" style="padding: 1.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--primary-900);">2. Placement Offers CSV</h3>
+                <a href="{{ url_for('import_bp.download_template', template_type='placements') }}" class="btn btn-secondary btn-sm">
+                    Download Template
+                </a>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Columns: <code>roll_no, company_name, role, package_amount, package_unit, placement_date, placement_year, status, offer_type, notes</code>
+            </p>
+
+            <form method="POST" action="{{ url_for('import_bp.upload_placements') }}" enctype="multipart/form-data">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" for="placement_csv">Select .CSV File</label>
+                    <input type="file" name="csv_file" id="placement_csv" class="form-control" accept=".csv" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Validate & Import Placements
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Rules Box -->
+    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-top: 2rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.6rem;">
+            Automated Validation Rules
+        </h4>
+        <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-left: 1.25rem;">
+            <li><strong>Roll Number Uniqueness:</strong> Existing roll numbers are rejected to prevent record collisions.</li>
+            <li><strong>Foreign Key Integrity:</strong> Placements must match an existing student roll number in the database. New companies are automatically registered.</li>
+            <li><strong>Package Range:</strong> CTC amounts must be positive numbers between 0.50 LPA and 200.00 LPA.</li>
+            <li><strong>Duplicate Offer Rule:</strong> Duplicate entries for the exact same student, company, and role in a given year are caught and reported.</li>
+            <li><strong>Error Transparency:</strong> Invalid rows are never silently dropped; line-by-line feedback is provided.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

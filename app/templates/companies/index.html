@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Companies Directory | Placement System{% endblock %}
+{% block page_title %}Recruiting Companies Management{% endblock %}
+
+{% block content %}
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('companies.list_companies') }}">
+        <div class="filter-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+            <div class="form-group">
+                <label class="form-label" for="search">Search Company</label>
+                <input type="text" name="search" id="search" class="form-control" placeholder="Search by name, location, or industry..." value="{{ search }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="industry">Industry Sector</label>
+                <select name="industry" id="industry" class="form-select">
+                    <option value="All" {% if selected_industry == 'All' %}selected{% endif %}>All Industries</option>
+                    {% for ind in industries %}
+                        <option value="{{ ind }}" {% if selected_industry == ind %}selected{% endif %}>{{ ind }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Filter</button>
+                <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <div>
+            <h3 style="font-size: 1rem; font-weight: 700;">Partner Companies ({{ companies|length }})</h3>
+        </div>
+        <a href="{{ url_for('companies.add_company') }}" class="btn btn-indigo btn-sm">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add New Company
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Industry</th>
+                    <th>Location</th>
+                    <th>Tier / Category</th>
+                    <th>Total Offers</th>
+                    <th>Distinct Hires</th>
+                    <th>Average CTC</th>
+                    <th>Peak CTC</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in companies %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('companies.view_company', company_id=c.company_id) }}" style="font-weight: 700; color: var(--navy-blue); text-decoration: none;">
+                                {{ c.company_name }}
+                            </a>
+                            {% if c.website %}
+                                <div style="font-size: 0.72rem; color: var(--text-muted);">
+                                    <a href="{{ c.website }}" target="_blank" rel="noopener" style="color: inherit;">{{ c.website }}</a>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ c.industry }}</td>
+                        <td>{{ c.location }}</td>
+                        <td>
+                            <span class="badge {% if c.tier == 'Super Dream' %}badge-super-dream{% elif c.tier == 'Dream' %}badge-dream{% elif c.tier == 'Core Engineering' %}badge-core{% else %}badge-mass{% endif %}">
+                                {{ c.tier }}
+                            </span>
+                        </td>
+                        <td style="font-weight: 700;">{{ c.total_offers }}</td>
+                        <td>{{ c.distinct_students_hired }}</td>
+                        <td style="font-weight: 600; color: var(--primary-900);">
+                            {{ c.avg_package_lpa|currency_lpa if c.avg_package_lpa else 'N/A' }}
+                        </td>
+                        <td style="font-weight: 700; color: var(--emerald-600);">
+                            {{ c.max_package_lpa|currency_lpa if c.max_package_lpa else 'N/A' }}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <a href="{{ url_for('companies.view_company', company_id=c.company_id) }}" class="btn btn-secondary btn-sm">View</a>
+                            <a href="{{ url_for('companies.edit_company', company_id=c.company_id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('companies.remove_company', company_id=c.company_id) }}" style="display: inline;" class="delete-confirm" data-item="company '{{ c.company_name }}'">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No company records found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

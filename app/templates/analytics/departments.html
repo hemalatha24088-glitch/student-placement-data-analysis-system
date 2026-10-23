@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Department-Wise Placement Analysis | Placement System{% endblock %}
+{% block page_title %}Department-Wise Placement Analysis{% endblock %}
+
+{% block content %}
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('analytics.departments_analysis') }}">
+        <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; max-width: 300px;">
+                <label class="form-label" for="graduation_year">Filter by Graduation Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select" onchange="this.form.submit()">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Graduation Years (Consolidated)</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <a href="{{ url_for('reports.export_csv', type='department', graduation_year=selected_year) }}" class="btn btn-secondary">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download Department CSV
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Department Comparison Table -->
+<div class="table-card">
+    <div class="table-header">
+        <h3 style="font-size: 1rem; font-weight: 700;">Department Performance Benchmark ({{ selected_year }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Registered</th>
+                    <th>Eligible</th>
+                    <th>Placed</th>
+                    <th>Unplaced</th>
+                    <th>Placement Rate</th>
+                    <th>Average CTC</th>
+                    <th>Median CTC</th>
+                    <th>Peak CTC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in dept_data %}
+                    <tr>
+                        <td style="font-weight: 700; color: var(--navy-blue);">{{ d.department }}</td>
+                        <td>{{ d.total_students }}</td>
+                        <td><strong>{{ d.eligible_students }}</strong></td>
+                        <td style="color: var(--emerald-600); font-weight: 700;">{{ d.placed_students }}</td>
+                        <td style="color: {% if d.unplaced_students > 0 %}#be123c{% else %}#047857{% endif %}; font-weight: 600;">
+                            {{ d.unplaced_students }}
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; min-width: 60px;">
+                                    <div style="width: {{ d.placement_rate }}%; height: 100%; background: var(--indigo-600);"></div>
+                                </div>
+                                <span style="font-weight: 800; font-size: 0.88rem; color: var(--primary-900);">{{ d.placement_rate }}%</span>
+                            </div>
+                        </td>
+                        <td style="font-weight: 600;">{{ d.avg_package }} LPA</td>
+                        <td style="font-weight: 600;">{{ d.median_package }} LPA</td>
+                        <td style="font-weight: 800; color: #7e22ce;">{{ d.highest_package }} LPA</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No department placement records found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Department Matplotlib Visualizations -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Department Placement Rates (%)</span>
+        </div>
+        <div class="chart-card-body">
+            <img class="chart-img" src="{{ url_for('api.stream_chart', chart_name='dept-rate', graduation_year=selected_year) }}" alt="Department Placement Rates">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Formula:</strong> Placed Students &divide; Department Eligible Students &times; 100.
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Eligible vs Placed Breakdown</span>
+        </div>
+        <div class="chart-card-body">
+            <img class="chart-img" src="{{ url_for('api.stream_chart', chart_name='placed-vs-eligible', graduation_year=selected_year) }}" alt="Eligible vs Placed">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Observation:</strong> Highlights the remaining unplaced pool per discipline for targeted placement training.
+        </div>
+    </div>
+</div>
+
+<!-- Formula Documentation Box -->
+<div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-top: 1rem;">
+    <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.5rem;">
+        Analytical Formula Reference & Methodology
+    </h4>
+    <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Department Placement Rate:</strong> Calculated strictly using the department's own eligible denominator: <br><code>Rate (%) = (Distinct Placed Eligible Students / Total Department Eligible Students) &times; 100</code>.</li>
+        <li><strong>Unplaced Students:</strong> <code>Unplaced = Eligible Students &minus; Distinct Placed Students</code>. Bounded to ensure non-negative counts.</li>
+        <li><strong>Multiple Offers Handling:</strong> Candidates securing multiple offers are counted exactly once in the placed count numerator.</li>
+    </ul>
+</div>
+{% endblock %}

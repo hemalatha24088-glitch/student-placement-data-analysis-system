@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Yearly Trends | Placement System{% endblock %}
+{% block page_title %}Placement Trends Across Academic Years{% endblock %}
+
+{% block content %}
+<!-- Trends Chart -->
+<div class="chart-card" style="margin-bottom: 1.75rem;">
+    <div class="chart-card-header">
+        <span class="chart-title">Placement Rate & Average CTC Progression (2024 &ndash; 2026)</span>
+        <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="trendsChart">Download PNG</button>
+    </div>
+    <div class="chart-card-body">
+        <img id="trendsChart" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='yearly-trends') }}" alt="Yearly Placement Trends">
+    </div>
+    <div class="chart-card-footer">
+        <strong>Dual-Axis Visualization:</strong> Left axis displays placement conversion percentage; right axis displays arithmetic mean compensation package in LPA.
+    </div>
+</div>
+
+<!-- Historical Breakdown Table -->
+<div class="table-card">
+    <div class="table-header">
+        <h3 style="font-size: 1rem; font-weight: 700;">Year-on-Year Institutional Metrics</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Graduation Year</th>
+                    <th>Registered</th>
+                    <th>Eligible</th>
+                    <th>Placed</th>
+                    <th>Unplaced</th>
+                    <th>Placement Rate</th>
+                    <th>Average CTC</th>
+                    <th>Peak CTC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in trends %}
+                    <tr>
+                        <td style="font-weight: 800; font-size: 1.05rem; color: var(--navy-blue);">Batch {{ t.graduation_year }}</td>
+                        <td>{{ t.total_students }}</td>
+                        <td><strong>{{ t.eligible_students }}</strong></td>
+                        <td style="font-weight: 700; color: var(--emerald-600);">{{ t.placed_students }}</td>
+                        <td style="font-weight: 600; color: #be123c;">{{ t.unplaced_students }}</td>
+                        <td>
+                            <span style="font-weight: 800; color: var(--primary-900); font-size: 0.95rem;">
+                                {{ t.placement_rate }}%
+                            </span>
+                        </td>
+                        <td style="font-weight: 700; color: var(--teal-600);">
+                            {{ t.avg_package_lpa|currency_lpa if t.avg_package_lpa else 'N/A' }}
+                        </td>
+                        <td style="font-weight: 800; color: #7e22ce;">
+                            {{ t.max_package_lpa|currency_lpa if t.max_package_lpa else 'N/A' }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            Insufficient historical data for trend analysis.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

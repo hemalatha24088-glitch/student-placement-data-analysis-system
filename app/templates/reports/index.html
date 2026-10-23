@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Reports & CSV Export | Placement System{% endblock %}
+{% block page_title %}Placement Reports & Data Export{% endblock %}
+
+{% block content %}
+<!-- Report Configuration & Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('reports.index') }}">
+        <div class="filter-grid" style="grid-template-columns: 2fr 1fr 1fr auto auto;">
+            <div class="form-group">
+                <label class="form-label" for="type">Select Report Type</label>
+                <select name="type" id="type" class="form-select" onchange="this.form.submit()">
+                    <option value="summary" {% if report_type == 'summary' %}selected{% endif %}>Institutional Placement Summary</option>
+                    <option value="department" {% if report_type == 'department' %}selected{% endif %}>Department-Wise Breakdown Report</option>
+                    <option value="students" {% if report_type == 'students' %}selected{% endif %}>Complete Student Placement Roll</option>
+                    <option value="companies" {% if report_type == 'companies' %}selected{% endif %}>Company Recruitment Portfolio</option>
+                    <option value="packages" {% if report_type == 'packages' %}selected{% endif %}>Compensation & Salary Percentiles Report</option>
+                    <option value="skills" {% if report_type == 'skills' %}selected{% endif %}>Skills Frequency & Association Report</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select name="department" id="department" class="form-select" onchange="this.form.submit()">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="graduation_year">Batch Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select" onchange="this.form.submit()">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Years</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary">Refresh</button>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                <a href="{{ url_for('reports.export_csv', type=report_type, department=selected_dept, graduation_year=selected_year) }}" class="btn btn-indigo">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download CSV
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Report Document Sheet -->
+<div class="table-card" style="padding: 2rem;">
+    <!-- Report Letterhead Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--primary-900); padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--indigo-600); text-transform: uppercase; letter-spacing: 0.05em;">
+                Office of Career Guidance & Campus Placements
+            </div>
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--primary-900); margin-top: 0.2rem;">
+                {% if report_type == 'summary' %}Overall Placement Performance Summary
+                {% elif report_type == 'department' %}Department-Wise Placement Benchmark Report
+                {% elif report_type == 'students' %}Student Placement Registry & Offer Roll
+                {% elif report_type == 'companies' %}Company Recruitment Portfolio & Offer Statistics
+                {% elif report_type == 'packages' %}Compensation Distribution & CTC Percentiles Report
+                {% elif report_type == 'skills' %}Skills Frequency & Demand Analysis Report
+                {% endif %}
+            </h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Filter Scope: Department = <strong>{{ selected_dept }}</strong> &bull; Graduation Year = <strong>{{ selected_year }}</strong>
+            </div>
+        </div>
+
+        <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted);">
+            <div>Generated: <strong>{{ generated_at }}</strong></div>
+            <div style="color: #b45309; font-weight: 600;">Synthetic Evaluation Dataset</div>
+        </div>
+    </div>
+
+    <!-- Dynamic Report Content -->
+    {% if report_type == 'summary' %}
+        <div style="margin-bottom: 2rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-900);">Institutional Key Performance Indicators</h4>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Registered Students</div>
+                    <div class="kpi-value">{{ kpis.total_students }}</div>
+                </div>
+                <div class="kpi-card teal">
+                    <div class="kpi-title">Eligible Candidates</div>
+                    <div class="kpi-value">{{ kpis.total_eligible }}</div>
+                </div>
+                <div class="kpi-card emerald">
+                    <div class="kpi-title">Placed Candidates</div>
+                    <div class="kpi-value">{{ kpis.total_placed }}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Overall Placement Rate</div>
+                    <div class="kpi-value" style="color: var(--navy-blue);">{{ kpis.placement_rate }}%</div>
+                </div>
+                <div class="kpi-card amber">
+                    <div class="kpi-title">Average CTC</div>
+                    <div class="kpi-value">{{ kpis.avg_package }} LPA</div>
+                </div>
+                <div class="kpi-card teal">
+                    <div class="kpi-title">Median CTC</div>
+                    <div class="kpi-value">{{ kpis.median_package }} LPA</div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-900);">Department Breakdown</h4>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Eligible</th>
+                            <th>Placed</th>
+                            <th>Unplaced</th>
+                            <th>Rate (%)</th>
+                            <th>Avg CTC</th>
+                            <th>Peak CTC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in depts %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ d.department }}</td>
+                                <td>{{ d.eligible_students }}</td>
+                                <td style="font-weight: 700; color: var(--emerald-600);">{{ d.placed_students }}</td>
+                                <td style="color: #be123c;">{{ d.unplaced_students }}</td>
+                                <td style="font-weight: 800;">{{ d.placement_rate }}%</td>
+                                <td>{{ d.avg_package }} LPA</td>
+                                <td>{{ d.highest_package }} LPA</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% elif report_type == 'department' %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Registered</th>
+                        <th>Eligible</th>
+                        <th>Placed</th>
+                        <th>Unplaced</th>
+                        <th>Placement Rate</th>
+                        <th>Average CTC</th>
+                        <th>Median CTC</th>
+                        <th>Peak CTC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in depts %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">{{ d.department }}</td>
+                            <td>{{ d.total_students }}</td>
+                            <td><strong>{{ d.eligible_students }}</strong></td>
+                            <td style="color: var(--emerald-600); font-weight: 700;">{{ d.placed_students }}</td>
+                            <td style="color: #be123c;">{{ d.unplaced_students }}</td>
+                            <td style="font-weight: 800; color: var(--primary-900);">{{ d.placement_rate }}%</td>
+                            <td>{{ d.avg_package }} LPA</td>
+                            <td>{{ d.median_package }} LPA</td>
+                            <td style="font-weight: 700; color: #7e22ce;">{{ d.highest_package }} LPA</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% elif report_type == 'students' %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Student Name</th>
+                        <th>Department</th>
+                        <th>Batch</th>
+                        <th>CGPA</th>
+                        <th>Eligible</th>
+                        <th>Company</th>
+                        <th>Job Role</th>
+                        <th>Package</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in student_rows %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">{{ s.roll_no }}</td>
+                            <td>{{ s.student_name }}</td>
+                            <td>{{ s.department }}</td>
+                            <td>{{ s.graduation_year }}</td>
+                            <td>{{ "%.2f"|format(s.cgpa) if s.cgpa else 'N/A' }}</td>
+                            <td>{{ 'Yes' if s.eligible_for_placement == 1 else 'No' }}</td>
+                            <td>{{ s.company_name or 'Unplaced' }}</td>
+                            <td>{{ s.role or 'N/A' }}</td>
+                            <td style="font-weight: 700;">{{ s.package_amount|currency_lpa if s.package_amount else 'N/A' }}</td>
+                            <td>{{ s.placement_status or 'Unplaced' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% elif report_type == 'companies' %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Company Name</th>
+                        <th>Industry</th>
+                        <th>Location</th>
+                        <th>Tier</th>
+                        <th>Total Offers</th>
+                        <th>Distinct Hires</th>
+                        <th>Average CTC</th>
+                        <th>Peak CTC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in companies %}
+                        <tr>
+                            <td style="font-weight: 700;">{{ c.company_name }}</td>
+                            <td>{{ c.industry }}</td>
+                            <td>{{ c.location }}</td>
+                            <td>{{ c.tier }}</td>
+                            <td style="font-weight: 700;">{{ c.total_offers }}</td>
+                            <td>{{ c.distinct_students_hired }}</td>
+                            <td>{{ c.avg_package_lpa|currency_lpa if c.avg_package_lpa else 'N/A' }}</td>
+                            <td style="font-weight: 700; color: #7e22ce;">{{ c.max_package_lpa|currency_lpa if c.max_package_lpa else 'N/A' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% elif report_type == 'packages' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.25rem;">
+                <h4 style="font-weight: 700; margin-bottom: 0.75rem;">Central Tendency & Variance</h4>
+                <p>Total Recorded Placed Offers: <strong>{{ pkg.count }}</strong></p>
+                <p>Mean CTC: <strong>{{ pkg.mean }} LPA</strong></p>
+                <p>Median CTC: <strong>{{ pkg.median }} LPA</strong></p>
+                <p>Standard Deviation: <strong>&plusmn;{{ pkg.std }} LPA</strong></p>
+                <p>Minimum CTC: <strong>{{ pkg.min }} LPA</strong></p>
+                <p>Peak Maximum CTC: <strong>{{ pkg.max }} LPA</strong></p>
+            </div>
+
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.25rem;">
+                <h4 style="font-weight: 700; margin-bottom: 0.75rem;">Percentile Quartiles</h4>
+                <p>25th Percentile: <strong>{{ pkg.p25 }} LPA</strong></p>
+                <p>50th Percentile (Median): <strong>{{ pkg.median }} LPA</strong></p>
+                <p>75th Percentile: <strong>{{ pkg.p75 }} LPA</strong></p>
+                <p>90th Percentile: <strong>{{ pkg.p90 }} LPA</strong></p>
+            </div>
+        </div>
+
+    {% elif report_type == 'skills' %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Skill Name</th>
+                        <th>Category</th>
+                        <th>Total Verified Profiles</th>
+                        <th>Placed Students</th>
+                        <th>Unplaced Students</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in skills %}
+                        <tr>
+                            <td style="font-weight: 700;">{{ s.skill_name }}</td>
+                            <td>{{ s.skill_category }}</td>
+                            <td><strong>{{ s.total_students_with_skill }}</strong></td>
+                            <td style="font-weight: 700; color: var(--emerald-600);">{{ s.placed_students_with_skill }}</td>
+                            <td style="color: #be123c;">{{ s.unplaced_students_with_skill }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <!-- Report Verification Footer -->
+    <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+        <div>Prepared by: Placement Analytics System (Automated Export)</div>
+        <div>Verified by Placement Cell &bull; Department of CSE (AI/ML)</div>
+    </div>
+</div>
+{% endblock %}

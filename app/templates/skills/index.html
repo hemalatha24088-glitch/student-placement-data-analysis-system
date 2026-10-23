@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Skills Directory & Analysis | Placement System{% endblock %}
+{% block page_title %}Skills Directory & Tracking{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; align-items: start;">
+    <!-- Add Skill Form Card -->
+    <div class="table-card" style="padding: 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-900);">Add New Skill</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Register industry skills evaluated in technical interviews and assessments.
+        </p>
+
+        <form method="POST" action="{{ url_for('skills.add_skill') }}">
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" for="skill_name">Skill Name <span style="color:red;">*</span></label>
+                <input type="text" name="skill_name" id="skill_name" class="form-control" required placeholder="e.g. PyTorch, Kubernetes">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="skill_category">Skill Category</label>
+                <select name="skill_category" id="skill_category" class="form-select">
+                    <option value="Programming">Programming</option>
+                    <option value="Core CS">Core CS & Algorithms</option>
+                    <option value="AI/Data Science">AI / Data Science</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Database & Querying">Database & Querying</option>
+                    <option value="DevOps & Cloud">DevOps & Cloud</option>
+                    <option value="Core Engineering">Core Engineering</option>
+                    <option value="Aptitude & Soft Skills">Aptitude & Soft Skills</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-indigo" style="width: 100%;">Add Skill to Master</button>
+        </form>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.78rem; color: var(--text-muted);">
+            <strong>Data Integrity Note:</strong> Skills are recorded as reported by students and verified by college departments. Counts indicate profile frequency among candidates.
+        </div>
+    </div>
+
+    <!-- Skills Table Card -->
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h3 style="font-size: 1rem; font-weight: 700;">Registered Skills ({{ skills|length }})</h3>
+            </div>
+            <div>
+                <form method="GET" style="display: flex; gap: 0.5rem;">
+                    <select name="category" class="form-select" onchange="this.form.submit()" style="font-size: 0.8rem; padding: 0.35rem 0.6rem;">
+                        <option value="All" {% if selected_category == 'All' %}selected{% endif %}>All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Skill Name</th>
+                        <th>Category</th>
+                        <th>Students Having Skill</th>
+                        <th>Placed Students</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sk in skills %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-900);">{{ sk.skill_name }}</td>
+                            <td>
+                                <span class="badge badge-mass">{{ sk.skill_category }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ sk.student_count }}</strong> students
+                            </td>
+                            <td>
+                                <span style="font-weight: 700; color: var(--emerald-600);">
+                                    {{ sk.placed_student_count }} placed
+                                </span>
+                            </td>
+                            <td style="text-align: right;">
+                                <form method="POST" action="{{ url_for('skills.remove_skill', skill_id=sk.skill_id) }}" style="display: inline;" class="delete-confirm" data-item="skill '{{ sk.skill_name }}'">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                No skills registered.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

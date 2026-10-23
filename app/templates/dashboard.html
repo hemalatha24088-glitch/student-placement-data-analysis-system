@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Student Placement Data Analysis System{% endblock %}
+{% block page_title %}Placement Performance Dashboard{% endblock %}
+
+{% block content %}
+<!-- Global Filter Panel -->
+<div class="filter-card">
+    <form id="dashboardFilterForm" method="GET" action="{{ url_for('main.dashboard') }}">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label class="form-label" for="graduation_year">Graduation Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Academic Years</option>
+                    {% for y in graduation_years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="status">Placement Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="All" {% if selected_status == 'All' %}selected{% endif %}>All Offer Statuses</option>
+                    <option value="Placed" {% if selected_status == 'Placed' %}selected{% endif %}>Placed / Confirmed</option>
+                    <option value="Offer Accepted" {% if selected_status == 'Offer Accepted' %}selected{% endif %}>Offer Accepted</option>
+                    <option value="Offer Pending" {% if selected_status == 'Offer Pending' %}selected{% endif %}>Offer Pending</option>
+                    <option value="Rejected" {% if selected_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="company_id">Recruiting Company</label>
+                <select name="company_id" id="company_id" class="form-select">
+                    <option value="All" {% if selected_company == 'All' %}selected{% endif %}>All Companies</option>
+                    {% for c in companies %}
+                        <option value="{{ c.company_id }}" {% if selected_company|string == c.company_id|string %}selected{% endif %}>{{ c.company_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    Apply Filters
+                </button>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" title="Reset all filters">
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- KPI Metric Cards Grid (8 Cards) -->
+<div class="kpi-grid">
+    <!-- 1. Total Registered -->
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">Registered Students</span>
+            <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.total_students }}</div>
+        <div class="kpi-subtitle">Total student profiles in active filter</div>
+    </div>
+
+    <!-- 2. Total Eligible -->
+    <div class="kpi-card teal">
+        <div class="kpi-header">
+            <span class="kpi-title">Eligible Candidates</span>
+            <div class="kpi-icon" style="background-color: var(--teal-50); color: var(--teal-600);"><svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.total_eligible }}</div>
+        <div class="kpi-subtitle">Placement eligible criteria met</div>
+    </div>
+
+    <!-- 3. Distinct Placed -->
+    <div class="kpi-card emerald">
+        <div class="kpi-header">
+            <span class="kpi-title">Placed Candidates</span>
+            <div class="kpi-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.total_placed }}</div>
+        <div class="kpi-subtitle">Distinct students with confirmed offers</div>
+    </div>
+
+    <!-- 4. Unplaced Eligible -->
+    <div class="kpi-card rose">
+        <div class="kpi-header">
+            <span class="kpi-title">Not Yet Placed</span>
+            <div class="kpi-icon" style="background-color: var(--rose-50); color: var(--rose-500);"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.unplaced_students }}</div>
+        <div class="kpi-subtitle">Eligible students requiring training</div>
+    </div>
+
+    <!-- 5. Placement Rate -->
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">Placement Rate</span>
+            <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg></div>
+        </div>
+        <div class="kpi-value" style="color: var(--navy-blue);">{{ kpis.placement_rate }}%</div>
+        <div class="kpi-subtitle">Distinct Placed &divide; Eligible &times; 100</div>
+    </div>
+
+    <!-- 6. Average Package -->
+    <div class="kpi-card amber">
+        <div class="kpi-header">
+            <span class="kpi-title">Average Package</span>
+            <div class="kpi-icon" style="background-color: var(--amber-50); color: var(--amber-500);"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.avg_package }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
+        <div class="kpi-subtitle">Arithmetic mean of confirmed CTCs</div>
+    </div>
+
+    <!-- 7. Median Package -->
+    <div class="kpi-card teal">
+        <div class="kpi-header">
+            <span class="kpi-title">Median Package</span>
+            <div class="kpi-icon" style="background-color: var(--teal-50); color: var(--teal-600);"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.median_package }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
+        <div class="kpi-subtitle">50th percentile robust CTC metric</div>
+    </div>
+
+    <!-- 8. Active Companies -->
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">Recruiting Partners</span>
+            <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path></svg></div>
+        </div>
+        <div class="kpi-value">{{ kpis.total_companies }}</div>
+        <div class="kpi-subtitle">Companies that extended offers</div>
+    </div>
+</div>
+
+<!-- Placement Insights Panel (Data-Driven Factual Observations) -->
+{% if insights %}
+<div class="insights-card">
+    <div class="insights-header">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>Data-Driven Placement Observations (Filter: {{ selected_dept }} &bull; {{ selected_year }})</span>
+    </div>
+    <ul class="insights-list">
+        {% for ins in insights %}
+            <li class="insight-item">{{ ins|safe }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Dynamic Matplotlib Visualizations Grid -->
+<div class="charts-grid">
+    <!-- Chart 1: Department Placement Rate -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Department-Wise Placement Rates</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartDeptRate" title="Reload Chart">&#x21bb;</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartDeptRate" title="Download PNG">&#x2913;</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <img id="chartDeptRate" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='dept-rate', graduation_year=selected_year) }}" alt="Department Placement Rates">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Displays distinct placed student proportion across each branch against overall institutional average benchmark.
+        </div>
+    </div>
+
+    <!-- Chart 2: Placed vs Eligible -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Eligible vs Placed Students by Department</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartPlacedEligible" title="Reload Chart">&#x21bb;</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartPlacedEligible" title="Download PNG">&#x2913;</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <img id="chartPlacedEligible" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='placed-vs-eligible', graduation_year=selected_year) }}" alt="Eligible vs Placed Students">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Compares total candidate pool meeting eligibility with final placed counts to pinpoint unplaced cohorts.
+        </div>
+    </div>
+
+    <!-- Chart 3: Salary Distribution -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Salary Package Distribution (LPA CTC)</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartPkgDist" title="Reload Chart">&#x21bb;</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartPkgDist" title="Download PNG">&#x2913;</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <img id="chartPkgDist" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='package-distribution', department=selected_dept, graduation_year=selected_year) }}" alt="Salary Package Distribution">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Frequency histogram of compensation offers illustrating entry-level clustering alongside mean and median markers.
+        </div>
+    </div>
+
+    <!-- Chart 4: Top Recorded Skills -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Skills Recorded Among Placed Students</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartSkills" title="Reload Chart">&#x21bb;</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartSkills" title="Download PNG">&#x2913;</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <img id="chartSkills" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='top-skills', department=selected_dept) }}" alt="Top Skills Recorded">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Frequency of programming languages and core concepts recorded on profiles of candidates who secured offers.
+        </div>
+    </div>
+
+    <!-- Chart 5: Company Hiring Breakdown -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Top Recruiting Companies & Average CTC</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartCompanies" title="Reload Chart">&#x21bb;</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartCompanies" title="Download PNG">&#x2913;</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <img id="chartCompanies" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='company-recruitment') }}" alt="Top Recruiting Companies">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Number of offers extended per organization with average compensation package (LPA).
+        </div>
+    </div>
+
+    <!-- Chart 6: Yearly Trends -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Placement Rate & CTC Progression Over Time</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartTrends" title="Reload Chart">&#x21bb;</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartTrends" title="Download PNG">&#x2913;</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <img id="chartTrends" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='yearly-trends') }}" alt="Yearly Placement Trends">
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Multi-year comparison highlighting graduation year trends in placement percentage and average CTC.
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Section: Recent Placements & Department Summary -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem;">
+    <!-- Recent Placements Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 style="font-size: 0.95rem; font-weight: 700;">Recent Campus Placements</h3>
+            <a href="{{ url_for('placements.list_placements') }}" class="btn btn-secondary btn-sm">View All &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Department</th>
+                        <th>Company</th>
+                        <th>Role</th>
+                        <th>Package</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in recent_placements %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">{{ p.student_name }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ p.roll_no }}</div>
+                            </td>
+                            <td>{{ p.department }}</td>
+                            <td>
+                                <div>{{ p.company_name }}</div>
+                                <span class="badge {% if p.tier == 'Super Dream' %}badge-super-dream{% elif p.tier == 'Dream' %}badge-dream{% else %}badge-mass{% endif %}">
+                                    {{ p.tier }}
+                                </span>
+                            </td>
+                            <td>{{ p.role }}</td>
+                            <td style="font-weight: 700; color: var(--navy-blue);">{{ p.package_amount|currency_lpa }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                                No recent placements found for selected filters.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Department Summary Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 style="font-size: 0.95rem; font-weight: 700;">Department Performance Benchmark</h3>
+            <a href="{{ url_for('analytics.departments_analysis') }}" class="btn btn-secondary btn-sm">Deep Analysis &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Eligible</th>
+                        <th>Placed</th>
+                        <th>Rate (%)</th>
+                        <th>Avg CTC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in dept_summary %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ d.department }}</td>
+                            <td>{{ d.eligible_students }}</td>
+                            <td>{{ d.placed_students }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; min-width: 40px;">
+                                        <div style="width: {{ d.placement_rate }}%; height: 100%; background: var(--indigo-600);"></div>
+                                    </div>
+                                    <span style="font-weight: 700; font-size: 0.8rem;">{{ d.placement_rate }}%</span>
+                                </div>
+                            </td>
+                            <td style="font-weight: 600;">{{ d.avg_package }} LPA</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

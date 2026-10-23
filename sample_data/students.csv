@@ -1,0 +1,59 @@
+roll_no,student_name,department,graduation_year,cgpa,email,phone,gender,eligible_for_placement
+22BCE1001,Aarav Sharma,Computer Science and Engineering,2026,9.45,aarav.sharma@college.edu,9876543210,Male,1
+22BCE1002,Aditi Rao,Computer Science and Engineering,2026,9.12,aditi.rao@college.edu,9876543211,Female,1
+22BCE1003,Rohan Verma,Computer Science and Engineering,2026,8.75,rohan.verma@college.edu,9876543212,Male,1
+22BCE1004,Ananya Iyer,Computer Science and Engineering,2026,8.40,ananya.iyer@college.edu,9876543213,Female,1
+22BCE1005,Karthik N,Computer Science and Engineering,2026,7.85,karthik.n@college.edu,9876543214,Male,1
+22BCE1006,Sneha Patel,Computer Science and Engineering,2026,7.20,sneha.patel@college.edu,9876543215,Female,1
+22BCE1007,Vikramaditya S,Computer Science and Engineering,2026,6.45,vikram.s@college.edu,9876543216,Male,1
+22BCE1008,Meera Krishnan,Computer Science and Engineering,2026,5.80,meera.k@college.edu,9876543217,Female,0
+21BCE1010,Tanmay Joshi,Computer Science and Engineering,2025,9.20,tanmay.j@college.edu,9876543218,Male,1
+21BCE1011,Pooja Reddy,Computer Science and Engineering,2025,8.65,pooja.r@college.edu,9876543219,Female,1
+21BCE1012,Siddharth Nair,Computer Science and Engineering,2025,7.90,siddharth.n@college.edu,9876543220,Male,1
+20BCE1020,Varun Menon,Computer Science and Engineering,2024,8.80,varun.m@college.edu,9876543221,Male,1
+22AML1001,Diya Sundaram,Artificial Intelligence and Machine Learning,2026,9.60,diya.s@college.edu,9876543222,Female,1
+22AML1002,Pranav Kulkarni,Artificial Intelligence and Machine Learning,2026,9.25,pranav.k@college.edu,9876543223,Male,1
+22AML1003,Shruti Deshmukh,Artificial Intelligence and Machine Learning,2026,8.95,shruti.d@college.edu,9876543224,Female,1
+22AML1004,Harshavardhan R,Artificial Intelligence and Machine Learning,2026,8.50,harsha.r@college.edu,9876543225,Male,1
+22AML1005,Kavya Srinivasan,Artificial Intelligence and Machine Learning,2026,8.10,kavya.s@college.edu,9876543226,Female,1
+22AML1006,Nikhil Gupta,Artificial Intelligence and Machine Learning,2026,7.60,nikhil.g@college.edu,9876543227,Male,1
+22AML1007,Rhea Bansal,Artificial Intelligence and Machine Learning,2026,6.95,rhea.b@college.edu,9876543228,Female,1
+22AML1008,Abhinav Saxena,Artificial Intelligence and Machine Learning,2026,5.40,abhinav.s@college.edu,9876543229,Male,0
+21AML1009,Nandini Chopra,Artificial Intelligence and Machine Learning,2025,9.05,nandini.c@college.edu,9876543230,Female,1
+21AML1010,Gautam Singhania,Artificial Intelligence and Machine Learning,2025,8.40,gautam.s@college.edu,9876543231,Male,1
+20AML1015,Arjun Pillai,Artificial Intelligence and Machine Learning,2024,8.70,arjun.p@college.edu,9876543232,Male,1
+22BIT1001,Ishaan Malhotra,Information Technology,2026,8.90,ishaan.m@college.edu,9876543233,Male,1
+22BIT1002,Ritu Agarwal,Information Technology,2026,8.60,ritu.a@college.edu,9876543234,Female,1
+22BIT1003,Vivek Pandey,Information Technology,2026,8.15,vivek.p@college.edu,9876543235,Male,1
+22BIT1004,Ananya Dutta,Information Technology,2026,7.70,ananya.d@college.edu,9876543236,Female,1
+22BIT1005,Rajeshwari M,Information Technology,2026,7.35,rajeshwari.m@college.edu,9876543237,Female,1
+22BIT1006,Akash Tripathi,Information Technology,2026,6.70,akash.t@college.edu,9876543238,Male,1
+21BIT1010,Bhavya Shah,Information Technology,2025,8.55,bhavya.s@college.edu,9876543239,Female,1
+21BIT1011,Devansh Rawat,Information Technology,2025,7.95,devansh.r@college.edu,9876543240,Male,1
+20BIT1015,Kunal Bhatia,Information Technology,2024,8.30,kunal.b@college.edu,9876543241,Male,1
+22ECE1001,Rahul Nambiar,Electronics and Communication Engineering,2026,9.30,rahul.n@college.edu,9876543242,Male,1
+22ECE1002,Swati Sen,Electronics and Communication Engineering,2026,8.85,swati.s@college.edu,9876543243,Female,1
+22ECE1003,Tarun Chawla,Electronics and Communication Engineering,2026,8.30,tarun.c@college.edu,9876543244,Male,1
+22ECE1004,Monika Das,Electronics and Communication Engineering,2026,7.80,monika.d@college.edu,9876543245,Female,1
+22ECE1005,Chetan Bhagat,Electronics and Communication Engineering,2026,7.15,chetan.b@college.edu,9876543246,Male,1
+22ECE1006,Deepa Jayaram,Electronics and Communication Engineering,2026,6.50,deepa.j@college.edu,9876543247,Female,1
+21ECE1008,Manoj Gowda,Electronics and Communication Engineering,2025,8.45,manoj.g@college.edu,9876543248,Male,1
+21ECE1009,Lavanya S,Electronics and Communication Engineering,2025,7.75,lavanya.s@college.edu,9876543249,Female,1
+20ECE1012,Pawan Kumar,Electronics and Communication Engineering,2024,8.10,pawan.k@college.edu,9876543250,Male,1
+22EEE1001,Surya Prakash,Electrical and Electronics Engineering,2026,8.95,surya.p@college.edu,9876543251,Male,1
+22EEE1002,Nehal Jain,Electrical and Electronics Engineering,2026,8.40,nehal.j@college.edu,9876543252,Female,1
+22EEE1003,Aditya Madhavan,Electrical and Electronics Engineering,2026,7.90,aditya.m@college.edu,9876543253,Male,1
+22EEE1004,Priyanka Ghosh,Electrical and Electronics Engineering,2026,7.30,priyanka.g@college.edu,9876543254,Female,1
+22EEE1005,Ganesh Moorthy,Electrical and Electronics Engineering,2026,6.60,ganesh.m@college.edu,9876543255,Male,1
+21EEE1007,Harini Bala,Electrical and Electronics Engineering,2025,8.25,harini.b@college.edu,9876543256,Female,1
+21EEE1008,Kishore Varma,Electrical and Electronics Engineering,2025,7.50,kishore.v@college.edu,9876543257,Male,1
+20EEE1010,Dinesh Karthik,Electrical and Electronics Engineering,2024,7.85,dinesh.k@college.edu,9876543258,Male,1
+22MEC1001,Rohit Chandran,Mechanical Engineering,2026,8.70,rohit.c@college.edu,9876543259,Male,1
+22MEC1002,Shalini Hegde,Mechanical Engineering,2026,8.20,shalini.h@college.edu,9876543260,Female,1
+22MEC1003,Vishnu Teja,Mechanical Engineering,2026,7.75,vishnu.t@college.edu,9876543261,Male,1
+22MEC1004,Suresh Balaji,Mechanical Engineering,2026,7.10,suresh.b@college.edu,9876543262,Male,1
+22MEC1005,Preeti Somani,Mechanical Engineering,2026,6.40,preeti.s@college.edu,9876543263,Female,1
+21MEC1007,Bharat Simha,Mechanical Engineering,2025,7.95,bharat.s@college.edu,9876543264,Male,1
+21MEC1008,Kavitha Natarajan,Mechanical Engineering,2025,7.30,kavitha.n@college.edu,9876543265,Female,1
+20MEC1010,Vinay Anand,Mechanical Engineering,2024,7.60,vinay.a@college.edu,9876543266,Male,1
+22TEST001,Test User One,Computer Science and Engineering,2026,8.50,t1@col.edu,9999,Other,1

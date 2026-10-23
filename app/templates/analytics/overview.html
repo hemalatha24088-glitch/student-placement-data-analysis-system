@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Hub | Placement System{% endblock %}
+{% block page_title %}Placement Analytics & Deep Dive{% endblock %}
+
+{% block content %}
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('analytics.index') }}">
+        <div class="filter-grid" style="grid-template-columns: 1fr 1fr auto;">
+            <div class="form-group">
+                <label class="form-label" for="graduation_year">Graduation Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Years</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Apply</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 4 Analytics Hub Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+    <a href="{{ url_for('analytics.departments_analysis') }}" style="text-decoration: none; color: inherit;">
+        <div class="kpi-card" style="cursor: pointer;">
+            <div class="kpi-header">
+                <span class="kpi-title">Department Analysis</span>
+                <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+            </div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.25rem;">Branch Comparisons</div>
+            <div class="kpi-subtitle">Eligible, placed, rates, and department CTC benchmarks &rarr;</div>
+        </div>
+    </a>
+
+    <a href="{{ url_for('analytics.packages_analysis') }}" style="text-decoration: none; color: inherit;">
+        <div class="kpi-card amber" style="cursor: pointer;">
+            <div class="kpi-header">
+                <span class="kpi-title">Salary CTC Analysis</span>
+                <div class="kpi-icon" style="background-color: var(--amber-50); color: var(--amber-500);"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+            </div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.25rem;">Compensation Distributions</div>
+            <div class="kpi-subtitle">Median, standard deviation, brackets, and top offers &rarr;</div>
+        </div>
+    </a>
+
+    <a href="{{ url_for('analytics.skills_analysis') }}" style="text-decoration: none; color: inherit;">
+        <div class="kpi-card teal" style="cursor: pointer;">
+            <div class="kpi-header">
+                <span class="kpi-title">Skills Tracking</span>
+                <div class="kpi-icon" style="background-color: var(--teal-50); color: var(--teal-600);"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path></svg></div>
+            </div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.25rem;">Skill Demand Frequencies</div>
+            <div class="kpi-subtitle">Skills recorded among placed versus unplaced students &rarr;</div>
+        </div>
+    </a>
+
+    <a href="{{ url_for('analytics.trends_analysis') }}" style="text-decoration: none; color: inherit;">
+        <div class="kpi-card emerald" style="cursor: pointer;">
+            <div class="kpi-header">
+                <span class="kpi-title">Yearly Trends</span>
+                <div class="kpi-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);"><svg class="icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline></svg></div>
+            </div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.25rem;">Historical Trends</div>
+            <div class="kpi-subtitle">Batch-over-batch rate and compensation progression &rarr;</div>
+        </div>
+    </a>
+</div>
+
+<!-- Dynamic Charts Preview -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Placement Rates by Branch</span>
+            <a href="{{ url_for('analytics.departments_analysis') }}" class="btn btn-secondary btn-sm">Full Report &rarr;</a>
+        </div>
+        <div class="chart-card-body">
+            <img class="chart-img" src="{{ url_for('api.stream_chart', chart_name='dept-rate', graduation_year=selected_year) }}" alt="Department Placement Rates">
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">CTC Package Distribution</span>
+            <a href="{{ url_for('analytics.packages_analysis') }}" class="btn btn-secondary btn-sm">Full Report &rarr;</a>
+        </div>
+        <div class="chart-card-body">
+            <img class="chart-img" src="{{ url_for('api.stream_chart', chart_name='package-distribution', department=selected_dept, graduation_year=selected_year) }}" alt="Package Distribution">
+        </div>
+    </div>
+</div>
+{% endblock %}

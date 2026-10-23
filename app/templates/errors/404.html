@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found | Placement System{% endblock %}
+{% block page_title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 4rem auto; text-align: center;">
+    <div style="font-size: 4rem; font-weight: 800; color: var(--navy-blue); line-height: 1;">404</div>
+    <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--primary-900); margin: 1rem 0 0.5rem;">Resource Not Found</h2>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+        The requested URL was not found on this placement analytics server. Please check the route or navigate back.
+    </p>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+</div>
+{% endblock %}

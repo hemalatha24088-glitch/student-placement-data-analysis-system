@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error | Placement System{% endblock %}
+{% block page_title %}Internal Server Error{% endblock %}
+
+{% block content %}
+<div style="max-width: 550px; margin: 4rem auto; text-align: center;">
+    <div style="font-size: 4rem; font-weight: 800; color: #be123c; line-height: 1;">500</div>
+    <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--primary-900); margin: 1rem 0 0.5rem;">Internal Processing Error</h2>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+        An unexpected error occurred while processing the analytics query or database transaction.
+    </p>
+    {% if error %}
+        <div style="background: var(--rose-50); border: 1px solid #fecdd3; border-radius: var(--radius-sm); padding: 0.85rem; font-family: monospace; font-size: 0.8rem; color: #9f1239; margin-bottom: 1.5rem; text-align: left; overflow-x: auto;">
+            {{ error }}
+        </div>
+    {% endif %}
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+</div>
+{% endblock %}

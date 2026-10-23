@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.student_name }} | Student Profile{% endblock %}
+{% block page_title %}Student Profile & Placement Record{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <!-- Profile Header Card -->
+    <div class="table-card" style="padding: 1.75rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; gap: 1.25rem; align-items: center;">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--navy-blue), var(--indigo-600)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800;">
+                    {{ student.student_name[0] }}
+                </div>
+                <div>
+                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--primary-900);">{{ student.student_name }}</h2>
+                    <div style="display: flex; gap: 0.6rem; align-items: center; margin-top: 0.25rem;">
+                        <span style="font-weight: 700; color: var(--navy-blue);">{{ student.roll_no }}</span>
+                        <span>&bull;</span>
+                        <span style="color: var(--text-secondary);">{{ student.department }}</span>
+                        <span>&bull;</span>
+                        <span style="color: var(--text-secondary);">Batch {{ student.graduation_year }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('students.edit_student', student_id=student.student_id) }}" class="btn btn-secondary btn-sm">Edit Profile</a>
+                <a href="{{ url_for('placements.add_placement') }}" class="btn btn-indigo btn-sm">+ Record Offer</a>
+            </div>
+        </div>
+
+        <!-- Academic & Contact Metadata Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+            <div>
+                <span class="form-label">CGPA</span>
+                <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary-900);">
+                    {{ "%.2f"|format(student.cgpa) if student.cgpa else 'N/A' }}
+                </div>
+            </div>
+            <div>
+                <span class="form-label">Placement Eligibility</span>
+                <div>
+                    {% if student.eligible_for_placement %}
+                        <span class="badge badge-eligible">Eligible for Drives</span>
+                    {% else %}
+                        <span class="badge badge-ineligible">Ineligible</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <span class="form-label">Email</span>
+                <div style="font-size: 0.9rem; color: var(--text-primary);">{{ student.email or 'Not provided' }}</div>
+            </div>
+            <div>
+                <span class="form-label">Phone</span>
+                <div style="font-size: 0.9rem; color: var(--text-primary);">{{ student.phone or 'Not provided' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Associated -->
+    <div class="table-card" style="margin-bottom: 1.5rem;">
+        <div class="table-header">
+            <h3 style="font-size: 0.95rem; font-weight: 700;">Recorded Technical & Soft Skills ({{ student.skills|length }})</h3>
+        </div>
+        <div style="padding: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for sk in student.skills %}
+                <span style="background: var(--indigo-50); border: 1px solid #c7d2fe; color: var(--indigo-700); padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600;">
+                    {{ sk.skill_name }}
+                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal;">({{ sk.proficiency_level }})</span>
+                </span>
+            {% else %}
+                <p style="color: var(--text-muted); font-size: 0.88rem;">No skills recorded for this student yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Placement Offers History -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 style="font-size: 0.95rem; font-weight: 700;">Placement Offers Extended ({{ student.placements|length }})</h3>
+            <a href="{{ url_for('placements.add_placement') }}" class="btn btn-secondary btn-sm">+ Add Offer</a>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Job Role</th>
+                        <th>Package (CTC)</th>
+                        <th>Offer Type</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in student.placements %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">{{ p.company_name }}</div>
+                                <span class="badge {% if p.tier == 'Super Dream' %}badge-super-dream{% elif p.tier == 'Dream' %}badge-dream{% else %}badge-mass{% endif %}">
+                                    {{ p.tier }}
+                                </span>
+                            </td>
+                            <td>{{ p.role }}</td>
+                            <td style="font-weight: 700; color: var(--navy-blue);">{{ p.package_amount|currency_lpa }}</td>
+                            <td>{{ p.offer_type }}</td>
+                            <td>{{ p.placement_date|format_date }}</td>
+                            <td>
+                                {% if p.status == 'Placed' %}
+                                    <span class="badge badge-placed">Placed</span>
+                                {% elif p.status == 'Offer Accepted' %}
+                                    <span class="badge badge-accepted">Accepted</span>
+                                {% elif p.status == 'Offer Pending' %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% else %}
+                                    <span class="badge badge-rejected">{{ p.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.75rem;">
+                                No placement offers recorded for this candidate yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

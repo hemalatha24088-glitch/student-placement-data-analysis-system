@@ -1,0 +1,19 @@
+skill_name,skill_category
+Python,Programming
+Java,Programming
+C++,Programming
+SQL,Database & Querying
+Data Structures & Algorithms,Core CS
+Machine Learning,AI/Data Science
+Deep Learning,AI/Data Science
+Natural Language Processing,AI/Data Science
+Computer Vision,AI/Data Science
+Flask / Web Frameworks,Web Development
+React.js,Web Development
+HTML/CSS/JavaScript,Web Development
+Cloud Computing (AWS/GCP),DevOps & Cloud
+Docker & Kubernetes,DevOps & Cloud
+Embedded Systems,Core Engineering
+IoT & Microcontrollers,Core Engineering
+Problem Solving,Aptitude & Soft Skills
+Communication Skills,Aptitude & Soft Skills

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Salary Package Analysis | Placement System{% endblock %}
+{% block page_title %}Salary Package Analysis & Compensation Distributions{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('analytics.packages_analysis') }}">
+        <div class="filter-grid" style="grid-template-columns: 1fr 1fr auto;">
+            <div class="form-group">
+                <label class="form-label" for="graduation_year">Graduation Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Years</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('reports.export_csv', type='packages', department=selected_dept, graduation_year=selected_year) }}" class="btn btn-secondary">Export CSV</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Statistical Summary Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-title">Average Package (Mean)</span></div>
+        <div class="kpi-value">{{ pkg.mean }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
+        <div class="kpi-subtitle">Mean CTC across {{ pkg.count }} offers</div>
+    </div>
+
+    <div class="kpi-card teal">
+        <div class="kpi-header"><span class="kpi-title">Median Package (50th %ile)</span></div>
+        <div class="kpi-value">{{ pkg.median }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
+        <div class="kpi-subtitle">Midpoint compensation benchmark</div>
+    </div>
+
+    <div class="kpi-card rose">
+        <div class="kpi-header"><span class="kpi-title">Standard Deviation</span></div>
+        <div class="kpi-value">&plusmn;{{ pkg.std }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
+        <div class="kpi-subtitle">Dispersion from the mean CTC</div>
+    </div>
+
+    <div class="kpi-card emerald">
+        <div class="kpi-header"><span class="kpi-title">Peak Offer (Max CTC)</span></div>
+        <div class="kpi-value" style="color: #7e22ce;">{{ pkg.max }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
+        <div class="kpi-subtitle">Minimum: {{ pkg.min }} LPA</div>
+    </div>
+</div>
+
+<!-- Percentiles & Brackets Breakdown -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.75rem;">
+    <!-- Compensation Tiers -->
+    <div class="table-card" style="padding: 1.5rem;">
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-900);">Salary Bracket Distribution</h3>
+        {% if pkg.brackets %}
+            {% for key, b in pkg.brackets.items() %}
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 600;">{{ b.label }}</span>
+                        <span><strong>{{ b.count }}</strong> offers ({{ b.pct }}%)</span>
+                    </div>
+                    <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                        <div style="width: {{ b.pct }}%; height: 100%; background: {% if key == 'above_15' %}#7e22ce{% elif key == '8_to_15' %}var(--indigo-600){% elif key == '5_to_8' %}var(--teal-600){% else %}#64748b{% endif %};"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Percentiles Box -->
+    <div class="table-card" style="padding: 1.5rem;">
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-900);">Percentile Distribution (NumPy)</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-secondary); font-size: 0.88rem;">25th Percentile (Q1)</span>
+                <span style="font-weight: 700; color: var(--primary-900);">{{ pkg.p25 }} LPA</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-secondary); font-size: 0.88rem;">50th Percentile (Median / Q2)</span>
+                <span style="font-weight: 700; color: var(--indigo-600);">{{ pkg.median }} LPA</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-secondary); font-size: 0.88rem;">75th Percentile (Q3)</span>
+                <span style="font-weight: 700; color: var(--primary-900);">{{ pkg.p75 }} LPA</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                <span style="color: var(--text-secondary); font-size: 0.88rem;">90th Percentile (Top 10%)</span>
+                <span style="font-weight: 700; color: #7e22ce;">{{ pkg.p90 }} LPA</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Salary Distribution Chart -->
+<div class="chart-card" style="margin-bottom: 1.75rem;">
+    <div class="chart-card-header">
+        <span class="chart-title">Package Frequency Histogram (CTC in LPA)</span>
+        <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="pkgHistChart">Download Chart</button>
+    </div>
+    <div class="chart-card-body">
+        <img id="pkgHistChart" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='package-distribution', department=selected_dept, graduation_year=selected_year) }}" alt="Salary Package Histogram">
+    </div>
+    <div class="chart-card-footer">
+        <strong>Observation:</strong> Evaluates compensation density. Right-skewness indicates select super-dream offers elevating the arithmetic mean above the median.
+    </div>
+</div>
+
+<!-- Top Recorded Packages Table -->
+<div class="table-card">
+    <div class="table-header">
+        <h3 style="font-size: 1rem; font-weight: 700;">Top 10 Recorded Packages (Campus Drives)</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student Name</th>
+                    <th>Roll No</th>
+                    <th>Department</th>
+                    <th>Company</th>
+                    <th>Role</th>
+                    <th>Package (CTC)</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in pkg.top_offers %}
+                    <tr>
+                        <td style="font-weight: 800; color: var(--navy-blue);">#{{ loop.index }}</td>
+                        <td style="font-weight: 600;">{{ o.student_name }}</td>
+                        <td>{{ o.roll_no }}</td>
+                        <td>{{ o.department }}</td>
+                        <td><strong>{{ o.company_name }}</strong></td>
+                        <td>{{ o.role }}</td>
+                        <td style="font-weight: 800; color: #7e22ce;">{{ o.package_amount|currency_lpa }}</td>
+                        <td>
+                            <span class="badge {% if o.tier == 'Super Dream' %}badge-super-dream{% elif o.tier == 'Dream' %}badge-dream{% else %}badge-mass{% endif %}">
+                                {{ o.tier }}
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.75rem;">
+                            No placed offers available for this filter.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

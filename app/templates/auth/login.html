@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Placement System{% endblock %}
+{% block page_title %}Administrative Authentication{% endblock %}
+
+{% block content %}
+<div style="max-width: 460px; margin: 2rem auto;">
+    <div class="table-card" style="padding: 2.25rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="brand-icon" style="width: 48px; height: 48px; margin: 0 auto 0.75rem; font-size: 1.4rem;">P</div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary-900);">Placement System Sign In</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Authorized access for Placement Officers & Administrators
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="admin or faculty" required autofocus>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-indigo" style="width: 100%; padding: 0.65rem; font-size: 0.95rem;">
+                Sign In to System
+            </button>
+        </form>
+
+        <!-- Quick Demo Profiles for Faculty Review -->
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); text-align: center;">
+            <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Quick Evaluator Profiles (Viva Demo)
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="btn btn-secondary btn-sm" style="flex: 1;">
+                    Faculty Officer
+                </a>
+                <a href="{{ url_for('auth.demo_login', role='admin') }}" class="btn btn-secondary btn-sm" style="flex: 1;">
+                    Administrator
+                </a>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.6rem;">
+                Default credentials: <code>admin</code> / <code>admin123</code> &bull; <code>faculty</code> / <code>faculty123</code>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

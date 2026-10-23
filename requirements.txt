@@ -1,0 +1,15 @@
+# Student Placement Data Analysis System
+# Core Dependencies
+Flask>=3.0.0
+PyMySQL>=1.1.0
+mysql-connector-python>=8.0.0
+python-dotenv>=1.0.0
+pandas>=2.1.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+pytest>=8.0.0
+Werkzeug>=3.0.0
+
+# Production WSGI Servers
+gunicorn>=21.2.0
+waitress>=3.0.0

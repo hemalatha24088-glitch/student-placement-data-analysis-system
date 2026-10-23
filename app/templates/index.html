@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Student Placement Data Analysis System{% endblock %}
+{% block page_title %}Overview & System Purpose{% endblock %}
+
+{% block content %}
+<div style="margin: -1.75rem -1.75rem 2rem -1.75rem;">
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div style="max-width: 900px; margin: 0 auto; position: relative; z-index: 2;">
+            <div class="hero-badge">Academic Project &bull; B.Tech CSE (AI/ML)</div>
+            <h1 class="hero-title">Student Placement Data Analysis System</h1>
+            <p class="hero-subtitle">
+                Transform Placement Records into Actionable Career Insights. An end-to-end data analytics and management platform for colleges and university placement cells.
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-indigo" style="padding: 0.75rem 1.75rem; font-size: 1rem;">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Explore Live Dashboard
+                </a>
+                <a href="{{ url_for('students.list_students') }}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; font-size: 1rem; background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.25);">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                    Manage Student Records
+                </a>
+            </div>
+
+            <!-- Hero Visual Illustration (SVG) -->
+            <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(8px); display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #38bdf8;">{{ kpis.total_students }}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Students Monitored</div>
+                </div>
+                <div style="height: 40px; width: 1px; background: rgba(255,255,255,0.15);"></div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #34d399;">{{ kpis.placement_rate }}%</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Overall Placement Rate</div>
+                </div>
+                <div style="height: 40px; width: 1px; background: rgba(255,255,255,0.15);"></div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #fbbf24;">{{ kpis.avg_package }} LPA</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Average Package (CTC)</div>
+                </div>
+                <div style="height: 40px; width: 1px; background: rgba(255,255,255,0.15);"></div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #a78bfa;">{{ kpis.total_companies }}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Recruiting Partners</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Core Capabilities & Feature Grid -->
+<div class="landing-features">
+    <div class="section-header">
+        <h2 class="section-title">Engineered for Academic Placement Excellence</h2>
+        <p class="section-subtitle">
+            A comprehensive suite of analytics tools connecting relational MySQL data with Pandas and Matplotlib.
+        </p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            </div>
+            <h3 class="feature-title">Placement Analytics</h3>
+            <p class="feature-desc">
+                Evaluate eligible versus placed students across academic years with real-time KPI metrics, distinct student counting, and unplaced candidate tracking.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon" style="background-color: var(--teal-50); color: var(--teal-600);">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <h3 class="feature-title">Department Comparisons</h3>
+            <p class="feature-desc">
+                Cross-analyze engineering branches including CSE, AI/ML, IT, ECE, EEE, and Mechanical to identify top-performing disciplines and package benchmarks.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon" style="background-color: var(--amber-50); color: var(--amber-500);">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <h3 class="feature-title">Salary Package Insights</h3>
+            <p class="feature-desc">
+                Analyze CTC distributions, mean, median, percentiles (25th, 75th, 90th), and salary tiers from mass recruitment (3.6 LPA) to super-dream offers (42 LPA).
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon" style="background-color: #fdf2f8; color: #db2777;">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
+            </div>
+            <h3 class="feature-title">Skill Frequency Analysis</h3>
+            <p class="feature-desc">
+                Discover correlations between candidate programming skills (Python, Java, DSA, Machine Learning) and placement outcomes to guide training programs.
+            </p>
+        </div>
+    </div>
+
+    <!-- Quick Navigation Actions -->
+    <div style="margin-top: 3.5rem; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--primary-900);">Ready to inspect the live dataset?</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                Explore department rates, salary histograms, recruiting partners, and exportable CSV reports.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard &rarr;</a>
+            <a href="{{ url_for('reports.index') }}" class="btn btn-secondary">View Reports</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

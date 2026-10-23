@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Students Directory | Placement System{% endblock %}
+{% block page_title %}Student Management (CRUD){% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('students.list_students') }}">
+        <div class="filter-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="search">Search Student</label>
+                <input type="text" name="search" id="search" class="form-control" placeholder="Search by name, roll no, or email..." value="{{ search }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="graduation_year">Grad Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Years</option>
+                    {% for y in graduation_years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="eligibility">Eligibility</label>
+                <select name="eligibility" id="eligibility" class="form-select">
+                    <option value="All" {% if selected_eligibility == 'All' %}selected{% endif %}>All</option>
+                    <option value="1" {% if selected_eligibility == '1' %}selected{% endif %}>Eligible Only</option>
+                    <option value="0" {% if selected_eligibility == '0' %}selected{% endif %}>Ineligible Only</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort_by">Sort By</label>
+                <select name="sort_by" id="sort_by" class="form-select">
+                    <option value="roll_no" {% if sort_by == 'roll_no' %}selected{% endif %}>Roll Number</option>
+                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Student Name</option>
+                    <option value="cgpa_desc" {% if sort_by == 'cgpa_desc' %}selected{% endif %}>CGPA (High to Low)</option>
+                    <option value="cgpa_asc" {% if sort_by == 'cgpa_asc' %}selected{% endif %}>CGPA (Low to High)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Filter</button>
+                <a href="{{ url_for('students.list_students') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Students Table Header Actions -->
+<div class="table-card">
+    <div class="table-header">
+        <div>
+            <h3 style="font-size: 1rem; font-weight: 700;">Student Profiles ({{ total }} total)</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Showing page {{ page }} of {{ total_pages }}</span>
+        </div>
+        <div style="display: flex; gap: 0.6rem;">
+            <a href="{{ url_for('import_bp.index') }}" class="btn btn-secondary btn-sm">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Import CSV
+            </a>
+            <a href="{{ url_for('students.add_student') }}" class="btn btn-indigo btn-sm">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Register New Student
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
+                    <th>Department</th>
+                    <th>Batch</th>
+                    <th>CGPA</th>
+                    <th>Eligibility</th>
+                    <th>Skills Recorded</th>
+                    <th>Offers</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                    <tr>
+                        <td style="font-weight: 700; color: var(--navy-blue);">{{ s.roll_no }}</td>
+                        <td>
+                            <div style="font-weight: 600;">{{ s.student_name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.email or 'No email' }}</div>
+                        </td>
+                        <td>{{ s.department }}</td>
+                        <td>{{ s.graduation_year }}</td>
+                        <td>
+                            <span style="font-weight: 700; {% if s.cgpa and s.cgpa >= 8.5 %}color: #047857;{% elif s.cgpa and s.cgpa < 6.0 %}color: #b91c1c;{% endif %}">
+                                {{ "%.2f"|format(s.cgpa) if s.cgpa else 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if s.eligible_for_placement %}
+                                <span class="badge badge-eligible">Eligible</span>
+                            {% else %}
+                                <span class="badge badge-ineligible">Ineligible</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-mass">{{ s.skill_count }} skills</span>
+                        </td>
+                        <td>
+                            {% if s.placed_offers_count > 0 %}
+                                <span class="badge badge-placed">{{ s.placed_offers_count }} Offer(s)</span>
+                            {% else %}
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">Unplaced</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <a href="{{ url_for('students.view_student', student_id=s.student_id) }}" class="btn btn-secondary btn-sm" title="View Profile">View</a>
+                            <a href="{{ url_for('students.edit_student', student_id=s.student_id) }}" class="btn btn-secondary btn-sm" title="Edit Student">Edit</a>
+                            <form method="POST" action="{{ url_for('students.remove_student', student_id=s.student_id) }}" style="display: inline;" class="delete-confirm" data-item="student '{{ s.student_name }}'">
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete Student">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+                            No students match the selected filter criteria.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('students.list_students', page=page-1, department=selected_dept, graduation_year=selected_year, eligibility=selected_eligibility, search=search, sort_by=sort_by) }}" class="page-link">&laquo; Prev</a>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+            <a href="{{ url_for('students.list_students', page=p, department=selected_dept, graduation_year=selected_year, eligibility=selected_eligibility, search=search, sort_by=sort_by) }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+        {% endfor %}
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('students.list_students', page=page+1, department=selected_dept, graduation_year=selected_year, eligibility=selected_eligibility, search=search, sort_by=sort_by) }}" class="page-link">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

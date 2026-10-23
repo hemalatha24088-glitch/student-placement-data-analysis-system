@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Records | Placement System{% endblock %}
+{% block page_title %}Placement Records & Job Offers{% endblock %}
+
+{% block content %}
+<!-- Filter Panel -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('placements.list_placements') }}">
+        <div class="filter-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="search">Search Offers</label>
+                <input type="text" name="search" id="search" class="form-control" placeholder="Search by roll no, student, company, or role..." value="{{ search }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="graduation_year">Year</label>
+                <select name="graduation_year" id="graduation_year" class="form-select">
+                    <option value="All" {% if selected_year == 'All' %}selected{% endif %}>All Years</option>
+                    {% for y in graduation_years %}
+                        <option value="{{ y }}" {% if selected_year|string == y|string %}selected{% endif %}>Batch {{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="status">Offer Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="All" {% if selected_status == 'All' %}selected{% endif %}>All Statuses</option>
+                    {% for st in statuses %}
+                        <option value="{{ st }}" {% if selected_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Filter</button>
+                <a href="{{ url_for('placements.list_placements') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <div>
+            <h3 style="font-size: 1rem; font-weight: 700;">Placement Records ({{ total }} total)</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Page {{ page }} of {{ total_pages }}</span>
+        </div>
+        <div style="display: flex; gap: 0.6rem;">
+            <a href="{{ url_for('import_bp.index') }}" class="btn btn-secondary btn-sm">Import CSV</a>
+            <a href="{{ url_for('placements.add_placement') }}" class="btn btn-indigo btn-sm">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Record New Placement
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Student Details</th>
+                    <th>Department</th>
+                    <th>Company</th>
+                    <th>Job Role</th>
+                    <th>Package (LPA)</th>
+                    <th>Tier / Category</th>
+                    <th>Offer Date</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in placements %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 700; color: var(--navy-blue);">
+                                <a href="{{ url_for('students.view_student', student_id=p.student_id) }}" style="color: inherit; text-decoration: none;">
+                                    {{ p.student_name }}
+                                </a>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ p.roll_no }} (Batch {{ p.graduation_year }})</div>
+                        </td>
+                        <td>{{ p.department }}</td>
+                        <td>
+                            <div style="font-weight: 600;">{{ p.company_name }}</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">{{ p.industry }}</div>
+                        </td>
+                        <td>{{ p.role }}</td>
+                        <td style="font-weight: 800; color: var(--primary-900);">
+                            {{ p.package_amount|currency_lpa }}
+                        </td>
+                        <td>
+                            <span class="badge {% if p.tier == 'Super Dream' %}badge-super-dream{% elif p.tier == 'Dream' %}badge-dream{% elif p.tier == 'Core Engineering' %}badge-core{% else %}badge-mass{% endif %}">
+                                {{ p.tier }}
+                            </span>
+                        </td>
+                        <td>{{ p.placement_date|format_date }}</td>
+                        <td>
+                            {% if p.status == 'Placed' %}
+                                <span class="badge badge-placed">Placed</span>
+                            {% elif p.status == 'Offer Accepted' %}
+                                <span class="badge badge-accepted">Accepted</span>
+                            {% elif p.status == 'Offer Pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% else %}
+                                <span class="badge badge-rejected">{{ p.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <a href="{{ url_for('placements.edit_placement', placement_id=p.placement_id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('placements.remove_placement', placement_id=p.placement_id) }}" style="display: inline;" class="delete-confirm" data-item="offer for {{ p.student_name }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+                            No placement records found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('placements.list_placements', page=page-1, department=selected_dept, graduation_year=selected_year, status=selected_status, search=search) }}" class="page-link">&laquo; Prev</a>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+            <a href="{{ url_for('placements.list_placements', page=p, department=selected_dept, graduation_year=selected_year, status=selected_status, search=search) }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+        {% endfor %}
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('placements.list_placements', page=page+1, department=selected_dept, graduation_year=selected_year, status=selected_status, search=search) }}" class="page-link">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

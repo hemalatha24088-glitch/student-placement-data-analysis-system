@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Demand Analytics | Placement System{% endblock %}
+{% block page_title %}Candidate Skills & Placement Correlation{% endblock %}
+
+{% block content %}
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('analytics.skills_analysis') }}">
+        <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; max-width: 320px;">
+                <label class="form-label" for="department">Filter by Department</label>
+                <select name="department" id="department" class="form-select" onchange="this.form.submit()">
+                    <option value="All" {% if selected_dept == 'All' %}selected{% endif %}>All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d }}" {% if selected_dept == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <a href="{{ url_for('reports.export_csv', type='skills', department=selected_dept) }}" class="btn btn-secondary">
+                    Export Skills CSV
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Skills Chart -->
+<div class="chart-card" style="margin-bottom: 1.75rem;">
+    <div class="chart-card-header">
+        <span class="chart-title">Skills Most Frequently Recorded Among Placed Candidates</span>
+    </div>
+    <div class="chart-card-body">
+        <img class="chart-img" src="{{ url_for('api.stream_chart', chart_name='top-skills', department=selected_dept) }}" alt="Top Skills Chart">
+    </div>
+    <div class="chart-card-footer">
+        <strong>Methodology Note:</strong> Analyzes distinct student profiles possessing verified skill badges against confirmed job offers.
+    </div>
+</div>
+
+<!-- Skills Correlation Table -->
+<div class="table-card">
+    <div class="table-header">
+        <h3 style="font-size: 1rem; font-weight: 700;">Skill Frequency & Placement Outcomes ({{ selected_dept }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Skill Name</th>
+                    <th>Category</th>
+                    <th>Total Students with Skill</th>
+                    <th>Placed Students</th>
+                    <th>Unplaced Students</th>
+                    <th>Placement Proportion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in skills %}
+                    {% set pct = (s.placed_students_with_skill / s.total_students_with_skill * 100)|round(1) if s.total_students_with_skill > 0 else 0 %}
+                    <tr>
+                        <td style="font-weight: 700; color: var(--navy-blue);">{{ s.skill_name }}</td>
+                        <td><span class="badge badge-mass">{{ s.skill_category }}</span></td>
+                        <td><strong>{{ s.total_students_with_skill }}</strong></td>
+                        <td style="font-weight: 700; color: var(--emerald-600);">{{ s.placed_students_with_skill }}</td>
+                        <td style="font-weight: 600; color: #b91c1c;">{{ s.unplaced_students_with_skill }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; min-width: 50px;">
+                                    <div style="width: {{ pct }}%; height: 100%; background: var(--teal-600);"></div>
+                                </div>
+                                <span style="font-weight: 700; font-size: 0.82rem;">{{ pct }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No skill records found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Academic Disclaimer -->
+<div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+    <strong>Data Interpretation Standard:</strong> Skill statistics indicate recorded occurrences on candidate resumes and profiles. These represent observed correlation in campus recruitment outcomes rather than definitive causal necessity.
+</div>
+{% endblock %}

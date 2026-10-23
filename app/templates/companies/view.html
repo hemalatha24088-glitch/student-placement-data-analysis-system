@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ company.company_name }} | Placement Partner{% endblock %}
+{% block page_title %}Recruiting Company Details{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="table-card" style="padding: 1.75rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--primary-900);">{{ company.company_name }}</h2>
+                <div style="display: flex; gap: 0.6rem; align-items: center; margin-top: 0.35rem;">
+                    <span class="badge {% if company.tier == 'Super Dream' %}badge-super-dream{% elif company.tier == 'Dream' %}badge-dream{% else %}badge-mass{% endif %}">
+                        {{ company.tier }}
+                    </span>
+                    <span>&bull;</span>
+                    <span style="color: var(--text-secondary);">{{ company.industry }}</span>
+                    <span>&bull;</span>
+                    <span style="color: var(--text-secondary);">{{ company.location }}</span>
+                </div>
+                {% if company.website %}
+                    <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        <a href="{{ company.website }}" target="_blank" rel="noopener" style="color: var(--indigo-600);">Visit Careers Website &rarr;</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('companies.edit_company', company_id=company.company_id) }}" class="btn btn-secondary btn-sm">Edit Details</a>
+                <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hired Students Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 style="font-size: 0.95rem; font-weight: 700;">Offers Extended by {{ company.company_name }} ({{ company.placements|length }})</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Student Name</th>
+                        <th>Department</th>
+                        <th>Job Role</th>
+                        <th>Package (CTC)</th>
+                        <th>Batch</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in company.placements %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">{{ p.roll_no }}</td>
+                            <td style="font-weight: 600;">
+                                <a href="{{ url_for('students.view_student', student_id=p.student_id) }}" style="color: inherit; text-decoration: none;">
+                                    {{ p.student_name }}
+                                </a>
+                            </td>
+                            <td>{{ p.department }}</td>
+                            <td>{{ p.role }}</td>
+                            <td style="font-weight: 700; color: var(--navy-blue);">{{ p.package_amount|currency_lpa }}</td>
+                            <td>{{ p.graduation_year }}</td>
+                            <td>
+                                {% if p.status == 'Placed' %}
+                                    <span class="badge badge-placed">Placed</span>
+                                {% elif p.status == 'Offer Accepted' %}
+                                    <span class="badge badge-accepted">Accepted</span>
+                                {% else %}
+                                    <span class="badge badge-pending">{{ p.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.75rem;">
+                                No offers recorded for this company yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

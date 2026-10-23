@@ -1,0 +1,50 @@
+roll_no,company_name,role,package_amount,package_unit,placement_date,placement_year,status,offer_type,notes
+22BCE1001,Google,Associate Software Engineer,32.50,LPA,2025-09-15,2026,Placed,Super Dream,Campus recruit - Google SWE
+22BCE1001,Microsoft,Software Development Engineer,28.00,LPA,2025-08-20,2026,Offer Accepted,Super Dream,Accepted primary offer at Microsoft
+22BCE1002,Microsoft,Cloud Solutions Engineer,24.50,LPA,2025-09-10,2026,Placed,Super Dream,Microsoft Azure core engineering
+22BCE1003,Amazon,SDE - 1,21.00,LPA,2025-10-05,2026,Placed,Super Dream,Amazon Web Services team
+22BCE1004,Oracle,Applications Engineer,14.50,LPA,2025-11-02,2026,Placed,Dream,Oracle Cloud Infrastructure
+22BCE1005,Deloitte,Technology Analyst,9.50,LPA,2025-11-20,2026,Placed,Dream,Deloitte Consulting USI
+22BCE1006,Tata Consultancy Services (TCS),Systems Engineer,4.25,LPA,2025-12-10,2026,Placed,Mass / IT Services,TCS Ninja drive
+22BCE1007,Infosys,Systems Associate,3.80,LPA,2026-01-15,2026,Placed,Mass / IT Services,Infosys campus recruit
+22AML1001,NVIDIA,AI / Deep Learning Researcher,42.00,LPA,2025-09-01,2026,Placed,Super Dream,NVIDIA LLM acceleration team
+22AML1001,Google,Machine Learning Engineer,34.00,LPA,2025-08-25,2026,Offer Pending,Super Dream,Secondary high offer
+22AML1002,Google,Data & ML Engineer,30.00,LPA,2025-09-22,2026,Placed,Super Dream,Google Brain / Research India
+22AML1003,Amazon,Data Scientist - GenAI,23.50,LPA,2025-10-18,2026,Placed,Super Dream,Amazon Alexa / Search team
+22AML1004,Deloitte,Data & AI Consultant,10.00,LPA,2025-11-12,2026,Placed,Dream,Deloitte AI practice
+22AML1005,Accenture,Associate AI Developer,8.50,LPA,2025-11-28,2026,Placed,Dream,Accenture Innovation Hub
+22AML1006,Cognizant,Programmer Analyst,4.50,LPA,2026-01-10,2026,Placed,Mass / IT Services,Cognizant GenC Next
+22BIT1001,Amazon,Full Stack Cloud Developer,18.00,LPA,2025-10-12,2026,Placed,Super Dream,Amazon Retail team
+22BIT1002,Cisco Systems,Network Software Engineer,16.00,LPA,2025-10-25,2026,Placed,Dream,Cisco Security & Cloud
+22BIT1003,Oracle,Database Systems Engineer,12.00,LPA,2025-11-15,2026,Placed,Dream,Oracle MySQL / DB team
+22BIT1004,Accenture,Software Engineer Associate,7.50,LPA,2025-12-05,2026,Placed,Dream,Accenture Advanced Technology
+22BIT1005,Wipro,Project Engineer,4.00,LPA,2026-01-20,2026,Placed,Mass / IT Services,Wipro Turbo drive
+22ECE1001,Qualcomm,Silicon Validation Engineer,22.00,LPA,2025-09-18,2026,Placed,Super Dream,Qualcomm Modem Systems
+22ECE1002,Bosch Global Software,Embedded IoT Engineer,11.50,LPA,2025-11-05,2026,Placed,Core Engineering,Bosch Connected Mobility
+22ECE1003,Cisco Systems,Embedded Systems Engineer,13.00,LPA,2025-11-25,2026,Placed,Dream,Cisco Hardware engineering
+22ECE1004,Tata Consultancy Services (TCS),Digital Associate,4.00,LPA,2026-01-12,2026,Placed,Mass / IT Services,TCS Digital
+22EEE1001,Bosch Global Software,Automotive Electronics Engineer,10.50,LPA,2025-11-18,2026,Placed,Core Engineering,Bosch Powertrain Systems
+22EEE1002,L&T Technology Services,Power Systems Engineer,7.00,LPA,2025-12-08,2026,Placed,Core Engineering,L&T Technology Services
+22EEE1003,Infosys,Software Analyst,4.00,LPA,2026-01-18,2026,Placed,Mass / IT Services,Infosys Digital Specialist
+22MEC1001,Tata Motors,Graduate Engineer Trainee - Design,8.00,LPA,2025-11-20,2026,Placed,Core Engineering,Tata Motors EV Division
+22MEC1002,L&T Technology Services,R&D Mechanical Engineer,6.50,LPA,2025-12-14,2026,Placed,Core Engineering,L&T Defense & Aerospace
+22MEC1003,Tata Consultancy Services (TCS),Assistant Engineer,3.60,LPA,2026-01-22,2026,Placed,Mass / IT Services,TCS Engineering Services
+21BCE1010,Google,Software Engineer,28.00,LPA,2024-09-12,2025,Placed,Super Dream,Google SWE Batch 2025
+21BCE1011,Microsoft,Software Engineer,22.00,LPA,2024-09-20,2025,Placed,Super Dream,Microsoft Batch 2025
+21BCE1012,Tata Consultancy Services (TCS),Systems Engineer,4.00,LPA,2024-11-15,2025,Placed,Mass / IT Services,TCS Batch 2025
+21AML1009,NVIDIA,AI Engineer,36.00,LPA,2024-09-08,2025,Placed,Super Dream,NVIDIA Batch 2025
+21AML1010,Deloitte,Data Analyst,9.00,LPA,2024-10-18,2025,Placed,Dream,Deloitte Batch 2025
+21BIT1010,Amazon,Cloud Engineer,16.50,LPA,2024-10-02,2025,Placed,Dream,Amazon Batch 2025
+21BIT1011,Infosys,Software Engineer,4.00,LPA,2024-11-20,2025,Placed,Mass / IT Services,Infosys Batch 2025
+21ECE1008,Qualcomm,Hardware Engineer,19.50,LPA,2024-10-15,2025,Placed,Super Dream,Qualcomm Batch 2025
+21ECE1009,Cognizant,Engineer Associate,4.20,LPA,2024-12-05,2025,Placed,Mass / IT Services,Cognizant Batch 2025
+21EEE1007,Bosch Global Software,Control Systems Engineer,9.00,LPA,2024-11-12,2025,Placed,Core Engineering,Bosch Batch 2025
+21EEE1008,Tata Consultancy Services (TCS),Graduate Trainee,3.80,LPA,2024-12-20,2025,Placed,Mass / IT Services,TCS Batch 2025
+21MEC1007,Tata Motors,GET - Vehicle Dynamics,7.50,LPA,2024-11-18,2025,Placed,Core Engineering,Tata Motors Batch 2025
+21MEC1008,L&T Technology Services,Design Trainee,6.00,LPA,2024-12-15,2025,Placed,Core Engineering,L&T Batch 2025
+20BCE1020,Microsoft,Software Engineer,20.00,LPA,2023-09-15,2024,Placed,Super Dream,Microsoft Batch 2024
+20AML1015,Google,Data Scientist,26.00,LPA,2023-09-28,2024,Placed,Super Dream,Google Batch 2024
+20BIT1015,Oracle,Applications Engineer,11.00,LPA,2023-10-20,2024,Placed,Dream,Oracle Batch 2024
+20ECE1012,Qualcomm,ASIC Design Engineer,18.00,LPA,2023-10-12,2024,Placed,Super Dream,Qualcomm Batch 2024
+20EEE1010,Bosch Global Software,Electrical Trainee,8.50,LPA,2023-11-22,2024,Placed,Core Engineering,Bosch Batch 2024
+20MEC1010,Tata Motors,Plant Engineer Trainee,7.00,LPA,2023-11-10,2024,Placed,Core Engineering,Tata Motors Batch 2024

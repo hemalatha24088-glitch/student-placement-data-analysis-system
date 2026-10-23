@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}System Health Check | Placement System{% endblock %}
+{% block page_title %}Application Diagnostics & Database Health{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="table-card" style="padding: 2rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
+            <div>
+                <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--primary-900);">
+                    Infrastructure Connectivity Status
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                    Live verification of MySQL 8.0 relational database connection and table integrity.
+                </p>
+            </div>
+            <div>
+                {% if health.connected %}
+                    <span style="background: var(--emerald-50); color: var(--emerald-600); border: 1px solid #a7f3d0; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <span style="width: 8px; height: 8px; background: var(--emerald-600); border-radius: 50%; display: inline-block;"></span>
+                        SYSTEM HEALTHY
+                    </span>
+                {% else %}
+                    <span style="background: var(--rose-50); color: #be123c; border: 1px solid #fecdd3; padding: 0.4rem 0.85rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">
+                        DATABASE OFFLINE
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if health.connected %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+                <div style="background: var(--surface-bg); border-radius: var(--radius-sm); padding: 1.1rem;">
+                    <span class="form-label">Database Engine</span>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--primary-900); margin-top: 0.2rem;">
+                        MySQL {{ health.server_version }}
+                    </div>
+                </div>
+
+                <div style="background: var(--surface-bg); border-radius: var(--radius-sm); padding: 1.1rem;">
+                    <span class="form-label">Active Schema</span>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--navy-blue); margin-top: 0.2rem;">
+                        {{ health.database_name }}
+                    </div>
+                </div>
+
+                <div style="background: var(--surface-bg); border-radius: var(--radius-sm); padding: 1.1rem;">
+                    <span class="form-label">API Health Status</span>
+                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--emerald-600); margin-top: 0.2rem;">
+                        HTTP 200 OK
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-900);">
+                Active Database Table Record Counts
+            </h3>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Database Entity Table</th>
+                            <th>Description</th>
+                            <th>Active Row Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">students</td>
+                            <td>Candidate academic & demographic records</td>
+                            <td><strong>{{ health.tables.students }}</strong> rows</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">placements</td>
+                            <td>Verified job offers, CTC packages, and dates</td>
+                            <td><strong>{{ health.tables.placements }}</strong> rows</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">companies</td>
+                            <td>Recruiting partner profiles and sectors</td>
+                            <td><strong>{{ health.tables.companies }}</strong> rows</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--navy-blue);">skills</td>
+                            <td>Master evaluated skill competencies</td>
+                            <td><strong>{{ health.tables.skills }}</strong> rows</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="background: var(--rose-50); border: 1px solid #fecdd3; border-radius: var(--radius-sm); padding: 1.5rem; color: #9f1239;">
+                <h4 style="font-weight: 700; margin-bottom: 0.5rem;">Connection Diagnostic Error</h4>
+                <p style="font-family: monospace; font-size: 0.85rem;">{{ health.error }}</p>
+                <div style="margin-top: 1rem; font-size: 0.85rem;">
+                    Please ensure MySQL Server service (MySQL80) is running and verify host, port (3307), user, and password in your <code>.env</code> configuration file.
+                </div>
+            </div>
+        {% endif %}
+
+        <div style="margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <a href="{{ url_for('main.health_api') }}" target="_blank" class="btn btn-secondary btn-sm">
+                View JSON Endpoint (/api/health)
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-sm">
+                Back to Dashboard &rarr;
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

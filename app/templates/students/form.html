@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Student | Placement System{% endblock %}
+{% block page_title %}{{ action }} Student Record{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="table-card" style="padding: 2rem;">
+        <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--primary-900);">
+                    {{ action }} Student Profile
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                    Enter academic and demographic information. Unique roll number validation is enforced.
+                </p>
+            </div>
+            <a href="{{ url_for('students.list_students') }}" class="btn btn-secondary btn-sm">&larr; Back to Directory</a>
+        </div>
+
+        <form method="POST">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="roll_no">Roll Number <span style="color: red;">*</span></label>
+                    <input type="text" name="roll_no" id="roll_no" class="form-control" required placeholder="e.g. 22BCE1099" value="{{ student.roll_no if student else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="student_name">Full Name <span style="color: red;">*</span></label>
+                    <input type="text" name="student_name" id="student_name" class="form-control" required placeholder="Student's official name" value="{{ student.student_name if student else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="department">Department <span style="color: red;">*</span></label>
+                    <select name="department" id="department" class="form-select" required>
+                        <option value="">-- Select Department --</option>
+                        {% for d in departments %}
+                            <option value="{{ d }}" {% if student and student.department == d %}selected{% endif %}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="graduation_year">Graduation Year <span style="color: red;">*</span></label>
+                    <input type="number" name="graduation_year" id="graduation_year" class="form-control" required min="2020" max="2035" placeholder="e.g. 2026" value="{{ student.graduation_year if student else '2026' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cgpa">Cumulative GPA (0.00 - 10.00)</label>
+                    <input type="number" step="0.01" min="0" max="10" name="cgpa" id="cgpa" class="form-control" placeholder="e.g. 8.75" value="{{ student.cgpa if student and student.cgpa else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="gender">Gender</label>
+                    <select name="gender" id="gender" class="form-select">
+                        <option value="Male" {% if student and student.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if student and student.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if student and student.gender == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="student@college.edu" value="{{ student.email if student and student.email else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Contact</label>
+                    <input type="text" name="phone" id="phone" class="form-control" placeholder="Contact number" value="{{ student.phone if student and student.phone else '' }}">
+                </div>
+            </div>
+
+            <!-- Placement Eligibility Toggle -->
+            <div style="background: var(--surface-bg); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                <input type="checkbox" name="eligible_for_placement" id="eligible_for_placement" value="1" style="width: 18px; height: 18px;" {% if not student or student.eligible_for_placement %}checked{% endif %}>
+                <label for="eligible_for_placement" style="font-size: 0.9rem; font-weight: 600; cursor: pointer;">
+                    Eligible for Placement Drives
+                    <span style="display: block; font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">
+                        Uncheck if student has backlogs, opted for higher education, or does not meet minimum college attendance criteria.
+                    </span>
+                </label>
+            </div>
+
+            <!-- Skill Associations Multi-Select -->
+            <div style="margin-bottom: 2rem;">
+                <label class="form-label" style="margin-bottom: 0.5rem; display: block;">
+                    Associate Technical & Soft Skills
+                </label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.85rem; background: #ffffff;">
+                    {% for sk in all_skills %}
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                            <input type="checkbox" name="skills" value="{{ sk.skill_id }}" {% if student_skill_ids and sk.skill_id in student_skill_ids %}checked{% endif %}>
+                            <span>{{ sk.skill_name }}</span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: auto;">{{ sk.skill_category }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <a href="{{ url_for('students.list_students') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-indigo" style="padding: 0.6rem 1.5rem;">
+                    {{ action }} Student Record
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
