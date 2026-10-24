@@ -62,12 +62,13 @@
 
 <!-- Students Table Header Actions -->
 <div class="table-card">
-    <div class="table-header">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <div>
-            <h3 style="font-size: 1rem; font-weight: 700;">Student Profiles ({{ total }} total)</h3>
+            <h3 style="font-size: 1rem; font-weight: 700; margin: 0;">Student Profiles ({{ total }} total)</h3>
             <span style="font-size: 0.8rem; color: var(--text-muted);">Showing page {{ page }} of {{ total_pages }}</span>
         </div>
-        <div style="display: flex; gap: 0.6rem;">
+        <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+            <input type="text" class="table-search-input" data-table="studentsTable" placeholder="Instant filter students..." aria-label="Quick search students">
             <a href="{{ url_for('import_bp.index') }}" class="btn btn-secondary btn-sm">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                 Import CSV
@@ -80,17 +81,17 @@
     </div>
 
     <div class="table-responsive">
-        <table class="custom-table">
+        <table class="custom-table" id="studentsTable">
             <thead>
                 <tr>
-                    <th>Roll No</th>
-                    <th>Student Name</th>
-                    <th>Department</th>
-                    <th>Batch</th>
-                    <th>CGPA</th>
-                    <th>Eligibility</th>
+                    <th data-sort>Roll No</th>
+                    <th data-sort>Student Name</th>
+                    <th data-sort>Department</th>
+                    <th data-sort>Batch</th>
+                    <th data-sort>CGPA</th>
+                    <th data-sort>Eligibility</th>
                     <th>Skills Recorded</th>
-                    <th>Offers</th>
+                    <th data-sort>Offers</th>
                     <th style="text-align: right;">Actions</th>
                 </tr>
             </thead>

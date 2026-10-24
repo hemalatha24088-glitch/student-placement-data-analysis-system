@@ -3,6 +3,8 @@
    Modern SaaS Analytics Design System (Navy / Indigo / Teal)
    ===================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 :root {
     --primary-900: #0f172a;
     --primary-800: #1e293b;
@@ -12,6 +14,7 @@
     --indigo-600:  #4f46e5;
     --indigo-700:  #4338ca;
     --indigo-50:   #eef2ff;
+    --indigo-100:  #e0e7ff;
     --teal-600:    #0d9488;
     --teal-50:     #f0fdfa;
     --emerald-600: #059669;
@@ -23,6 +26,7 @@
 
     --surface-bg:   #f8fafc;
     --card-bg:      #ffffff;
+    --card-hover-bg:#ffffff;
     --border-color: #e2e8f0;
     --border-subtle:#f1f5f9;
 
@@ -30,8 +34,10 @@
     --text-secondary: #475569;
     --text-muted:     #64748b;
 
-    --sidebar-width: 260px;
-    --topbar-height: 64px;
+    --sidebar-bg:     #0f172a;
+    --sidebar-text:   #f8fafc;
+    --sidebar-width:  260px;
+    --topbar-height:  64px;
 
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
@@ -42,6 +48,38 @@
     --radius-lg: 16px;
 }
 
+[data-theme="dark"] {
+    --primary-900: #f1f5f9;
+    --primary-800: #e2e8f0;
+    --primary-700: #cbd5e1;
+    --navy-blue:   #3b82f6;
+    --navy-dark:   #60a5fa;
+
+    --surface-bg:   #090d16;
+    --card-bg:      #111827;
+    --card-hover-bg:#1a233a;
+    --border-color: #1f293d;
+    --border-subtle:#182234;
+
+    --text-primary:   #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted:     #64748b;
+
+    --sidebar-bg:     #070a12;
+    --sidebar-text:   #e2e8f0;
+
+    --indigo-50:   #1e1b4b;
+    --indigo-100:  #2e2870;
+    --teal-50:     #042f2e;
+    --emerald-50:  #064e3b;
+    --amber-50:    #451a03;
+    --rose-50:     #4c0519;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.6);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -49,11 +87,12 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--surface-bg);
     color: var(--text-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Base Layout */
@@ -695,7 +734,7 @@ body {
 @media (max-width: 900px) {
     .app-sidebar {
         transform: translateX(-100%);
-        transition: transform 0.25s ease;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .app-sidebar.show {
         transform: translateX(0);
@@ -710,3 +749,257 @@ body {
         font-size: 2rem;
     }
 }
+
+/* =====================================================================
+   PHASE 5: UI/UX REDESIGN COMPONENTS
+   ===================================================================== */
+
+/* Mobile Backdrop Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--border-subtle);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.theme-toggle-btn .theme-text {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Mobile Hamburger Menu Toggle Button */
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.4rem;
+    margin-right: 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.mobile-menu-btn:hover {
+    background: var(--border-subtle);
+}
+
+@media (max-width: 900px) {
+    .mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Chart Canvas & Skeleton Loader */
+.chart-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+}
+
+.chart-skeleton {
+    width: 100%;
+    height: 280px;
+    background: linear-gradient(90deg, var(--border-subtle) 25%, var(--border-color) 50%, var(--border-subtle) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-pulse 1.6s infinite ease-in-out;
+    border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-pulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Table Tools: Search, Sort, Responsive */
+.table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.table-search-input {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.table-search-input:focus {
+    outline: none;
+    border-color: var(--indigo-600);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5rem !important;
+}
+
+th[data-sort]::after {
+    content: "↕";
+    position: absolute;
+    right: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+th[data-sort][data-order="asc"]::after {
+    content: "▲";
+    color: var(--indigo-600);
+}
+
+th[data-sort][data-order="desc"]::after {
+    content: "▼";
+    color: var(--indigo-600);
+}
+
+/* Circular Animated Probability Gauge */
+.gauge-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gauge-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.gauge-circle-bg {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 10;
+}
+
+.gauge-circle-progress {
+    fill: none;
+    stroke: var(--emerald-600);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 339.29;
+    stroke-dashoffset: 67.85;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+}
+
+.gauge-score {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.gauge-score .value {
+    font-size: 2.1rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+.gauge-score .label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+}
+
+/* What-If Live Reactivity Sliders */
+.whatif-slider-container {
+    background: var(--surface-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.whatif-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+    outline: none;
+    accent-color: var(--indigo-600);
+    cursor: pointer;
+}
+
+/* Loading Spinners for Forms */
+.spinner-sm {
+    display: inline-block;
+    width: 0.95rem;
+    height: 0.95rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 0.6s linear infinite;
+    vertical-align: -0.15em;
+    margin-right: 0.35rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Accessibility: WCAG Focus Visible */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--indigo-600) !important;
+    outline-offset: 2px !important;
+}
+

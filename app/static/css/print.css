@@ -1,0 +1,173 @@
+/* =====================================================================
+   PRINT & PDF EXPORT STYLESHEET
+   Student Placement Data Analysis System
+   ===================================================================== */
+
+@media print {
+    *,
+    *::before,
+    *::after {
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        font-size: 11pt;
+        line-height: 1.4;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: #fff !important;
+    }
+
+    /* Hide non-printable interface elements */
+    .app-sidebar,
+    .app-topbar,
+    .synthetic-banner,
+    .filter-card,
+    .flash-container,
+    .btn,
+    .btn-group,
+    .btn-refresh-chart,
+    .btn-download-chart,
+    .theme-toggle-btn,
+    .mobile-menu-btn,
+    .sidebar-overlay,
+    .table-actions,
+    .pagination,
+    .search-bar,
+    form,
+    button {
+        display: none !important;
+    }
+
+    /* Expand main layout to full print page */
+    .app-container,
+    .app-main,
+    .page-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+    }
+
+    /* Print Header */
+    .print-header {
+        display: block !important;
+        border-bottom: 2pt solid #0f172a;
+        padding-bottom: 8pt;
+        margin-bottom: 16pt;
+    }
+
+    .print-header h1 {
+        font-size: 18pt;
+        margin: 0 0 4pt 0;
+        font-weight: 800;
+        color: #0f172a !important;
+    }
+
+    .print-header p {
+        font-size: 9pt;
+        margin: 0;
+        color: #475569 !important;
+    }
+
+    /* KPI Cards in Print */
+    .kpi-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8pt !important;
+        margin-bottom: 16pt !important;
+        page-break-inside: avoid;
+    }
+
+    .kpi-card {
+        border: 1pt solid #cbd5e1 !important;
+        border-radius: 4pt !important;
+        padding: 8pt !important;
+        page-break-inside: avoid;
+    }
+
+    .kpi-title {
+        font-size: 8.5pt !important;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #475569 !important;
+    }
+
+    .kpi-value {
+        font-size: 16pt !important;
+        font-weight: 800;
+        color: #0f172a !important;
+    }
+
+    /* Tables in Print */
+    table, .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 16pt !important;
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    th, td {
+        border: 0.5pt solid #cbd5e1 !important;
+        padding: 6pt 8pt !important;
+        font-size: 9pt !important;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f1f5f9 !important;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Charts in Print */
+    .charts-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12pt !important;
+        page-break-inside: avoid;
+    }
+
+    .chart-card {
+        border: 1pt solid #cbd5e1 !important;
+        border-radius: 4pt !important;
+        padding: 8pt !important;
+        page-break-inside: avoid;
+    }
+
+    .chart-img, canvas {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Page Breaks */
+    .page-break {
+        page-break-before: always;
+    }
+
+    /* Print Footer */
+    .app-footer {
+        border-top: 1pt solid #cbd5e1;
+        margin-top: 20pt;
+        padding-top: 8pt;
+        font-size: 8pt;
+        color: #64748b !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+}

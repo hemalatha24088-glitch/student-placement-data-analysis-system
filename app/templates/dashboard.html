@@ -71,7 +71,9 @@
             <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.total_students }}</div>
-        <div class="kpi-subtitle">Total student profiles in active filter</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--teal-600); font-weight: 700;">● Active</span> Profiles in active filter
+        </div>
     </div>
 
     <!-- 2. Total Eligible -->
@@ -81,7 +83,9 @@
             <div class="kpi-icon" style="background-color: var(--teal-50); color: var(--teal-600);"><svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.total_eligible }}</div>
-        <div class="kpi-subtitle">Placement eligible criteria met</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--emerald-600); font-weight: 700;">✓ Ready</span> Placement criteria met
+        </div>
     </div>
 
     <!-- 3. Distinct Placed -->
@@ -91,7 +95,9 @@
             <div class="kpi-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.total_placed }}</div>
-        <div class="kpi-subtitle">Distinct students with confirmed offers</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--emerald-600); font-weight: 700;">↗ Hired</span> Confirmed campus offers
+        </div>
     </div>
 
     <!-- 4. Unplaced Eligible -->
@@ -101,7 +107,9 @@
             <div class="kpi-icon" style="background-color: var(--rose-50); color: var(--rose-500);"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.unplaced_students }}</div>
-        <div class="kpi-subtitle">Eligible students requiring training</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--rose-500); font-weight: 700;">! Support</span> Requires upskilling / mentorship
+        </div>
     </div>
 
     <!-- 5. Placement Rate -->
@@ -110,8 +118,10 @@
             <span class="kpi-title">Placement Rate</span>
             <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg></div>
         </div>
-        <div class="kpi-value" style="color: var(--navy-blue);">{{ kpis.placement_rate }}%</div>
-        <div class="kpi-subtitle">Distinct Placed &divide; Eligible &times; 100</div>
+        <div class="kpi-value" style="color: var(--indigo-600);">{{ kpis.placement_rate }}%</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--emerald-600); font-weight: 700;">★ Institutional</span> Placed &divide; Eligible
+        </div>
     </div>
 
     <!-- 6. Average Package -->
@@ -121,7 +131,9 @@
             <div class="kpi-icon" style="background-color: var(--amber-50); color: var(--amber-500);"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.avg_package }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
-        <div class="kpi-subtitle">Arithmetic mean of confirmed CTCs</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--amber-500); font-weight: 700;">₹ Mean</span> Mean of confirmed CTCs
+        </div>
     </div>
 
     <!-- 7. Median Package -->
@@ -131,7 +143,9 @@
             <div class="kpi-icon" style="background-color: var(--teal-50); color: var(--teal-600);"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.median_package }} <span style="font-size: 1rem; font-weight: 600;">LPA</span></div>
-        <div class="kpi-subtitle">50th percentile robust CTC metric</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--teal-600); font-weight: 700;">📊 50th %ile</span> Robust compensation metric
+        </div>
     </div>
 
     <!-- 8. Active Companies -->
@@ -141,7 +155,9 @@
             <div class="kpi-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path></svg></div>
         </div>
         <div class="kpi-value">{{ kpis.total_companies }}</div>
-        <div class="kpi-subtitle">Companies that extended offers</div>
+        <div class="kpi-subtitle">
+            <span style="color: var(--indigo-600); font-weight: 700;">🏢 Active</span> Hiring organizations
+        </div>
     </div>
 </div>
 
@@ -160,22 +176,24 @@
 </div>
 {% endif %}
 
-<!-- Dynamic Matplotlib Visualizations Grid -->
-<div class="charts-grid">
+<!-- Interactive Chart.js Visualizations Grid with Matplotlib Fallback -->
+<div class="charts-grid" id="interactiveChartsContainer">
     <!-- Chart 1: Department Placement Rate -->
     <div class="chart-card">
         <div class="chart-card-header">
             <span class="chart-title">Department-Wise Placement Rates</span>
             <div style="display: flex; gap: 0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartDeptRate" title="Reload Chart">&#x21bb;</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartDeptRate" title="Download PNG">&#x2913;</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadChartAsPNG('deptRate', 'dept_placement_rate')" title="Download Interactive Chart as PNG">&#x2913; PNG</button>
             </div>
         </div>
         <div class="chart-card-body">
-            <img id="chartDeptRate" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='dept-rate', graduation_year=selected_year) }}" alt="Department Placement Rates">
+            <div class="chart-skeleton" id="skeletonDeptRate"></div>
+            <div class="chart-canvas-wrapper" style="display: none;">
+                <canvas id="chartDeptRateCanvas"></canvas>
+            </div>
         </div>
         <div class="chart-card-footer">
-            <strong>Interpretation:</strong> Displays distinct placed student proportion across each branch against overall institutional average benchmark.
+            <strong>Interpretation:</strong> Interactive benchmark comparing distinct placed student proportions across engineering disciplines.
         </div>
     </div>
 
@@ -184,12 +202,14 @@
         <div class="chart-card-header">
             <span class="chart-title">Eligible vs Placed Students by Department</span>
             <div style="display: flex; gap: 0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartPlacedEligible" title="Reload Chart">&#x21bb;</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartPlacedEligible" title="Download PNG">&#x2913;</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadChartAsPNG('placedEligible', 'placed_vs_eligible')" title="Download Interactive Chart as PNG">&#x2913; PNG</button>
             </div>
         </div>
         <div class="chart-card-body">
-            <img id="chartPlacedEligible" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='placed-vs-eligible', graduation_year=selected_year) }}" alt="Eligible vs Placed Students">
+            <div class="chart-skeleton" id="skeletonPlacedEligible"></div>
+            <div class="chart-canvas-wrapper" style="display: none;">
+                <canvas id="chartPlacedEligibleCanvas"></canvas>
+            </div>
         </div>
         <div class="chart-card-footer">
             <strong>Interpretation:</strong> Compares total candidate pool meeting eligibility with final placed counts to pinpoint unplaced cohorts.
@@ -201,53 +221,78 @@
         <div class="chart-card-header">
             <span class="chart-title">Salary Package Distribution (LPA CTC)</span>
             <div style="display: flex; gap: 0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartPkgDist" title="Reload Chart">&#x21bb;</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartPkgDist" title="Download PNG">&#x2913;</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadChartAsPNG('pkgDist', 'package_distribution')" title="Download Interactive Chart as PNG">&#x2913; PNG</button>
             </div>
         </div>
         <div class="chart-card-body">
-            <img id="chartPkgDist" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='package-distribution', department=selected_dept, graduation_year=selected_year) }}" alt="Salary Package Distribution">
+            <div class="chart-skeleton" id="skeletonPkgDist"></div>
+            <div class="chart-canvas-wrapper" style="display: none;">
+                <canvas id="chartPkgDistCanvas"></canvas>
+            </div>
         </div>
         <div class="chart-card-footer">
-            <strong>Interpretation:</strong> Frequency histogram of compensation offers illustrating entry-level clustering alongside mean and median markers.
+            <strong>Interpretation:</strong> Interactive compensation bracket breakdown with arithmetic mean and 50th percentile markers.
         </div>
     </div>
 
     <!-- Chart 4: Top Recorded Skills -->
     <div class="chart-card">
         <div class="chart-card-header">
-            <span class="chart-title">Skills Recorded Among Placed Students</span>
+            <span class="chart-title">Top Skills Recorded Among Placed Students</span>
             <div style="display: flex; gap: 0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartSkills" title="Reload Chart">&#x21bb;</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartSkills" title="Download PNG">&#x2913;</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadChartAsPNG('skills', 'top_skills')" title="Download Interactive Chart as PNG">&#x2913; PNG</button>
             </div>
         </div>
         <div class="chart-card-body">
-            <img id="chartSkills" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='top-skills', department=selected_dept) }}" alt="Top Skills Recorded">
+            <div class="chart-skeleton" id="skeletonSkills"></div>
+            <div class="chart-canvas-wrapper" style="display: none;">
+                <canvas id="chartSkillsCanvas"></canvas>
+            </div>
         </div>
         <div class="chart-card-footer">
-            <strong>Interpretation:</strong> Frequency of programming languages and core concepts recorded on profiles of candidates who secured offers.
+            <strong>Interpretation:</strong> Core competencies and technical proficiencies most frequently recorded by successfully placed candidates.
         </div>
     </div>
 
     <!-- Chart 5: Company Hiring Breakdown -->
     <div class="chart-card">
         <div class="chart-card-header">
-            <span class="chart-title">Top Recruiting Companies & Average CTC</span>
+            <span class="chart-title">Top Recruiting Companies & Offers</span>
             <div style="display: flex; gap: 0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm btn-refresh-chart" data-target="chartCompanies" title="Reload Chart">&#x21bb;</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-download-chart" data-target="chartCompanies" title="Download PNG">&#x2913;</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadChartAsPNG('companies', 'company_hires')" title="Download Interactive Chart as PNG">&#x2913; PNG</button>
             </div>
         </div>
         <div class="chart-card-body">
-            <img id="chartCompanies" class="chart-img" src="{{ url_for('api.stream_chart', chart_name='company-recruitment') }}" alt="Top Recruiting Companies">
+            <div class="chart-skeleton" id="skeletonCompanies"></div>
+            <div class="chart-canvas-wrapper" style="display: none;">
+                <canvas id="chartCompaniesCanvas"></canvas>
+            </div>
         </div>
         <div class="chart-card-footer">
-            <strong>Interpretation:</strong> Number of offers extended per organization with average compensation package (LPA).
+            <strong>Interpretation:</strong> Volume of offers extended per organization with live tooltip comparisons.
         </div>
     </div>
 
     <!-- Chart 6: Yearly Trends -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <span class="chart-title">Placement Rate & CTC Progression Over Time</span>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadChartAsPNG('trends', 'yearly_trends')" title="Download Interactive Chart as PNG">&#x2913; PNG</button>
+            </div>
+        </div>
+        <div class="chart-card-body">
+            <div class="chart-skeleton" id="skeletonTrends"></div>
+            <div class="chart-canvas-wrapper" style="display: none;">
+                <canvas id="chartTrendsCanvas"></canvas>
+            </div>
+        </div>
+        <div class="chart-card-footer">
+            <strong>Interpretation:</strong> Multi-year institutional progression tracking overall placement rate % alongside average package compensation.
+        </div>
+    </div>
+</div>
+
     <div class="chart-card">
         <div class="chart-card-header">
             <span class="chart-title">Placement Rate & CTC Progression Over Time</span>

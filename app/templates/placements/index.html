@@ -52,12 +52,13 @@
 </div>
 
 <div class="table-card">
-    <div class="table-header">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <div>
-            <h3 style="font-size: 1rem; font-weight: 700;">Placement Records ({{ total }} total)</h3>
+            <h3 style="font-size: 1rem; font-weight: 700; margin: 0;">Placement Records ({{ total }} total)</h3>
             <span style="font-size: 0.8rem; color: var(--text-muted);">Page {{ page }} of {{ total_pages }}</span>
         </div>
-        <div style="display: flex; gap: 0.6rem;">
+        <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+            <input type="text" class="table-search-input" data-table="placementsTable" placeholder="Instant filter placements..." aria-label="Quick search placements">
             <a href="{{ url_for('import_bp.index') }}" class="btn btn-secondary btn-sm">Import CSV</a>
             <a href="{{ url_for('placements.add_placement') }}" class="btn btn-indigo btn-sm">
                 <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -67,17 +68,17 @@
     </div>
 
     <div class="table-responsive">
-        <table class="custom-table">
+        <table class="custom-table" id="placementsTable">
             <thead>
                 <tr>
-                    <th>Student Details</th>
-                    <th>Department</th>
-                    <th>Company</th>
-                    <th>Job Role</th>
-                    <th>Package (LPA)</th>
-                    <th>Tier / Category</th>
-                    <th>Offer Date</th>
-                    <th>Status</th>
+                    <th data-sort>Student Details</th>
+                    <th data-sort>Department</th>
+                    <th data-sort>Company</th>
+                    <th data-sort>Job Role</th>
+                    <th data-sort>Package (LPA)</th>
+                    <th data-sort>Tier / Category</th>
+                    <th data-sort>Offer Date</th>
+                    <th data-sort>Status</th>
                     <th style="text-align: right;">Actions</th>
                 </tr>
             </thead>

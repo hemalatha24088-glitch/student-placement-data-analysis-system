@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Student Placement Data Analysis System{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50%25' y='68%25' font-size='55' font-family='Arial,sans-serif' font-weight='bold' fill='white' text-anchor='middle'>P</text></svg>">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}" media="print">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Inline Feather/Lucide SVG Icons helper styles -->
     <style>
         .icon { width: 1.15em; height: 1.15em; vertical-align: -0.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -153,11 +156,21 @@
         <div class="app-main">
             <!-- Topbar -->
             <header class="app-topbar">
-                <div class="topbar-title">
-                    {% block page_title %}Student Placement Analytics{% endblock %}
+                <div style="display: flex; align-items: center;">
+                    <button type="button" class="mobile-menu-btn" id="sidebarToggle" aria-label="Toggle navigation menu">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <div class="topbar-title">
+                        {% block page_title %}Student Placement Analytics{% endblock %}
+                    </div>
                 </div>
 
                 <div class="topbar-actions">
+                    <button type="button" class="theme-toggle-btn" id="themeToggle" aria-label="Toggle dark/light mode">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <span class="theme-text">Dark</span>
+                    </button>
+
                     <span class="badge-synthetic" title="For evaluation and viva presentation">
                         <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         Synthetic Demo Data

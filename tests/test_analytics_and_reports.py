@@ -33,6 +33,15 @@ def test_api_statistics_and_charts(officer_client):
     assert stats_resp.status_code == 200
     assert stats_resp.get_json()["success"] is True
 
+    chart_data_resp = officer_client.get("/api/chart-data?department=All&graduation_year=All")
+    assert chart_data_resp.status_code == 200
+    cd = chart_data_resp.get_json()
+    assert cd["success"] is True
+    assert "dept_rates" in cd
+    assert "skills" in cd
+    assert "companies" in cd
+    assert "trends" in cd
+
     chart_endpoints = [
         "/api/charts/dept-rate",
         "/api/charts/placed-vs-eligible",
