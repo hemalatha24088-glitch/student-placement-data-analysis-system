@@ -128,15 +128,15 @@
                     </span>
 
                     {% if session.get('username') %}
-                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">
-                            {{ session.get('full_name') }} ({{ session.get('role') }})
+                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">
+                            {{ session.get('full_name') }} <span style="font-size: 0.75rem; color: var(--indigo-600);">({{ session.get('role') }})</span>
                         </span>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm">Sign Out</a>
                     {% else %}
-                        <a href="{{ url_for('auth.demo_login', role='admin') }}" class="btn btn-indigo btn-sm" title="Quick log in for faculty review">
+                        <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="btn btn-indigo btn-sm" title="Quick 1-Click login as Faculty Reviewer">
                             Faculty Demo Login
                         </a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Admin Sign In</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Sign In Portal</a>
                     {% endif %}
                 </div>
             </header>

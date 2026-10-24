@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Project Report & Technical Documentation — Student Placement Data Analysis System</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: counter(page);
+            }
+        }
+        body {
+            font-family: "Georgia", "Times New Roman", serif;
+            color: #1e293b;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem 3rem;
+            background: #f8fafc;
+        }
+        .report-page {
+            background: #ffffff;
+            max-width: 860px;
+            margin: 0 auto 2rem auto;
+            padding: 3rem 4rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border-radius: 4px;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        .cover-page {
+            text-align: center;
+            padding: 4rem 2rem;
+            min-height: 800px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .cover-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .cover-sub {
+            font-size: 1.15rem;
+            color: #475569;
+            font-weight: 600;
+            max-width: 680px;
+            margin: 0 auto 2rem auto;
+        }
+        .cover-divider {
+            width: 120px;
+            height: 4px;
+            background: #1e3a8a;
+            margin: 1.5rem auto;
+        }
+        h1, h2, h3, h4 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #0f172a;
+        }
+        h1 {
+            font-size: 1.65rem;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 0.4rem;
+            margin-top: 2rem;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        h2 {
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.3rem;
+        }
+        h3 {
+            font-size: 1.05rem;
+            margin-top: 1.25rem;
+            color: #334155;
+        }
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0;
+            font-size: 0.88rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 0.6rem 0.85rem;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        pre {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.82rem;
+            font-family: "Courier New", Courier, monospace;
+            line-height: 1.45;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+            background: #f1f5f9;
+            color: #be185d;
+            padding: 0.15rem 0.35rem;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .toc-list li {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dotted #cbd5e1;
+            padding: 0.4rem 0;
+            font-size: 0.95rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            font-family: sans-serif;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-indigo { background: #e0e7ff; color: #3730a3; }
+        .no-print {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .btn-print {
+            background: #1e3a8a;
+            color: #ffffff;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .report-page {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">
+            &#128438; Print / Save as PDF Document
+        </button>
+    </div>
+
+    <!-- Page 1: Formal Cover Page -->
+    <div class="report-page cover-page page-break">
+        <div>
+            <div style="font-size: 0.9rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2rem;">
+                A Capstone Project Report Submitted for the Partial Fulfillment of the Degree of
+            </div>
+            <div class="cover-title">STUDENT PLACEMENT DATA ANALYSIS SYSTEM</div>
+            <div class="cover-divider"></div>
+            <div class="cover-sub">
+                A Full-Stack Data Analytics, Machine Learning & Natural Language Processing Platform for Institutional Recruitment Intelligence
+            </div>
+        </div>
+
+        <div style="margin: 3rem 0;">
+            <div style="font-size: 1rem; font-weight: 700; color: #1e3a8a; text-transform: uppercase;">
+                Bachelor of Technology (B.Tech)
+            </div>
+            <div style="font-size: 0.95rem; color: #475569; font-weight: 600; margin-top: 0.25rem;">
+                Computer Science and Engineering (Artificial Intelligence & Machine Learning)
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">
+                Academic Session: 2025–2026
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid #cbd5e1; padding-top: 2rem; display: flex; justify-content: space-between; text-align: left; font-size: 0.88rem; font-family: -apple-system, sans-serif;">
+            <div>
+                <div style="font-weight: 700; color: #1e3a8a;">SUBMITTED BY:</div>
+                <div style="font-weight: 600; color: #0f172a; margin-top: 0.2rem;">B.Tech CSE (AI/ML) Student</div>
+                <div style="color: #64748b;">Department of Computer Science & Engineering</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-weight: 700; color: #1e3a8a;">PROJECT MENTOR:</div>
+                <div style="font-weight: 600; color: #0f172a; margin-top: 0.2rem;">Head of Department / Guide</div>
+                <div style="color: #64748b;">College of Engineering & Technology</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2: Executive Summary & Certificate -->
+    <div class="report-page page-break">
+        <h1>Certificate of Originality</h1>
+        <p>This is to certify that the project entitled <strong>"STUDENT PLACEMENT DATA ANALYSIS SYSTEM"</strong> represents an authentic, bonafide record of technical development, database engineering, and machine learning research completed in partial fulfillment of the requirements for the degree of <strong>Bachelor of Technology in Computer Science and Engineering (AI/ML)</strong>.</p>
+        <p>The code, relational schemas, classification models, regression algorithms, and natural language processing pipelines described in this document have been executed, unit tested, and validated against an active MySQL 8.0 relational database.</p>
+        
+        <div style="margin-top: 4rem; display: flex; justify-content: space-between; font-family: sans-serif; font-size: 0.88rem;">
+            <div>
+                <div style="border-top: 1px solid #0f172a; padding-top: 0.3rem; font-weight: 700; width: 180px;">Project Guide</div>
+            </div>
+            <div>
+                <div style="border-top: 1px solid #0f172a; padding-top: 0.3rem; font-weight: 700; width: 180px; text-align: right;">External Examiner</div>
+            </div>
+        </div>
+
+        <h1 style="margin-top: 3rem;">Executive Abstract</h1>
+        <p>Higher education institutions historically track campus placement drives using disparate manual spreadsheets. These manual approaches suffer from severe limitations: multi-offer duplication, inaccurate placement rate computations, missing prerequisite tracking, and a total absence of predictive intelligence.</p>
+        <p>The <strong>Student Placement Data Analysis System</strong> is a full-stack, centralized web application built using <strong>Python 3.14</strong>, <strong>Flask</strong>, <strong>MySQL 8.0</strong>, <strong>Pandas</strong>, <strong>NumPy</strong>, <strong>Matplotlib</strong>, and <strong>Scikit-Learn</strong>. It establishes a normalized 3NF relational schema enforcing strict referential integrity across students, corporate recruiters, technical skills, and placement offers.</p>
+        <p>To justify a <strong>B.Tech CSE (AI/ML)</strong> specialization, the system implements an enterprise-grade <strong>4-Pillar Artificial Intelligence and NLP Suite</strong>:</p>
+        <ul>
+            <li><strong>Supervised Classification:</strong> Random Forest Classifier predicting student placement probability and risk tier.</li>
+            <li><strong>Recommender Systems:</strong> Recruiter Tier Profiling and 6-Week Structured Preparation Roadmaps.</li>
+            <li><strong>Supervised Regression:</strong> Random Forest Regressor predicting expected annual CTC (in ₹ LPA) with dynamic confidence intervals.</li>
+            <li><strong>Natural Language Processing (NLP):</strong> TF-IDF N-Gram Vectorizer and Cosine Similarity calculating real-time ATS compatibility scores against corporate Job Descriptions (JDs).</li>
+        </ul>
+        <p>The system is verified with <strong>36 automated unit tests (100% passing)</strong> and is deployed live via secure Cloudflare Zero-Trust tunnels.</p>
+    </div>
+
+    <!-- Page 3: System Architecture & Technical Stack -->
+    <div class="report-page page-break">
+        <h1>Chapter 1: System Architecture & Technology Stack</h1>
+        <p>The platform follows an enterprise Three-Tier Architecture cleanly decoupling presentation, application business logic, and relational storage.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Technology Component</th>
+                    <th>Role in System Architecture</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Presentation</strong></td>
+                    <td>HTML5, CSS3, JavaScript ES6, Jinja2</td>
+                    <td>Modern SaaS analytics dashboard (Navy/Indigo/Emerald), filter reactivity, dynamic sliders</td>
+                </tr>
+                <tr>
+                    <td><strong>Application</strong></td>
+                    <td>Python 3.14, Flask, Blueprints</td>
+                    <td>REST API controllers, session security, business rules, service modularity</td>
+                </tr>
+                <tr>
+                    <td><strong>Analytics</strong></td>
+                    <td>Pandas 2.2, NumPy 2.2</td>
+                    <td>Group-by data transformations, quartile percentiles (P25, P50, P75, P90), mathematical formulas</td>
+                </tr>
+                <tr>
+                    <td><strong>Visualizations</strong></td>
+                    <td>Matplotlib 3.10 ('Agg' backend)</td>
+                    <td>Server-rendered dynamic PNG charts streamed directly to client endpoints</td>
+                </tr>
+                <tr>
+                    <td><strong>Machine Learning</strong></td>
+                    <td>Scikit-Learn 1.6</td>
+                    <td>Random Forest Classifier, Random Forest Regressor, TF-IDF Vectorizer, Cosine Similarity</td>
+                </tr>
+                <tr>
+                    <td><strong>Data Tier</strong></td>
+                    <td>MySQL 8.0 (InnoDB) & PyMySQL</td>
+                    <td>3NF normalized relational schema, foreign key cascade rules, connection pooling</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Database Relational Entities (3NF Normalized)</h2>
+        <p>The database schema <code>placement_db</code> is normalized to Third Normal Form to ensure zero data redundancy:</p>
+        <ul>
+            <li><code>students</code>: Primary master record (student_id, roll_no, student_name, department, graduation_year, cgpa, eligible_for_placement).</li>
+            <li><code>skills</code>: Master skill catalog (skill_id, skill_name, skill_category).</li>
+            <li><code>student_skills</code>: Associative bridge table resolving M:N relationship with composite primary key (student_id, skill_id).</li>
+            <li><code>companies</code>: Corporate recruiting partners with hiring tier classifications (Super Dream, Dream, Core, Mass).</li>
+            <li><code>placements</code>: Comprehensive placement offers (student_id, company_id, package_amount, role, status, placement_date).</li>
+            <li><code>users</code>: System administrator and placement officer authentication credentials with hashed passwords.</li>
+        </ul>
+    </div>
+
+    <!-- Page 4: The 4-Pillar AI / ML Intelligence Suite -->
+    <div class="report-page page-break">
+        <h1>Chapter 2: The 4-Pillar AI, Machine Learning & NLP Suite</h1>
+        
+        <h2>Pillar 1: Placement Probability Predictor (Classification)</h2>
+        <p>An ensemble <strong>Random Forest Classifier</strong> evaluates candidate parameters to output placement probability. Features include academic GPA, department one-hot encoding, total skill count, and key skill flags (DSA, Python, SQL, AI/ML, Cloud).</p>
+        <ul>
+            <li><strong>Model Accuracy:</strong> 85.0% | <strong>Precision:</strong> 88.9% | <strong>Recall:</strong> 80.0%</li>
+            <li><strong>Top Feature Importance:</strong> Cumulative GPA (63.8%), followed by Data Structures & Algorithms (11.2%).</li>
+        </ul>
+
+        <h2>Pillar 2: Smart Skill Gap Recommender Engine</h2>
+        <p>Benchmarks student skill inventories against campus recruitment tier standards (Super Dream > 15 LPA, Dream 8-15 LPA, Core 6-12 LPA, Mass 3.5-7 LPA). Calculates weighted competency affinity and generates an actionable 3-phase, 6-week preparation roadmap.</p>
+
+        <h2>Pillar 3: Salary Package (CTC) Predictor (Regression)</h2>
+        <p>A supervised <strong>Random Forest Regressor</strong> trained on 47 verified placement compensation packages in MySQL. Predicts annual CTC point estimates and dynamic confidence intervals.</p>
+        <ul>
+            <li><strong>Mean Absolute Error (MAE):</strong> ±₹3.63 LPA | <strong>RMSE:</strong> ₹5.04 LPA</li>
+            <li><strong>Sensitivity Analysis:</strong> Quantifies the monetary CTC uplift for each unpossessed skill and estimated gain per +0.50 CGPA.</li>
+            <li><strong>Verified Bio-Data Generator:</strong> Official printable candidate placement resume with TPO seal.</li>
+        </ul>
+
+        <h2>Pillar 4: AI Resume & Job Description Matcher (NLP)</h2>
+        <p>Applies <strong>TF-IDF N-Gram Vectorization</strong> (unigrams & bigrams) and <strong>Cosine Similarity</strong> to measure semantic alignment between student resumes and recruiter Job Descriptions (Google SWE, Amazon SDE-1, Microsoft Cloud & AI, TCS Digital, Deloitte). Extracts matched competencies and isolates missing recruiter keywords to calculate ATS Pass Scores.</p>
+    </div>
+
+    <!-- Page 5: Verification & Viva Defense -->
+    <div class="report-page">
+        <h1>Chapter 3: Verification & Key Viva Voce Q&A</h1>
+
+        <h2>Software Testing Summary (36 Passing Automated Unit Tests)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Automated Test Scope</th>
+                    <th>Test Count</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>test_analytics.py</code></td><td>KPI math, zero denominator safety, percentiles</td><td>5</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_charts.py</code></td><td>All 6 Matplotlib charts, byte stream validation</td><td>2</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_csv_import.py</code></td><td>CSV schema diagnostics, row-level validation</td><td>2</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_database.py</code></td><td>PyMySQL connection pool, health check</td><td>2</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_ml_predictor.py</code></td><td>Random Forest Classifier, inference, risk ranking</td><td>4</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_salary_predictor.py</code></td><td>Random Forest Regressor, MAE, bio-data route</td><td>6</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_skill_recommender.py</code></td><td>Tier profiling, 6-week roadmap, REST API</td><td>6</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_nlp_ats.py</code></td><td>TF-IDF, Cosine Similarity, ATS scoring</td><td>6</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_placements.py</code></td><td>Duplicate offer rules, package bounds check</td><td>1</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><code>test_students.py</code></td><td>Student CRUD lifecycle, unique roll number</td><td>2</td><td><span class="badge badge-success">PASSED</span></td></tr>
+                <tr><td><strong>TOTAL</strong></td><td><strong>Comprehensive Pytest Automated Suite</strong></td><td><strong>36</strong></td><td><span class="badge badge-success">100% PASSED</span></td></tr>
+            </tbody>
+        </table>
+
+        <h2>Essential Faculty Review Questions</h2>
+        <p><strong>Q: Why did you use PyMySQL with parameterized queries instead of an ORM like SQLAlchemy?</strong><br>
+        <em>A: Parameterized SQL queries ensure full transparency and complete defense against SQL injection. In an academic project review, writing explicit SQL queries and using DictCursor allows faculty to evaluate our mastery of relational database design and indexing rather than relying on abstract ORM layers.</em></p>
+
+        <p><strong>Q: How do you prevent thread collision with Matplotlib in Flask?</strong><br>
+        <em>A: We enforce <code>matplotlib.use("Agg")</code> prior to importing pyplot. The 'Agg' backend renders charts strictly in memory to raw byte streams without requiring desktop GUI window managers, preventing server crashes during concurrent multi-threaded requests.</em></p>
+
+        <p><strong>Q: How does your system assist institutions during NAAC or NIRF audits?</strong><br>
+        <em>A: NIRF and NAAC require exact, auditable placement statistics, median CTC packages, and verified proof of career counseling interventions. Our system calculates true distinct placement rates, exports accredited CSV reports, and logs candidate skill gap remediation.</em></p>
+    </div>
+
+</body>
+</html>

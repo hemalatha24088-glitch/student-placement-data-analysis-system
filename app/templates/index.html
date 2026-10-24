@@ -5,45 +5,127 @@
 
 {% block content %}
 <div style="margin: -1.75rem -1.75rem 2rem -1.75rem;">
-    <!-- Hero Section -->
-    <section class="landing-hero">
-        <div style="max-width: 900px; margin: 0 auto; position: relative; z-index: 2;">
-            <div class="hero-badge">Academic Project &bull; B.Tech CSE (AI/ML)</div>
-            <h1 class="hero-title">Student Placement Data Analysis System</h1>
-            <p class="hero-subtitle">
-                Transform Placement Records into Actionable Career Insights. An end-to-end data analytics and management platform for colleges and university placement cells.
-            </p>
-            <div class="hero-buttons">
-                <a href="{{ url_for('main.dashboard') }}" class="btn btn-indigo" style="padding: 0.75rem 1.75rem; font-size: 1rem;">
-                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                    Explore Live Dashboard
-                </a>
-                <a href="{{ url_for('students.list_students') }}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; font-size: 1rem; background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.25);">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                    Manage Student Records
-                </a>
-            </div>
+    <!-- Hero Section with Login Section First -->
+    <section class="landing-hero" style="padding: 3rem 2rem 3.5rem 2rem;">
+        <div style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 2;">
+            <div style="display: grid; grid-template-columns: 1.15fr 0.95fr; gap: 2.5rem; align-items: center;">
+                <!-- Left Column: System Overview & Live KPIs -->
+                <div>
+                    <div class="hero-badge">Academic Project &bull; B.Tech CSE (AI/ML)</div>
+                    <h1 class="hero-title" style="font-size: 2.25rem; line-height: 1.25; margin-bottom: 0.85rem;">
+                        Student Placement Data Analysis System
+                    </h1>
+                    <p class="hero-subtitle" style="font-size: 0.95rem; margin-bottom: 1.5rem; color: #cbd5e1; max-width: 580px;">
+                        Transform Placement Records into Actionable Career Insights. An enterprise full-stack analytics, machine learning, and placement intelligence platform for colleges and university placement cells.
+                    </p>
 
-            <!-- Hero Visual Illustration (SVG) -->
-            <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(8px); display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                <div style="text-align: center;">
-                    <div style="font-size: 2.2rem; font-weight: 800; color: #38bdf8;">{{ kpis.total_students }}</div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Students Monitored</div>
+                    <!-- Hero Visual KPI Metrics -->
+                    <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 1.25rem; backdrop-filter: blur(10px); display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <div style="font-size: 1.85rem; font-weight: 800; color: #38bdf8;">{{ kpis.total_students }}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Students Monitored</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.85rem; font-weight: 800; color: #34d399;">{{ kpis.placement_rate }}%</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Overall Placement Rate</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.85rem; font-weight: 800; color: #fbbf24;">{{ kpis.avg_package }} LPA</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Average Package (CTC)</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.85rem; font-weight: 800; color: #a78bfa;">{{ kpis.total_companies }}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Recruiting Partners</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <span style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 9999px;">Random Forest Classification</span>
+                        <span style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 9999px;">CTC Regressor</span>
+                        <span style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 9999px;">Skill Gap Recommender</span>
+                        <span style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 9999px;">NLP ATS Matcher</span>
+                    </div>
                 </div>
-                <div style="height: 40px; width: 1px; background: rgba(255,255,255,0.15);"></div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.2rem; font-weight: 800; color: #34d399;">{{ kpis.placement_rate }}%</div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Overall Placement Rate</div>
-                </div>
-                <div style="height: 40px; width: 1px; background: rgba(255,255,255,0.15);"></div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.2rem; font-weight: 800; color: #fbbf24;">{{ kpis.avg_package }} LPA</div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Average Package (CTC)</div>
-                </div>
-                <div style="height: 40px; width: 1px; background: rgba(255,255,255,0.15);"></div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.2rem; font-weight: 800; color: #a78bfa;">{{ kpis.total_companies }}</div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Recruiting Partners</div>
+
+                <!-- Right Column: Prominent Login Section First -->
+                <div>
+                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25); color: var(--text-primary);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <div class="brand-icon" style="width: 38px; height: 38px; font-size: 1.1rem; border-radius: 8px;">P</div>
+                            <div>
+                                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary-900); margin: 0;">
+                                    Placement Portal Sign In
+                                </h3>
+                                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">
+                                    Authorized Access &bull; Training & Placement Cell
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if session.get('username') %}
+                            <!-- Active Session State -->
+                            <div style="background: var(--surface-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem; text-align: center;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--indigo-50); color: var(--indigo-600); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 800; margin: 0 auto 0.5rem auto;">
+                                    {{ session.get('full_name')[0] }}
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900);">{{ session.get('full_name') }}</div>
+                                <div style="font-size: 0.78rem; color: var(--indigo-600); font-weight: 600; text-transform: uppercase;">
+                                    Role: {{ session.get('role') }}
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <a href="{{ url_for('main.dashboard') }}" class="btn btn-indigo" style="width: 100%; padding: 0.65rem; font-size: 0.95rem; text-align: center;">
+                                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                    Enter Analytics Dashboard
+                                </a>
+                                <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center;">
+                                    Sign Out
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- One-Click Quick Evaluator Demo Logins -->
+                            <div style="margin-bottom: 1.25rem;">
+                                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem;">
+                                    One-Click Evaluator Access (Viva Review)
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="btn btn-indigo" style="font-size: 0.8rem; padding: 0.55rem 0.5rem; text-align: center; justify-content: center;">
+                                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                        Faculty Officer
+                                    </a>
+                                    <a href="{{ url_for('auth.demo_login', role='admin') }}" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.55rem 0.5rem; text-align: center; justify-content: center;">
+                                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                        Administrator
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; margin: 1.25rem 0; gap: 0.75rem;">
+                                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">or sign in with credentials</span>
+                                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                            </div>
+
+                            <!-- Login Form -->
+                            <form method="POST" action="{{ url_for('auth.login') }}">
+                                <div class="form-group" style="margin-bottom: 0.85rem;">
+                                    <label class="form-label" for="username" style="font-size: 0.8rem;">Username</label>
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="admin or faculty" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1.1rem;">
+                                    <label class="form-label" for="password" style="font-size: 0.8rem;">Password</label>
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn btn-indigo" style="width: 100%; padding: 0.6rem; font-size: 0.9rem; font-weight: 700;">
+                                    Sign In to System
+                                </button>
+                            </form>
+
+                            <div style="margin-top: 0.85rem; text-align: center; font-size: 0.72rem; color: var(--text-muted);">
+                                Demo logins: <code>faculty</code> / <code>faculty123</code> &bull; <code>admin</code> / <code>admin123</code>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
 Application Factory for Student Placement Data Analysis System.
 """
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from config import Config
 
 def create_app(config_class=Config):
@@ -40,6 +40,28 @@ def create_app(config_class=Config):
     app.register_blueprint(api_bp)
     app.register_blueprint(predictor_bp)
     app.register_blueprint(ats_bp)
+
+    # Route Protection: Enforce Login First for internal pages
+    @app.before_request
+    def require_login_first():
+        if app.config.get("TESTING"):
+            return
+
+        allowed_endpoints = {
+            "auth.login",
+            "auth.demo_login",
+            "auth.logout",
+            "main.index",
+            "main.health_page",
+            "static"
+        }
+
+        if request.endpoint and (request.endpoint in allowed_endpoints or request.endpoint.startswith("static")):
+            return
+
+        if request.endpoint and not session.get("user_id"):
+            flash("Please sign in first to access the placement system.", "warning")
+            return redirect(url_for("auth.login", next=request.url))
 
     # Custom Jinja2 Filters
     @app.template_filter("currency_lpa")

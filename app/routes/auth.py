@@ -10,13 +10,19 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    next_url = request.values.get("next") or url_for("main.dashboard")
+
+    # If already logged in, redirect directly to requested page or dashboard
+    if session.get("user_id"):
+        return redirect(next_url)
+
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
 
         if not username or not password:
             flash("Please enter both username and password.", "danger")
-            return render_template("auth/login.html")
+            return render_template("auth/login.html", next_url=next_url)
 
         with get_db_cursor(commit=False) as cursor:
             cursor.execute("SELECT * FROM users WHERE username = %s;", (username,))
@@ -28,17 +34,19 @@ def login():
             session["full_name"] = user["full_name"]
             session["role"] = user["role"]
             flash(f"Welcome back, {user['full_name']}!", "success")
-            return redirect(url_for("main.dashboard"))
+            return redirect(next_url)
         else:
-            flash("Invalid credentials. Please try again.", "danger")
+            flash("Invalid credentials. Please enter a valid username and password.", "danger")
 
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", next_url=next_url)
 
 @auth_bp.route("/demo-login/<role>")
 def demo_login(role):
     """
     Convenience one-click evaluator login for faculty demonstration.
     """
+    next_url = request.args.get("next") or url_for("main.dashboard")
+
     if role == "faculty":
         session["user_id"] = 2
         session["username"] = "faculty"
@@ -51,7 +59,7 @@ def demo_login(role):
         session["full_name"] = "System Administrator"
         session["role"] = "admin"
         flash("Logged in with Administrator demonstration profile.", "info")
-    return redirect(url_for("main.dashboard"))
+    return redirect(next_url)
 
 @auth_bp.route("/logout")
 def logout():
