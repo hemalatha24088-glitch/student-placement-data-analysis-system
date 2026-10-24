@@ -127,3 +127,44 @@ def stream_chart(chart_name):
         return jsonify({"error": "Unknown chart name"}), 404
 
     return Response(png_bytes, mimetype="image/png")
+
+
+@api_bp.route("/docs")
+def api_docs():
+    """Interactive OpenAPI / Swagger UI API Documentation."""
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Documentation | Student Placement Analytics</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+  <style>body { margin: 0; background: #fafafa; }</style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: '/api/openapi.yaml',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [SwaggerUIBundle.presets.apis]
+      });
+    };
+  </script>
+</body>
+</html>
+"""
+
+
+@api_bp.route("/openapi.yaml")
+def openapi_spec():
+    """Serve OpenAPI YAML specification file."""
+    from pathlib import Path
+
+    spec_path = Path(__file__).resolve().parent.parent.parent / "docs" / "openapi.yaml"
+    if not spec_path.exists():
+        return jsonify({"error": "Spec not found"}), 404
+    return Response(spec_path.read_text(encoding="utf-8"), mimetype="text/yaml")

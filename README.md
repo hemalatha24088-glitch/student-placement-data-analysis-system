@@ -1,299 +1,388 @@
 # Student Placement Data Analysis System
-### A Full-Stack Analytics & AI/ML Platform for College Placement Management
+### Enterprise Full-Stack Analytics, Machine Learning & Career Intelligence Platform
 **Academic Capstone Project &bull; B.Tech Computer Science & Engineering (AI/ML)**
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Public%20Repository-blue?logo=github)](https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system)
-[![Vercel Ready](https://img.shields.io/badge/Vercel-Deployment%20Ready-black?logo=vercel)](https://vercel.com)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhemalatha24088-glitch%2Fstudent-placement-data-analysis-system)
-[![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)](https://python.org)
+[![CI Pipeline](https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system/actions/workflows/ci.yml/badge.svg)](https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/Coverage-85%25-brightgreen)](docs/testing_report.md)
+[![Tests](https://img.shields.io/badge/Pytest-104%20Passed-brightgreen)](docs/testing_report.md)
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.1-black?logo=flask)](https://flask.palletsprojects.com)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?logo=mysql)](https://mysql.com)
-[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.9-orange?logo=scikit-learn)](https://scikit-learn.org)
-[![Tests](https://img.shields.io/badge/Pytest-48%20Passed-brightgreen)](https://pytest.org)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.5%2B-orange?logo=scikit-learn)](https://scikit-learn.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0.3-brightgreen?logo=swagger)](docs/openapi.yaml)
 
 ---
 
-## 🌐 Access & Evaluation Quickstart
+## 🌟 Executive Summary
 
-1. **Create an Account (Student Sign-Up):**
-   - Navigate to `/register` on the login screen.
-   - Enter your **Full Name**, **Username**, **Email**, and **Password**.
-   - Public sign-ups are automatically registered as **Student** accounts.
-2. **Administrator & Placement Officer Provisioning:**
-   - Initialize an administrator account securely via CLI:
-     ```bash
-     python init_db.py --create-admin
-     ```
-   - System Administrators can promote accounts to Placement Officer or Administrator via `/admin/users`.
-3. **Optional Demo Mode (Sandbox Evaluation):**
-   - Set `DEMO_MODE=true` in your `.env` file to enable one-click evaluator buttons on `/login`.
-   - A visible "Demo Mode Active" notification banner appears across all views when enabled.
-4. **Google OAuth 2.0 (SSO):**
-   - Provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env` to enable genuine Google authentication.
+The **Student Placement Data Analysis System** is an enterprise-grade, accessible, and secure analytical platform engineered to replace error-prone spreadsheets with real-time relational analytics, interactive data visualizations, and machine learning intelligence.
+
+Built for university placement cells, academic deans, and graduating students, the system provides:
+- **Interactive Analytics:** Real-time Chart.js 4.4.1 visual dashboards with multi-dimensional filtering.
+- **Predictive ML:** Random Forest placement probability classifier ($79.55\%$ accuracy, $80.39\%$ 5-fold CV) and salary CTC regressor ($2.83$ LPA MAE).
+- **Interactive Simulator:** Live "What-If" student simulation with animated circular gauges and instant risk tiers.
+- **Career Intelligence:** AI skill gap roadmap analyzer, ATS resume keyword matcher, and printable biodata generator.
+- **Robust Security:** Multi-tier Role-Based Access Control (RBAC), Flask-WTF CSRF tokens, Flask-Limiter brute-force defenses, Flask-Talisman security headers, CSV injection sanitization, and genuine Google OAuth 2.0.
+- **Production Ready:** Zero hardcoded fallback secrets, idempotent SQL migrations, automated backups, Docker multi-container composition, Gunicorn WSGI, and OpenAPI/Swagger documentation.
+
+> **Statistical & Academic Disclaimer:** All placement predictions and salary estimates are statistical approximations based on training dataset distributions and do not guarantee recruitment outcomes. Pre-loaded dataset records represent synthetic data generated for educational evaluation and algorithm validation.
 
 ---
 
-## 1. Project Overview
+## 📸 Interface Gallery
 
-The **Student Placement Data Analysis System** is a professional, full-stack web application designed to track, analyze, predict, and visualize student recruitment performance across academic departments, salary tiers, hiring companies, and verified technical skills.
+| Interactive Analytics Dashboard | Machine Learning "What-If" Predictor |
+| :---: | :---: |
+| ![Dashboard](docs/assets/dashboard_preview.png)<br><sub>Live KPI headline cards, dynamic filter bar, Chart.js 4.4.1 visual components, and instant PNG downloads.</sub> | ![Predictor](docs/assets/predictor_preview.png)<br><sub>Live CGPA slider, dynamic skill toggles, SVG circular gauge, and feature importance visualizer.</sub> |
 
-Built using **Python 3**, **Flask**, **MySQL 8.0**, **Scikit-Learn**, **Pandas**, **NumPy**, and **Matplotlib**, this system moves college placement operations away from fragmented manual spreadsheets into an automated, relational, and auditable analytical platform.
-
-> **Demonstration Notice:** The dataset pre-loaded into the database contains **synthetic sample data** structured specifically for college project reviews, algorithm verification, and faculty viva examination.
-
----
-
-## 2. Technology Stack
-
-- **Backend:** Python 3.14+, Flask 3.1
-- **Database:** MySQL Server 8.0 (Relational schema with InnoDB, Foreign Keys, Indexes)
-- **Database Driver:** PyMySQL 1.2 & MySQL Connector Python
-- **Machine Learning & NLP:** Scikit-Learn 1.9 (RandomForestClassifier, GradientBoostingClassifier, RandomForestRegressor, TF-IDF Vectorizer, Cosine Similarity)
-- **Data Analytics:** Pandas 3.1 (aggregations, multi-table grouping, CSV processing)
-- **Numerical Calculations:** NumPy 2.5 (mean, median, standard deviation, percentiles)
-- **Data Visualizations:** Matplotlib 3.11 (headless `Agg` engine generating responsive PNG charts)
-- **Frontend UI/UX:** HTML5, CSS3 (Modern Navy/Indigo SaaS Design System), Vanilla JavaScript
-- **Testing:** Pytest 9.1 (48 automated unit & integration tests)
+| Model Performance & Diagnostics Hub | Accessible Dark Mode Theme |
+| :---: | :---: |
+| ![Model Info](docs/assets/model_info_preview.png)<br><sub>True empirical metrics (Accuracy, ROC-AUC, F1, MAE), 5-fold CV scores, and joblib version tracking.</sub> | ![Dark Mode](docs/assets/dark_mode_preview.png)<br><sub>Refined navy/indigo palette, CSS custom properties, and client-side `localStorage` state persistence.</sub> |
 
 ---
 
-## 3. Key Features
+## 🏗️ System Architecture
 
-1. **Mandatory Sign-In First Portal (`/login` & `/register`):**
-   - Unauthenticated visitors are automatically directed to the secure sign-in portal.
-   - Self-registration with encrypted password hashing (`werkzeug.security`).
-   - Dual-mode credential authentication (sign in with Username OR registered Email).
-   - Google Account SSO integration.
-   - One-click Faculty and Administrator demonstration access.
-2. **Interactive Analytics Dashboard (`/dashboard`):**
-   - 8 live KPI metric cards (Registered, Eligible, Placed, Unplaced, Placement Rate %, Average CTC, Median CTC, Active Recruiters).
-   - Global dynamic filter bar (Graduation Year, Department, Offer Status, Company).
-   - 6 dynamic Matplotlib visualizations with instant image refresh and download capability.
-   - Data-driven placement observations automatically generated from filtered records.
-3. **Machine Learning Placement Probability Predictor (`/predictor`):**
-   - Dual-model ML architecture (`RandomForestClassifier` & `GradientBoostingClassifier`).
-   - Features: CGPA, Department, Skill Count, Graduation Year, Eligibility.
-   - Interactive SVG Probability Gauge, confidence breakdown, top influential factors, and personalized recommendations.
-   - Pre-computed candidate roster with high/medium/risk classification and cohort filtering.
-4. **AI Skill Gap Analyzer & Learning Roadmap Recommender (`/recommender`):**
-   - Curated hiring tier benchmarks (`Tier-1 Super Dream`, `Tier-2 Dream`, `Tier-3 Core Tech`, `Tier-4 IT Services`).
-   - Match percentage scoring, verified student skills vs. missing high-yield skills.
-   - Curated 4-week step-by-step learning roadmap with free learning resources.
-5. **Machine Learning Salary Package (CTC) Regressor & Printable Bio-Data (`/salary-predictor`):**
-   - `RandomForestRegressor` predicting estimated package in Lakhs Per Annum (LPA) (MAE $\pm$3.63 LPA).
-   - What-if CGPA and technical skill scenario simulator.
-   - Printable Candidate Resume / Placement Bio-Data generator (`/students/<id>/resume`).
-6. **Natural Language Processing (NLP) ATS Resume & Job Description Matcher (`/ats`):**
-   - TF-IDF Vectorizer and Cosine Similarity scoring.
-   - Keyword frequency analysis and technical gap identification.
-   - Live sample job descriptions (Google SDE-1, Microsoft Cloud Engineer, Data Analyst, TCS Digital).
-7. **Student Management (`/students`):**
-   - Complete CRUD (Create, Read, Update, Delete) with roll number uniqueness protection, CGPA tracking, placement eligibility controls, and skill associations.
-8. **Company Management (`/companies`):**
-   - Partner directory, hiring tiers (`Super Dream`, `Dream`, `Core Engineering`, `Mass / IT Services`), and average compensation tracking.
-9. **Placement Records Registry (`/placements`):**
-   - Job offer management in INR Lakhs Per Annum (LPA) CTC. Enforces business rule preventing duplicate active offers for the same student, company, and role in a given year.
-10. **Deep Analytical Modules (`/analytics/`):**
-    - Department-Wise Comparisons (`/analytics/departments`).
-    - Salary Package Distributions, Percentiles & Tiers (`/analytics/packages`).
-    - Historical Trends across Graduation Classes 2024–2026 (`/analytics/trends`).
-11. **Reports & Dynamic CSV Export (`/reports`):**
-    - Printable report sheets and one-click CSV export for summaries, department rolls, student rosters, and compensation brackets.
-12. **Bulk CSV Data Import (`/import`):**
-    - Upload spreadsheet callsets for students and placements with row-by-row error logging and sample CSV templates.
+```mermaid
+flowchart TD
+    subgraph Client["Client Tier (Browser / Mobile)"]
+        UI["Modern UI / Responsive Drawer"]
+        CJS["Chart.js 4.4.1 Visualizations"]
+        SIM["What-If Predictor Simulator"]
+        SWAG["Swagger UI (/api/docs)"]
+    end
 
----
+    subgraph Security["Security & Middleware Tier"]
+        TALISMAN["Flask-Talisman (CSP, HSTS, X-Frame)"]
+        LIMITER["Flask-Limiter (Rate Limiting)"]
+        CSRF["Flask-WTF (CSRF Protection)"]
+        RBAC["RBAC Engine (Student / Officer / Admin)"]
+    end
 
-## 4. Windows Quickstart Guide (Step-by-Step)
+    subgraph App["Application Services Tier (Flask 3.1)"]
+        AUTH["Auth & Google OAuth 2.0 (Authlib)"]
+        STUDENT["Student CRUD & Search"]
+        ANALYTICS["Analytics Engine (Pandas & NumPy)"]
+        ML["ML Pipeline (Random Forest & Joblib)"]
+        REPORTS["Reports & CSV Import/Export"]
+    end
 
-### Prerequisites
-- Windows 10 or 11
-- Python 3.10+ installed
-- MySQL Server 8.0 installed and running as a Windows service (`MySQL80`)
+    subgraph Storage["Persistence & Database Tier"]
+        MYSQL[("MySQL 8.0 Server (InnoDB)")]
+        MIGRATIONS["Idempotent Migrations (schema_migrations)"]
+        MODELS[("Serialized Models (.joblib)")]
+        LOGS["Rotating File Logs (logs/app.log)"]
+    end
 
-### Step 1: Open PowerShell in Project Folder
-Navigate to the project root directory:
-```powershell
-cd "c:\Users\M Hemalatha\Desktop\spd"
+    UI --> TALISMAN --> LIMITER --> CSRF --> RBAC
+    RBAC --> App
+    AUTH --> MYSQL
+    STUDENT --> MYSQL
+    ANALYTICS --> MYSQL
+    ML --> MODELS
+    REPORTS --> MYSQL
+    MYSQL --> MIGRATIONS
 ```
 
-### Step 2: Set Up Virtual Environment
-Create and activate the Python virtual environment:
+---
+
+## 🗄️ Relational Database Schema (ER Diagram)
+
+The underlying schema is fully normalized (3NF) in MySQL 8.0 with cascading foreign keys and composite performance indexes:
+
+```mermaid
+erDiagram
+    STUDENTS ||--o{ STUDENT_SKILLS : possesses
+    SKILLS ||--o{ STUDENT_SKILLS : tagged_in
+    STUDENTS ||--o{ PLACEMENTS : receives
+    COMPANIES ||--o{ PLACEMENTS : offers
+    USERS ||--o| STUDENTS : links_to
+    SCHEMA_MIGRATIONS {
+        string version PK
+        timestamp applied_at
+    }
+    USERS {
+        int user_id PK
+        string username UK
+        string password_hash
+        string full_name
+        string role
+        string email
+        int student_id FK
+        timestamp created_at
+    }
+    STUDENTS {
+        int student_id PK
+        string roll_no UK
+        string student_name
+        string department
+        int graduation_year
+        decimal cgpa
+        string email
+        string phone
+        string gender
+        tinyint eligible_for_placement
+        timestamp created_at
+        timestamp updated_at
+    }
+    SKILLS {
+        int skill_id PK
+        string skill_name UK
+        string skill_category
+        timestamp created_at
+    }
+    STUDENT_SKILLS {
+        int student_id PK,FK
+        int skill_id PK,FK
+        string proficiency_level
+        timestamp created_at
+    }
+    COMPANIES {
+        int company_id PK
+        string company_name UK
+        string industry
+        string location
+        string website
+        string tier
+        timestamp created_at
+    }
+    PLACEMENTS {
+        int placement_id PK
+        int student_id FK
+        int company_id FK
+        string role
+        decimal package_amount
+        string package_unit
+        date placement_date
+        int placement_year
+        string status
+        string offer_type
+        string notes
+        timestamp created_at
+        timestamp updated_at
+    }
+```
+
+---
+
+## 🔒 Role-Based Access Control (RBAC) Permissions Matrix
+
+| Feature / Endpoint | Student | Placement Officer | Administrator | Anonymous Visitor |
+| :--- | :---: | :---: | :---: | :---: |
+| Public Landing Page (`/`) | ✅ | ✅ | ✅ | ✅ |
+| Sign-In / Register (`/login`, `/register`) | ✅ | ✅ | ✅ | ✅ |
+| Student Self Profile (`/students/<own_id>`) | ✅ | ✅ | ✅ | ❌ (Redirects) |
+| Machine Learning Predictor (`/predictor`) | ✅ | ✅ | ✅ | ❌ (Redirects) |
+| Skill Gap Recommender (`/recommender`) | ✅ | ✅ | ✅ | ❌ (Redirects) |
+| ATS Resume Matcher (`/ats`) | ✅ | ✅ | ✅ | ❌ (Redirects) |
+| Analytics Dashboard & Charts (`/dashboard`) | ✅ (Read) | ✅ | ✅ | ❌ (Redirects) |
+| Model Performance Hub (`/model-info`) | ✅ (Read) | ✅ | ✅ | ❌ (Redirects) |
+| Student CRUD & Roster (`/students/*`) | ❌ (403) | ✅ | ✅ | ❌ (Redirects) |
+| Company Management (`/companies/*`) | ❌ (403) | ✅ | ✅ | ❌ (Redirects) |
+| Placement Records & Offers (`/placements/*`) | ❌ (403) | ✅ | ✅ | ❌ (Redirects) |
+| Bulk CSV Import (`/import/*`) | ❌ (403) | ✅ | ✅ | ❌ (Redirects) |
+| Export Reports & Bio-Data (`/reports/*`) | ❌ (403) | ✅ | ✅ | ❌ (Redirects) |
+| User Account Management (`/admin/users`) | ❌ (403) | ❌ (403) | ✅ | ❌ (Redirects) |
+| Retrain ML Models (`/predictor/retrain`) | ❌ (403) | ❌ (403) | ✅ | ❌ (Redirects) |
+
+---
+
+## 🤖 Machine Learning Models & Real Empirical Metrics
+
+All metrics reflect genuine evaluations computed on hold-out validation sets and 5-fold cross-validation. Zero data leakage is enforced: post-hiring features (`status`, `package`, `company_tier`) are excluded from feature inputs.
+
+### 1. Placement Probability Classifier (`RandomForestClassifier`)
+- **Objective:** Predict likelihood of candidate recruitment prior to placement drives.
+- **Input Features:** `cgpa`, `department_code`, `internships_count`, `projects_count`, `certifications_count`, `backlogs_count`, `verified_skill_count`.
+- **Validation Dataset:** 80/20 stratified split.
+
+| Metric | Score | 5-Fold Cross Validation |
+| :--- | :---: | :---: |
+| **Accuracy** | **79.55%** | **80.39% ($\pm 3.12\%$)** |
+| **Precision** | **0.81** | Macro Weighted |
+| **Recall** | **0.72** | Macro Weighted |
+| **F1-Score** | **0.76** | Harmonic Mean |
+| **ROC-AUC** | **0.85** | High Discriminative Ability |
+
+### 2. Salary Package Regressor (`RandomForestRegressor`)
+- **Objective:** Estimate annual CTC in Lakhs Per Annum (LPA) for placed candidates.
+- **Input Features:** Pre-drive student attributes + target recruiting sector.
+
+| Metric | Score | Interpretation |
+| :--- | :---: | :--- |
+| **Mean Absolute Error (MAE)** | **2.83 LPA** | Typical prediction error within $\pm 2.83$ LPA |
+| **Root Mean Squared Error (RMSE)** | **3.51 LPA** | Bounded dispersion |
+| **Coefficient of Determination ($R^2$)** | **0.44** | Explains $44\%$ of salary variance |
+| **5-Fold CV MAE** | **3.01 LPA** | Stable generalizability across folds |
+
+---
+
+## ⚙️ Environment Variables Reference
+
+The application follows the Twelve-Factor App methodology. Missing required variables raise an explicit `RuntimeError` at startup to prevent misconfigured launches.
+
+| Variable Name | Required | Default | Description | Example Placeholder |
+| :--- | :---: | :---: | :--- | :--- |
+| `SECRET_KEY` | **Yes** | *None* | Cryptographic key for session cookies and CSRF tokens | `<GENERATE_32_CHAR_RANDOM_SECRET>` |
+| `DB_PASSWORD` | **Yes** | *None* | Password for MySQL database user | `<YOUR_SECURE_MYSQL_PASSWORD>` |
+| `DB_HOST` | No | `127.0.0.1` | Hostname of the MySQL server | `127.0.0.1` or `mysql.internal` |
+| `DB_PORT` | No | `3306` | Port of the MySQL server | `3306` |
+| `DB_USER` | No | `root` | Database username | `root` or `app_user` |
+| `DB_NAME` | No | `placement_db` | Relational database schema name | `placement_db` |
+| `DB_SSL` | No | `False` | Enforce TLS/SSL for cloud database connections | `true` or `false` |
+| `DEBUG` | No | `False` | Enable Flask debug mode (Keep `False` in prod) | `false` |
+| `DEMO_MODE` | No | `False` | Display demo login buttons and banner on login page | `false` |
+| `GOOGLE_CLIENT_ID` | No | *None* | Google OAuth 2.0 Web Client ID | `<YOUR_GOOGLE_CLIENT_ID>.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | No | *None* | Google OAuth 2.0 Client Secret | `<YOUR_GOOGLE_CLIENT_SECRET>` |
+
+---
+
+## 🚀 Quickstart Installation Guide
+
+### Option A: Local Development (Windows PowerShell)
+
+#### 1. Clone Repository & Create Virtual Environment
 ```powershell
+git clone https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system.git
+cd student-placement-data-analysis-system
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
-### Step 3: Install Required Dependencies
-Install the required packages using the virtual environment's pip:
+#### 2. Install Dependencies
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
-### Step 4: Configure Database Settings (`.env`)
-The project reads credentials from `.env`. Copy `.env.example` to `.env` and fill in your settings:
+#### 3. Configure Environment Variables
+Copy `.env.example` to `.env` and fill in your secrets:
+```powershell
+Copy-Item .env.example .env
+```
+Edit `.env`:
 ```ini
-DB_HOST=localhost
-DB_PORT=3307
+SECRET_KEY=replace_with_a_secure_random_key_of_at_least_32_characters
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=your_mysql_password_here
+DB_PASSWORD=your_local_mysql_password
 DB_NAME=placement_db
-SECRET_KEY=your_secure_random_secret_key_here
-FLASK_ENV=development
 DEBUG=false
-DEMO_MODE=false
+DEMO_MODE=true
 ```
-*(If your local MySQL runs on default port 3306, adjust `DB_PORT` accordingly).*
 
-### Step 5: Initialize Schema & Create Administrator
-Execute the automated database setup script:
+#### 4. Run Idempotent Migrations & Seed Admin
 ```powershell
-.\.venv\Scripts\python.exe init_db.py
-.\.venv\Scripts\python.exe init_db.py --create-admin
+python migrations/migrate.py
+python init_db.py --create-admin
 ```
-*Output will confirm table creation and prompt for administrator credentials.*
+*(Optional: Generate 639 synthetic students and 382 placements via `python init_db.py --large-seed`).*
 
-### Step 6: Start the Web Application
-Launch the Flask server:
+#### 5. Start Server
 ```powershell
-.\.venv\Scripts\python.exe run.py
+python run.py
 ```
-You will see:
-```text
-=======================================================
- STUDENT PLACEMENT DATA ANALYSIS SYSTEM
- Local Web Server Running at: http://127.0.0.1:5000/
- Press CTRL+C to stop.
-=======================================================
-```
-
-Open your browser and navigate to: **`http://127.0.0.1:5000/`**
+Open **`http://127.0.0.1:5000`** in your browser.
 
 ---
 
-## 5. Security Architecture & Evaluation Roles
+### Option B: Local Development (macOS & Linux Bash)
 
-- **Student Account:** Sign up publicly via `/register` with any username and password.
-- **Placement Officer & Administrator:** Create via `python init_db.py --create-admin` or promote via Administrator User Management (`/admin/users`).
-- **Optional Demo Mode:** Set `DEMO_MODE=true` in `.env` to enable demonstration shortcuts for evaluation.
-
----
-
-## 6. Running Automated Tests
-
-Run the full Pytest test suite:
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests/ -v
-```
-All **48 unit & integration test suites** will execute across 11 test modules, covering:
-- Mandatory Sign-In gateway and unauthenticated route blocking.
-- User self-registration with duplicate username rejection and password confirmation validation.
-- Dual-mode credential authentication (sign in with Username OR registered Email).
-- Google Account SSO authentication and automatic profile provisioning.
-- Machine Learning Placement Probability Predictor models (Random Forest & Gradient Boosting).
-- Machine Learning Salary Package (CTC) Regressor (Random Forest Regressor, MAE validation).
-- Natural Language Processing (NLP) ATS Resume & Job Description Matcher (TF-IDF & Cosine Similarity).
-- AI Skill Gap Analyzer & Learning Roadmap generation.
-- MySQL 8.0 connectivity and health verification.
-- Student CRUD lifecycle and duplicate roll number rejection.
-- Placement offer creation, duplicate offer prevention policy, and package boundary validation.
-- Placement rate mathematical formulas (including division by zero prevention).
-- Department aggregations and NumPy percentiles.
-- Matplotlib headless chart generation (PNG magic bytes validation).
-- CSV template generation and row-by-row error diagnostics.
-
----
-
-## 7. Project Directory Structure
-
-```text
-spd/
-├── app.py                      # Flask WSGI application entrypoint
-├── run.py                      # Local development runner
-├── config.py                   # Centralized configuration & environment loader
-├── init_db.py                  # Database initialization & verification script
-├── schema.sql                  # MySQL 8.0 DDL database schema
-├── seed.sql                    # Synthetic sample dataset (57 students, 49 offers)
-├── requirements.txt            # Python dependencies
-├── .env                        # Local database credentials
-├── .env.example                # Sample environment template
-├── .gitignore                  # Git ignore rules
-├── README.md                   # Complete documentation & Windows setup guide
-├── app/
-│   ├── __init__.py             # Application factory & Blueprint registration
-│   ├── database/
-│   │   └── connection.py       # Thread-safe PyMySQL DictCursor connection manager
-│   ├── services/
-│   │   ├── student_service.py   # Student CRUD & search filtering
-│   │   ├── company_service.py   # Company directory & recruitment metrics
-│   │   ├── skill_service.py     # Skills master & candidate associations
-│   │   ├── placement_service.py # Placement offers & duplicate policy checks
-│   │   ├── analytics_service.py # Pandas aggregations & NumPy calculations
-│   │   ├── chart_service.py     # Headless Matplotlib visualization generator
-│   │   └── import_service.py    # CSV validation & error diagnostics
-│   ├── routes/
-│   │   ├── main.py              # Landing page, Dashboard, Health check
-│   │   ├── auth.py              # Authentication & one-click demo login
-│   │   ├── students.py          # Student management routes
-│   │   ├── companies.py         # Company management routes
-│   │   ├── skills.py            # Skills directory routes
-│   │   ├── placements.py        # Placement records routes
-│   │   ├── analytics.py         # Department, Salary, Skill & Trend analytics
-│   │   ├── reports.py           # Printable reports & CSV download routes
-│   │   ├── import_export.py     # Bulk CSV upload routes
-│   │   └── api.py               # REST API & dynamic chart streaming
-│   ├── static/
-│   │   ├── css/style.css        # Professional Navy/Indigo SaaS CSS system
-│   │   └── js/
-│   │       ├── main.js          # Alert auto-dismiss & confirmation modals
-│   │       └── dashboard.js     # Dynamic chart reloading & image downloads
-│   └── templates/
-│       ├── base.html            # Sidebar + Topbar layout shell
-│       ├── index.html           # Public SaaS Landing page
-│       ├── dashboard.html       # Main Analytics Dashboard (8 KPIs, filters, charts)
-│       ├── health.html          # Database health & diagnostics page
-│       ├── auth/login.html      # Sign in page
-│       ├── students/            # Student list, add/edit form, view profile
-│       ├── companies/           # Company list, add/edit form, view hires
-│       ├── skills/              # Skills directory
-│       ├── placements/          # Placement offers list & form
-│       ├── analytics/           # Dedicated analytical breakdown views
-│       ├── reports/             # Multi-format report sheets
-│       ├── import/              # CSV file upload & validation log
-│       └── errors/              # Custom 404 & 500 error pages
-├── tests/                       # Automated pytest test suites (14 tests)
-├── sample_data/                 # Pre-generated sample CSV files
-└── docs/                        # Formal academic project documentation
-    ├── project_synopsis.md      # Full B.Tech project synopsis
-    ├── database_design.md       # ER diagram & schema specifications
-    ├── api_documentation.md     # REST API reference
-    ├── testing_report.md        # Comprehensive test results report
-    └── demo_script.md           # Presentation outline & Faculty viva Q&A
+```bash
+git clone https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system.git
+cd student-placement-data-analysis-system
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+cp .env.example .env
+# Edit .env with your favorite editor
+python migrations/migrate.py
+python init_db.py --create-admin
+python run.py
 ```
 
 ---
 
-## 8. Placement Rate & Metric Formulas
+### Option C: Docker Multi-Container Composition
 
-### 1. Overall Placement Rate
-$$\text{Placement Rate (\%)} = \left( \frac{\text{Distinct Eligible Students Counted as Placed}}{\text{Total Eligible Students}} \right) \times 100$$
-- **Eligible Denominator:** Only students with `eligible_for_placement = 1` are included.
-- **Distinct Placed Numerator:** Each eligible student with at least one confirmed offer (`Placed` or `Offer Accepted`) is counted exactly once, regardless of multiple offers.
-- **Zero Denominator Guard:** If eligible students count is zero, the system returns `0.0%` (or `N/A`) preventing division-by-zero crashes.
+Run the entire isolated application and MySQL 8.0 cluster in Docker:
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+- Web Application: `http://localhost:5000`
+- MySQL 8.0 Server: `localhost:3306`
+- Health check: `curl http://localhost:5000/api/health`
 
-### 2. Unplaced Eligible Candidates
-$$\text{Unplaced Eligible} = \max(0, \text{Total Eligible Students} - \text{Distinct Placed Students})$$
-
-### 3. Salary Package Statistics (LPA CTC)
-- **Mean (Average):** $\mu = \frac{1}{N} \sum_{i=1}^{N} \text{Package}_i$
-- **Median:** 50th percentile calculated using NumPy. Provides a robust measure of central tendency unaffected by super-dream outlier packages.
-- **Percentiles:** 25th (Q1), 75th (Q3), and 90th percentiles calculated via `np.percentile`.
+To view logs or shut down:
+```bash
+docker compose logs -f web
+docker compose down
+```
 
 ---
 
-## 9. Troubleshooting & FAQ
+## 🧪 Comprehensive Automated Testing & Code Quality
 
-- **Port Conflict (3306 vs 3307):** If your local MySQL Server runs on port 3306, update `DB_PORT=3306` in `.env`.
-- **Access Denied Error:** Ensure `DB_PASSWORD` in `.env` matches your MySQL root password.
-- **AppLocker / Script Policy on Windows:** If `pip.exe` is blocked, run pip as a Python module: `.\.venv\Scripts\python.exe -m pip install -r requirements.txt`.
-- **Chart Generation on Headless Machines:** Charts use `matplotlib.use('Agg')` which runs completely in-memory without requiring an X-server, display screen, or GUI window.
+The project features a **104-test automated suite** covering the security perimeter, authentication honesty, RBAC authorization matrix, CSV formula injection defense, rate limiting, OpenAPI specifications, and ML pipelines.
+
+### Run Pytest with Coverage
+```bash
+pytest tests/ --cov=app --cov-report=term-missing --cov-fail-under=85
+```
+**Results:** `104 passed (85% coverage)`. Detailed test breakdown available in [`docs/testing_report.md`](docs/testing_report.md).
+
+### Code Formatting & Linting
+```bash
+# Verify Black formatting (120 char line limit)
+black --check app tests migrations scripts
+
+# Verify Ruff linting
+ruff check app tests migrations scripts
+```
+
+---
+
+## ☁️ Production Deployment
+
+### 1. Render.com + Managed MySQL (Aiven / TiDB Cloud)
+1. Fork or push your repository to GitHub.
+2. In [Render Dashboard](https://dashboard.render.com), create a new **Web Service**.
+3. Connect repository `student-placement-data-analysis-system`.
+4. Configure Build & Start settings:
+   - **Environment:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt && python migrations/migrate.py`
+   - **Start Command:** `gunicorn wsgi:app --workers 2 --bind 0.0.0.0:$PORT`
+   - **Health Check Path:** `/api/health`
+5. Populate environment variables from the table above (`DB_HOST`, `DB_PASSWORD`, `SECRET_KEY`, `DB_SSL=true`).
+6. Complete deployment guide available in [`docs/deployment_guide.md`](docs/deployment_guide.md).
+
+### 2. Database Backup & Disaster Recovery
+Run the included backup script anytime to create timestamped SQL dumps under `backups/`:
+```bash
+python scripts/backup_db.py
+```
+
+---
+
+## 📖 Complete Documentation Index
+
+- [OpenAPI 3.0.3 Specification (`docs/openapi.yaml`)](docs/openapi.yaml) &bull; Live Swagger UI at `/api/docs`
+- [REST API Reference (`docs/api_documentation.md`)](docs/api_documentation.md)
+- [Database Schema & Entity-Relationship Architecture (`docs/database_design.md`)](docs/database_design.md)
+- [Security Architecture & Defense-in-Depth (`docs/security.md`)](docs/security.md)
+- [Comprehensive Automated Testing Report (`docs/testing_report.md`)](docs/testing_report.md)
+- [Production Deployment Guide (`docs/deployment_guide.md`)](docs/deployment_guide.md)
+- [Faculty Viva & Presentation Demo Script (`docs/demo_script.md`)](docs/demo_script.md)
+- [Full Capstone Academic Synopsis (`docs/project_synopsis.md`)](docs/project_synopsis.md)
+
+---
+
+## 📄 License & Contributing
+
+- **License:** Open-source under the [MIT License](LICENSE).
+- **Contributing:** Please read [CONTRIBUTING.md](CONTRIBUTING.md) for code style standards, testing requirements, and branch workflows.
+- **Changelog:** See [CHANGELOG.md](CHANGELOG.md) for detailed release history.

@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Student Placement Data Analysis & ML Intelligence API
+  version: 2.0.0
+  description: >
+    RESTful API providing real-time placement analytics, statistical aggregations,
+    dynamic chart generation, Machine Learning inferences, and system health checks.
+servers:
+  - url: http://localhost:5000
+    description: Local Development Server
+  - url: https://student-placement-system.onrender.com
+    description: Production Render Deployment
+
+paths:
+  /api/health:
+    get:
+      summary: System Health & Database Diagnostics
+      description: Returns operational readiness, MySQL connectivity, database latency, and timestamp.
+      responses:
+        "200":
+          description: System is healthy and MySQL connection active.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "healthy" }
+                  connected: { type: boolean, example: true }
+                  database: { type: string, example: "placement_db" }
+                  latency_ms: { type: number, example: 2.45 }
+        "503":
+          description: Service unavailable or MySQL database disconnected.
+
+  /api/stats:
+    get:
+      summary: Global Placement Statistics & KPIs
+      description: Returns high-level placement KPIs filtered by department, academic year, company, or offer status.
+      parameters:
+        - name: department
+          in: query
+          schema: { type: string, default: "All" }
+        - name: graduation_year
+          in: query
+          schema: { type: string, default: "All" }
+        - name: company_id
+          in: query
+          schema: { type: string, default: "All" }
+        - name: status
+          in: query
+          schema: { type: string, default: "All" }
+      responses:
+        "200":
+          description: KPI statistics aggregated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  kpis:
+                    type: object
+                    properties:
+                      total_students: { type: integer, example: 639 }
+                      total_eligible: { type: integer, example: 512 }
+                      total_placed: { type: integer, example: 382 }
+                      unplaced_students: { type: integer, example: 130 }
+                      placement_rate: { type: number, example: 74.61 }
+                      avg_package: { type: number, example: 10.42 }
+                      median_package: { type: number, example: 8.5 }
+                      highest_package: { type: number, example: 45.0 }
+                      total_companies: { type: integer, example: 45 }
+
+  /api/chart-data:
+    get:
+      summary: Interactive Chart.js Datasets
+      description: Returns structured datasets for interactive frontend visualizations (rates, distributions, skills, trends).
+      parameters:
+        - name: department
+          in: query
+          schema: { type: string, default: "All" }
+        - name: graduation_year
+          in: query
+          schema: { type: string, default: "All" }
+      responses:
+        "200":
+          description: Chart datasets returned.
+
+  /api/charts/{chart_name}:
+    get:
+      summary: Matplotlib PNG Chart Streaming
+      description: Streams server-rendered high-resolution PNG charts for reports and export.
+      parameters:
+        - name: chart_name
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [dept-rate, placed-vs-eligible, package-distribution, top-skills, company-recruitment, company-hires, yearly-trends]
+      responses:
+        "200":
+          description: Binary PNG image stream.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Chart name not found.
+
+  /predictor/api/predict:
+    post:
+      summary: Machine Learning Placement Probability Inference
+      description: Evaluates candidate features with the trained Random Forest Classifier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cgpa, department, skills]
+              properties:
+                cgpa: { type: number, example: 8.75 }
+                department: { type: string, example: "Computer Science and Engineering" }
+                graduation_year: { type: integer, example: 2026 }
+                eligible: { type: integer, example: 1 }
+                skills:
+                  type: array
+                  items: { type: string }
+                  example: ["Python", "SQL", "Data Structures & Algorithms"]
+      responses:
+        "200":
+          description: Prediction score and risk analysis.
+
+  /predictor/api/predict-salary:
+    post:
+      summary: Machine Learning CTC Salary Regressor Inference
+      description: Predicts estimated compensation package (LPA), confidence bands, and salary tier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cgpa, department, skills]
+              properties:
+                cgpa: { type: number, example: 8.75 }
+                department: { type: string, example: "Information Technology" }
+                skills:
+                  type: array
+                  items: { type: string }
+                  example: ["Python", "Machine Learning"]
+      responses:
+        "200":
+          description: CTC prediction result with compensation ranges and tier.
