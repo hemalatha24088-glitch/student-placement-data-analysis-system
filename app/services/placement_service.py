@@ -2,13 +2,18 @@
 Placement Service Module.
 Handles placement job offer records, status transitions, duplicate checking, and pagination.
 """
-from app.database.connection import get_db_cursor
+
 from datetime import datetime
+
+from app.database.connection import get_db_cursor
 
 VALID_STATUSES = ["Placed", "Offer Accepted", "Offer Pending", "Rejected"]
 VALID_OFFER_TYPES = ["Full-time", "Internship + PPO", "Super Dream", "Dream", "Mass / IT Services", "Core Engineering"]
 
-def get_placements(department=None, graduation_year=None, company_id=None, status=None, search=None, page=1, per_page=15):
+
+def get_placements(
+    department=None, graduation_year=None, company_id=None, status=None, search=None, page=1, per_page=15
+):
     """
     Retrieve paginated placement offers with joined student and company data.
     """
@@ -81,26 +86,25 @@ def get_placements(department=None, graduation_year=None, company_id=None, statu
 
     total_pages = (total + per_page - 1) // per_page if total > 0 else 1
 
-    return {
-        "placements": placements,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
-    }
+    return {"placements": placements, "total": total, "page": page, "per_page": per_page, "total_pages": total_pages}
+
 
 def get_placement_by_id(placement_id):
     """Retrieve full placement offer by ID."""
     with get_db_cursor(commit=False) as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT p.*, s.student_name, s.roll_no, s.department, s.graduation_year,
                    c.company_name, c.tier
             FROM placements p
             JOIN students s ON p.student_id = s.student_id
             JOIN companies c ON p.company_id = c.company_id
             WHERE p.placement_id = %s;
-        """, (placement_id,))
+        """,
+            (placement_id,),
+        )
         return cursor.fetchone()
+
 
 def check_duplicate_placement(student_id, company_id, role, placement_year, exclude_placement_id=None):
     """
@@ -119,6 +123,7 @@ def check_duplicate_placement(student_id, company_id, role, placement_year, excl
     with get_db_cursor(commit=False) as cursor:
         cursor.execute(sql, params)
         return cursor.fetchone() is not None
+
 
 def create_placement(data):
     """
@@ -150,7 +155,10 @@ def create_placement(data):
 
     # Check student existence
     with get_db_cursor(commit=False) as cursor:
-        cursor.execute("SELECT student_id, eligible_for_placement, student_name FROM students WHERE student_id = %s;", (student_id,))
+        cursor.execute(
+            "SELECT student_id, eligible_for_placement, student_name FROM students WHERE student_id = %s;",
+            (student_id,),
+        )
         student = cursor.fetchone()
         if not student:
             return False, "Selected student does not exist."
@@ -162,15 +170,33 @@ def create_placement(data):
 
     # Enforce duplicate rule
     if check_duplicate_placement(student_id, company_id, role, placement_year):
-        return False, f"Duplicate offer detected: {student['student_name']} already has an offer from {company['company_name']} for '{role}' in {placement_year}."
+        return (
+            False,
+            f"Duplicate offer detected: {student['student_name']} already has an offer from {company['company_name']} for '{role}' in {placement_year}.",
+        )
 
     with get_db_cursor(commit=True) as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO placements (student_id, company_id, role, package_amount, package_unit,
                                     placement_date, placement_year, status, offer_type, notes)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-        """, (student_id, company_id, role, package_amount, package_unit, placement_date, placement_year, status, offer_type, notes))
+        """,
+            (
+                student_id,
+                company_id,
+                role,
+                package_amount,
+                package_unit,
+                placement_date,
+                placement_year,
+                status,
+                offer_type,
+                notes,
+            ),
+        )
         return True, cursor.lastrowid
+
 
 def update_placement(placement_id, data):
     """Update placement record."""
@@ -201,15 +227,30 @@ def update_placement(placement_id, data):
         return False, "Duplicate offer detected for the same student, company, role, and year."
 
     with get_db_cursor(commit=True) as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE placements
             SET student_id = %s, company_id = %s, role = %s, package_amount = %s,
                 package_unit = %s, placement_date = %s, placement_year = %s,
                 status = %s, offer_type = %s, notes = %s
             WHERE placement_id = %s;
-        """, (student_id, company_id, role, package_amount, package_unit, placement_date,
-              placement_year, status, offer_type, notes, placement_id))
+        """,
+            (
+                student_id,
+                company_id,
+                role,
+                package_amount,
+                package_unit,
+                placement_date,
+                placement_year,
+                status,
+                offer_type,
+                notes,
+                placement_id,
+            ),
+        )
         return True, placement_id
+
 
 def delete_placement(placement_id):
     """Delete a placement record."""
@@ -217,10 +258,12 @@ def delete_placement(placement_id):
         cursor.execute("DELETE FROM placements WHERE placement_id = %s;", (placement_id,))
         return cursor.rowcount > 0
 
+
 def get_recent_placements(limit=6):
     """Retrieve recent placements for the dashboard."""
     with get_db_cursor(commit=False) as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT p.*, s.student_name, s.roll_no, s.department, c.company_name, c.tier
             FROM placements p
             JOIN students s ON p.student_id = s.student_id
@@ -228,5 +271,7 @@ def get_recent_placements(limit=6):
             WHERE p.status IN ('Placed', 'Offer Accepted')
             ORDER BY p.placement_date DESC
             LIMIT %s;
-        """, (limit,))
+        """,
+            (limit,),
+        )
         return cursor.fetchall()

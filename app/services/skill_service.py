@@ -2,7 +2,9 @@
 Skill Service Module.
 Handles master skills list, categories, and student-skill mappings.
 """
+
 from app.database.connection import get_db_cursor
+
 
 def get_all_skills(category=None):
     """Retrieve all skills with count of students who possess them."""
@@ -29,11 +31,13 @@ def get_all_skills(category=None):
         cursor.execute(query, params)
         return cursor.fetchall()
 
+
 def get_skill_by_id(skill_id):
     """Retrieve skill by ID."""
     with get_db_cursor(commit=False) as cursor:
         cursor.execute("SELECT * FROM skills WHERE skill_id = %s;", (skill_id,))
         return cursor.fetchone()
+
 
 def create_skill(name, category="Technical"):
     """Create a new skill."""
@@ -50,6 +54,7 @@ def create_skill(name, category="Technical"):
         cursor.execute("INSERT INTO skills (skill_name, skill_category) VALUES (%s, %s);", (name, category))
         return True, cursor.lastrowid
 
+
 def update_skill(skill_id, name, category="Technical"):
     """Update skill."""
     name = name.strip()
@@ -58,18 +63,24 @@ def update_skill(skill_id, name, category="Technical"):
         return False, "Skill name cannot be empty."
 
     with get_db_cursor(commit=True) as cursor:
-        cursor.execute("SELECT skill_id FROM skills WHERE LOWER(skill_name) = LOWER(%s) AND skill_id != %s;", (name, skill_id))
+        cursor.execute(
+            "SELECT skill_id FROM skills WHERE LOWER(skill_name) = LOWER(%s) AND skill_id != %s;", (name, skill_id)
+        )
         if cursor.fetchone():
             return False, f"Another skill with name '{name}' already exists."
 
-        cursor.execute("UPDATE skills SET skill_name = %s, skill_category = %s WHERE skill_id = %s;", (name, category, skill_id))
+        cursor.execute(
+            "UPDATE skills SET skill_name = %s, skill_category = %s WHERE skill_id = %s;", (name, category, skill_id)
+        )
         return True, skill_id
+
 
 def delete_skill(skill_id):
     """Delete a skill."""
     with get_db_cursor(commit=True) as cursor:
         cursor.execute("DELETE FROM skills WHERE skill_id = %s;", (skill_id,))
         return cursor.rowcount > 0
+
 
 def get_skill_categories():
     """Distinct skill categories."""

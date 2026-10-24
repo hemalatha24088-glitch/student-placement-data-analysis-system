@@ -6,19 +6,22 @@ Provides dedicated analytical breakdowns:
 - Skills Correlation Analysis
 - Historical Graduation Trends
 """
+
 from flask import Blueprint, render_template, request
+
 from app.services.analytics_service import (
-    get_kpis,
+    generate_placement_insights,
     get_department_analytics,
+    get_kpis,
     get_package_analytics,
     get_skill_analytics,
     get_yearly_trends,
-    generate_placement_insights
 )
-from app.services.student_service import get_all_departments, get_all_graduation_years
 from app.services.company_service import get_companies
+from app.services.student_service import get_all_departments, get_all_graduation_years
 
 analytics_bp = Blueprint("analytics", __name__, url_prefix="/analytics")
+
 
 @analytics_bp.route("/")
 def index():
@@ -41,8 +44,9 @@ def index():
         departments=departments,
         years=years,
         selected_dept=dept,
-        selected_year=year
+        selected_year=year,
     )
+
 
 @analytics_bp.route("/departments")
 def departments_analysis():
@@ -51,6 +55,7 @@ def departments_analysis():
     dept_data = get_department_analytics(graduation_year=year)
     years = get_all_graduation_years()
     return render_template("analytics/departments.html", dept_data=dept_data, years=years, selected_year=year)
+
 
 @analytics_bp.route("/packages")
 def packages_analysis():
@@ -66,8 +71,9 @@ def packages_analysis():
         departments=departments,
         years=years,
         selected_dept=dept,
-        selected_year=year
+        selected_year=year,
     )
+
 
 @analytics_bp.route("/skills")
 def skills_analysis():
@@ -76,6 +82,7 @@ def skills_analysis():
     skills_data = get_skill_analytics(department=dept)
     departments = get_all_departments()
     return render_template("analytics/skills.html", skills=skills_data, departments=departments, selected_dept=dept)
+
 
 @analytics_bp.route("/trends")
 def trends_analysis():

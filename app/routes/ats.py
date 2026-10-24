@@ -3,16 +3,15 @@ Natural Language Processing (NLP) ATS Matcher Blueprint.
 Provides interactive ATS resume screening, job description compatibility scoring,
 keyword extraction, and keyword gap analysis.
 """
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+
 from app import csrf
-from app.services.nlp_service import (
-    calculate_ats_match,
-    generate_student_resume_text,
-    SAMPLE_JOB_DESCRIPTIONS
-)
+from app.services.nlp_service import SAMPLE_JOB_DESCRIPTIONS, calculate_ats_match, generate_student_resume_text
 from app.services.student_service import get_all_students_simple
 
 ats_bp = Blueprint("ats", __name__, url_prefix="/ats")
+
 
 @ats_bp.route("/", methods=["GET", "POST"], strict_slashes=False)
 def index():
@@ -48,8 +47,9 @@ def index():
         sample_jds=SAMPLE_JOB_DESCRIPTIONS,
         selected_jd_key=selected_jd_key,
         resume_text=resume_text,
-        jd_text=jd_text
+        jd_text=jd_text,
     )
+
 
 @ats_bp.route("/api/match", methods=["POST"])
 @csrf.exempt
@@ -61,6 +61,7 @@ def api_match():
     result = calculate_ats_match(resume_text, jd_text)
     return jsonify({"success": True, "analysis": result})
 
+
 @ats_bp.route("/api/sample-jd/<jd_key>", methods=["GET"])
 def api_sample_jd(jd_key):
     """Retrieve sample job description text."""
@@ -68,6 +69,7 @@ def api_sample_jd(jd_key):
     if not jd:
         return jsonify({"success": False, "error": "Job description not found"}), 404
     return jsonify({"success": True, "jd": jd})
+
 
 @ats_bp.route("/api/student-resume/<int:student_id>", methods=["GET"])
 def api_student_resume(student_id):

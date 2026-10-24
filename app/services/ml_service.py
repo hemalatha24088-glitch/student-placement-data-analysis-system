@@ -7,24 +7,27 @@ Implements:
 4. Model Persistence with Joblib and Metadata Tracking.
 5. Zero Data Leakage (No post-placement outcome features used in inference).
 """
-import os
+
 import json
+import os
 from datetime import datetime, timezone
+
+import joblib
 import numpy as np
 import pandas as pd
-import joblib
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold, KFold
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
     f1_score,
-    roc_auc_score,
     mean_absolute_error,
     mean_squared_error,
-    r2_score
+    precision_score,
+    r2_score,
+    recall_score,
+    roc_auc_score,
 )
+from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score, train_test_split
+
 from app.database.connection import get_db_cursor
 from app.services.student_service import get_student_by_id
 
@@ -40,7 +43,7 @@ KEY_SKILLS_MAP = {
     "python": ["Python"],
     "sql": ["SQL", "Database & Querying"],
     "ai_ml": ["Machine Learning", "Deep Learning", "Natural Language Processing", "Computer Vision"],
-    "web": ["React.js", "Flask / Web Frameworks", "HTML/CSS/JavaScript"]
+    "web": ["React.js", "Flask / Web Frameworks", "HTML/CSS/JavaScript"],
 }
 
 DEPARTMENTS_LIST = [
@@ -49,7 +52,7 @@ DEPARTMENTS_LIST = [
     "Information Technology",
     "Electronics and Communication Engineering",
     "Electrical and Electronics Engineering",
-    "Mechanical Engineering"
+    "Mechanical Engineering",
 ]
 
 
@@ -58,6 +61,7 @@ class PlacementPredictorModel:
     Supervised Machine Learning Classifier for Placement Likelihood.
     Evaluates academic GPA, engineering department, and verified technical competencies.
     """
+
     def __init__(self):
         self.model = None
         self.feature_names = []
@@ -130,11 +134,21 @@ class PlacementPredictorModel:
 
         # High-demand skill flags
         skills_series = df["skills_str"].fillna("")
-        features["has_dsa"] = skills_series.apply(lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["dsa"])))
-        features["has_python"] = skills_series.apply(lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["python"])))
-        features["has_sql"] = skills_series.apply(lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["sql"])))
-        features["has_aiml"] = skills_series.apply(lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["ai_ml"])))
-        features["has_web"] = skills_series.apply(lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["web"])))
+        features["has_dsa"] = skills_series.apply(
+            lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["dsa"]))
+        )
+        features["has_python"] = skills_series.apply(
+            lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["python"]))
+        )
+        features["has_sql"] = skills_series.apply(
+            lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["sql"]))
+        )
+        features["has_aiml"] = skills_series.apply(
+            lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["ai_ml"]))
+        )
+        features["has_web"] = skills_series.apply(
+            lambda x: int(any(k.lower() in x.lower() for k in KEY_SKILLS_MAP["web"]))
+        )
 
         return features
 
@@ -153,9 +167,7 @@ class PlacementPredictorModel:
 
         # Stratified 80/20 train/test split
         if len(X) >= 20 and len(np.unique(y)) > 1:
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.20, random_state=42, stratify=y
-            )
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=y)
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             y_prob = clf.predict_proba(X_test)[:, 1] if len(clf.classes_) > 1 else y_pred
@@ -207,7 +219,7 @@ class PlacementPredictorModel:
             "cv_mean": cv_mean,
             "cv_std": cv_std,
             "trained_at": self.trained_at,
-            "version": self.version
+            "version": self.version,
         }
 
         # Feature importances
@@ -221,18 +233,16 @@ class PlacementPredictorModel:
             "has_aiml": "Machine Learning & AI",
             "has_web": "Full-Stack Web Development",
             "eligible": "Placement Eligibility Criteria",
-            "graduation_year": "Graduation Batch Year"
+            "graduation_year": "Graduation Batch Year",
         }
         for dept in DEPARTMENTS_LIST:
             feature_labels[f"dept_{dept.split()[0]}"] = f"Dept: {dept}"
 
         importances = []
         for name, imp in zip(self.feature_names, raw_importances):
-            importances.append({
-                "feature": name,
-                "label": feature_labels.get(name, name),
-                "importance": round(float(imp) * 100, 2)
-            })
+            importances.append(
+                {"feature": name, "label": feature_labels.get(name, name), "importance": round(float(imp) * 100, 2)}
+            )
         importances.sort(key=lambda x: x["importance"], reverse=True)
         self.feature_importances = importances
 
@@ -243,7 +253,7 @@ class PlacementPredictorModel:
             "metrics": self.metrics,
             "feature_importances": self.feature_importances,
             "trained_at": self.trained_at,
-            "version": self.version
+            "version": self.version,
         }
         joblib.dump(bundle, CLASSIFIER_PATH)
 
@@ -263,7 +273,7 @@ class PlacementPredictorModel:
             "total_skills": [len(skills_list)],
             "eligible_for_placement": [int(eligible)],
             "department": [department],
-            "skills_str": [skills_str]
+            "skills_str": [skills_str],
         }
         input_df = pd.DataFrame(data)
         X = self._engineer_features(input_df)
@@ -287,7 +297,9 @@ class PlacementPredictorModel:
         elif prob_pct >= 50.0:
             risk_tier = "Moderate Probability (Competitive Pool)"
             badge_class = "badge-pending"
-            status_desc = "Competitive candidate with solid fundamentals; targeted technical practice will boost offers."
+            status_desc = (
+                "Competitive candidate with solid fundamentals; targeted technical practice will boost offers."
+            )
         else:
             risk_tier = "At Risk (Needs Structured Intervention)"
             badge_class = "badge-rejected"
@@ -310,18 +322,26 @@ class PlacementPredictorModel:
 
         recommendations = []
         if float(cgpa) < 7.0:
-            recommendations.append("Focus on semester GPA improvement to cross the 7.0/7.5 institutional shortlisting filter.")
+            recommendations.append(
+                "Focus on semester GPA improvement to cross the 7.0/7.5 institutional shortlisting filter."
+            )
         if not any("Data Structures" in s or "DSA" in s for s in skills_list):
-            recommendations.append("Complete structured Data Structures & Algorithms problem-solving modules (estimated +15% probability boost).")
+            recommendations.append(
+                "Complete structured Data Structures & Algorithms problem-solving modules (estimated +15% probability boost)."
+            )
         if not any("SQL" in s for s in skills_list):
             recommendations.append("Acquire practical SQL database querying certification (+10% probability boost).")
         if not any("Python" in s or "Java" in s for s in skills_list):
             recommendations.append("Build production projects in an industry-standard language (Python, Java, or C++).")
         if len(skills_list) < 3:
-            recommendations.append("Diversify technical competencies to include database, backend, and core CS fundamentals.")
+            recommendations.append(
+                "Diversify technical competencies to include database, backend, and core CS fundamentals."
+            )
 
         if not recommendations:
-            recommendations.append("Candidate demonstrates comprehensive readiness. Maintain interview problem-solving speed.")
+            recommendations.append(
+                "Candidate demonstrates comprehensive readiness. Maintain interview problem-solving speed."
+            )
 
         return {
             "probability_pct": prob_pct,
@@ -336,8 +356,8 @@ class PlacementPredictorModel:
                 "graduation_year": graduation_year,
                 "skills_count": len(skills_list),
                 "skills": skills_list,
-                "eligible": eligible
-            }
+                "eligible": eligible,
+            },
         }
 
     def predict_student(self, student_id):
@@ -352,7 +372,7 @@ class PlacementPredictorModel:
             department=st["department"],
             skills_list=skills_list,
             graduation_year=int(st["graduation_year"] or 2026),
-            eligible=int(st["eligible_for_placement"] or 1)
+            eligible=int(st["eligible_for_placement"] or 1),
         )
         pred["student"] = st
         return pred
@@ -386,17 +406,19 @@ class PlacementPredictorModel:
         for st in unplaced:
             pred = self.predict_student(st["student_id"])
             if pred:
-                cohort.append({
-                    "student_id": st["student_id"],
-                    "roll_no": st["roll_no"],
-                    "student_name": st["student_name"],
-                    "department": st["department"],
-                    "cgpa": st["cgpa"],
-                    "probability_pct": pred["probability_pct"],
-                    "risk_tier": pred["risk_tier"],
-                    "badge_class": pred["badge_class"],
-                    "recommendations": pred["recommendations"][:2]
-                })
+                cohort.append(
+                    {
+                        "student_id": st["student_id"],
+                        "roll_no": st["roll_no"],
+                        "student_name": st["student_name"],
+                        "department": st["department"],
+                        "cgpa": st["cgpa"],
+                        "probability_pct": pred["probability_pct"],
+                        "risk_tier": pred["risk_tier"],
+                        "badge_class": pred["badge_class"],
+                        "recommendations": pred["recommendations"][:2],
+                    }
+                )
 
         cohort.sort(key=lambda x: x["probability_pct"])
         return cohort
@@ -407,6 +429,7 @@ class SalaryPackageRegressorModel:
     Supervised Machine Learning Regression Service for Annual CTC Prediction (in LPA).
     Trained on verified compensation packages in MySQL using Random Forest Regression.
     """
+
     def __init__(self):
         self.model = None
         self.feature_names = []
@@ -475,7 +498,9 @@ class SalaryPackageRegressorModel:
         X["has_dsa"] = skills_series.apply(lambda s: 1 if "data structures" in s or "algorithms" in s else 0)
         X["has_python"] = skills_series.apply(lambda s: 1 if "python" in s else 0)
         X["has_sql"] = skills_series.apply(lambda s: 1 if "sql" in s else 0)
-        X["has_ai_ml"] = skills_series.apply(lambda s: 1 if "machine learning" in s or "deep learning" in s or "ai" in s else 0)
+        X["has_ai_ml"] = skills_series.apply(
+            lambda s: 1 if "machine learning" in s or "deep learning" in s or "ai" in s else 0
+        )
         X["has_cloud"] = skills_series.apply(lambda s: 1 if "cloud" in s or "aws" in s or "gcp" in s else 0)
         X["has_web"] = skills_series.apply(lambda s: 1 if "react" in s or "flask" in s or "html" in s else 0)
         X["has_embedded"] = skills_series.apply(lambda s: 1 if "embedded" in s or "iot" in s or "c++" in s else 0)
@@ -503,12 +528,7 @@ class SalaryPackageRegressorModel:
         else:
             X_train, X_test, y_train, y_test = X, X, y, y
 
-        rf_regressor = RandomForestRegressor(
-            n_estimators=100,
-            max_depth=6,
-            min_samples_split=2,
-            random_state=42
-        )
+        rf_regressor = RandomForestRegressor(n_estimators=100, max_depth=6, min_samples_split=2, random_state=42)
         rf_regressor.fit(X_train, y_train)
 
         y_pred = rf_regressor.predict(X_test)
@@ -544,10 +564,7 @@ class SalaryPackageRegressorModel:
         feature_importance_list = []
         for name, imp in zip(self.feature_names, importances):
             clean_name = name.replace("dept_", "Dept: ").replace("has_", "Skill: ").replace("_", " ").title()
-            feature_importance_list.append({
-                "feature": clean_name,
-                "importance_pct": round(float(imp) * 100, 2)
-            })
+            feature_importance_list.append({"feature": clean_name, "importance_pct": round(float(imp) * 100, 2)})
         feature_importance_list.sort(key=lambda x: x["importance_pct"], reverse=True)
         self.feature_importances = feature_importance_list
 
@@ -568,7 +585,7 @@ class SalaryPackageRegressorModel:
             "max_package": round(float(y.max()), 2),
             "min_package": round(float(y.min()), 2),
             "trained_at": self.trained_at,
-            "version": self.version
+            "version": self.version,
         }
 
         # Persist to disk with joblib
@@ -578,7 +595,7 @@ class SalaryPackageRegressorModel:
             "metrics": self.metrics,
             "feature_importances": self.feature_importances,
             "trained_at": self.trained_at,
-            "version": self.version
+            "version": self.version,
         }
         joblib.dump(bundle, REGRESSOR_PATH)
 
@@ -594,7 +611,7 @@ class SalaryPackageRegressorModel:
             "cgpa": [float(cgpa)],
             "total_skills": [len(skills_list or [])],
             "skills_str": [skills_joined],
-            "department": [department]
+            "department": [department],
         }
         input_df = pd.DataFrame(data)
         X = self._prepare_features(input_df)
@@ -624,12 +641,16 @@ class SalaryPackageRegressorModel:
             tier = "Dream"
             salary_tier = "Dream Tier (Mid-to-High CTC)"
             tier_badge = "badge-dream"
-            description = "Above-average compensation package offered by major tech consultancies and enterprise platforms."
+            description = (
+                "Above-average compensation package offered by major tech consultancies and enterprise platforms."
+            )
         else:
             tier = "Mass Recruit"
             salary_tier = "Core / Mass Recruitment Tier"
             tier_badge = "badge-mass"
-            description = "Base institutional compensation package typical of high-volume entry-level engineering drives."
+            description = (
+                "Base institutional compensation package typical of high-volume entry-level engineering drives."
+            )
 
         value_drivers = []
         if float(cgpa) >= 8.5:
@@ -643,23 +664,29 @@ class SalaryPackageRegressorModel:
 
         uplift_opportunities = []
         if not any("Data Structures" in s or "DSA" in s for s in (skills_list or [])):
-            uplift_opportunities.append({
-                "skill": "Data Structures & Algorithms",
-                "estimated_uplift": "+3.5 to +6.0 LPA",
-                "action": "Complete LeetCode medium problem sets and system design primers."
-            })
+            uplift_opportunities.append(
+                {
+                    "skill": "Data Structures & Algorithms",
+                    "estimated_uplift": "+3.5 to +6.0 LPA",
+                    "action": "Complete LeetCode medium problem sets and system design primers.",
+                }
+            )
         if not any("Machine Learning" in s for s in (skills_list or [])):
-            uplift_opportunities.append({
-                "skill": "Machine Learning & AI",
-                "estimated_uplift": "+2.5 to +4.5 LPA",
-                "action": "Build and deploy capstone ML projects with Scikit-Learn or PyTorch."
-            })
+            uplift_opportunities.append(
+                {
+                    "skill": "Machine Learning & AI",
+                    "estimated_uplift": "+2.5 to +4.5 LPA",
+                    "action": "Build and deploy capstone ML projects with Scikit-Learn or PyTorch.",
+                }
+            )
         if not any("SQL" in s for s in (skills_list or [])):
-            uplift_opportunities.append({
-                "skill": "Advanced SQL & Database Systems",
-                "estimated_uplift": "+1.5 to +2.5 LPA",
-                "action": "Master query optimization, window functions, and indexing strategies."
-            })
+            uplift_opportunities.append(
+                {
+                    "skill": "Advanced SQL & Database Systems",
+                    "estimated_uplift": "+1.5 to +2.5 LPA",
+                    "action": "Master query optimization, window functions, and indexing strategies.",
+                }
+            )
 
         return {
             "predicted_ctc": pred_ctc,
@@ -675,11 +702,7 @@ class SalaryPackageRegressorModel:
             "description": description,
             "value_drivers": value_drivers,
             "uplift_opportunities": uplift_opportunities,
-            "inputs": {
-                "cgpa": cgpa,
-                "department": department,
-                "skills": skills_list
-            }
+            "inputs": {"cgpa": cgpa, "department": department, "skills": skills_list},
         }
 
     def predict_student(self, student_id):
@@ -689,11 +712,7 @@ class SalaryPackageRegressorModel:
             return None
 
         skills_list = [s["skill_name"] for s in st.get("skills", [])]
-        pred = self.predict_custom(
-            cgpa=float(st["cgpa"] or 7.5),
-            department=st["department"],
-            skills_list=skills_list
-        )
+        pred = self.predict_custom(cgpa=float(st["cgpa"] or 7.5), department=st["department"], skills_list=skills_list)
         pred["student"] = st
         return pred
 

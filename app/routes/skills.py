@@ -2,27 +2,30 @@
 Skills Management Blueprint.
 Provides listing, creation, editing, and association breakdowns for skills.
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+
 from app import csrf
-from app.services.skill_service import (
-    get_all_skills,
-    get_skill_by_id,
-    create_skill,
-    update_skill,
-    delete_skill,
-    get_skill_categories
-)
+from app.services.company_service import get_companies
 from app.services.skill_recommender_service import (
+    TIER_PROFILES,
     analyze_skill_gap,
     analyze_student_skill_gap,
-    TIER_PROFILES,
-    get_target_skills_for_company
+    get_target_skills_for_company,
+)
+from app.services.skill_service import (
+    create_skill,
+    delete_skill,
+    get_all_skills,
+    get_skill_by_id,
+    get_skill_categories,
+    update_skill,
 )
 from app.services.student_service import get_all_students_simple, get_student_by_id
-from app.services.company_service import get_companies
 from app.utils.auth import login_required, role_required
 
 skills_bp = Blueprint("skills", __name__, url_prefix="/skills")
+
 
 @skills_bp.route("/")
 @login_required
@@ -31,6 +34,7 @@ def list_skills():
     skills = get_all_skills(category=category)
     categories = get_skill_categories()
     return render_template("skills/index.html", skills=skills, categories=categories, selected_category=category)
+
 
 @skills_bp.route("/add", methods=["POST"])
 @role_required("admin", "placement_officer")
@@ -44,6 +48,7 @@ def add_skill():
         flash(result, "danger")
     return redirect(url_for("skills.list_skills"))
 
+
 @skills_bp.route("/<int:skill_id>/edit", methods=["POST"])
 @role_required("admin", "placement_officer")
 def edit_skill(skill_id):
@@ -55,6 +60,7 @@ def edit_skill(skill_id):
     else:
         flash(result, "danger")
     return redirect(url_for("skills.list_skills"))
+
 
 @skills_bp.route("/<int:skill_id>/delete", methods=["POST"])
 @role_required("admin", "placement_officer")
@@ -69,6 +75,7 @@ def remove_skill(skill_id):
     else:
         flash("Could not delete skill.", "danger")
     return redirect(url_for("skills.list_skills"))
+
 
 @skills_bp.route("/recommender", methods=["GET", "POST"])
 @login_required
@@ -94,7 +101,9 @@ def recommender():
     if student_id_val:
         try:
             selected_student_id = int(student_id_val)
-            analysis = analyze_student_skill_gap(selected_student_id, target_type=target_type, target_value=target_value)
+            analysis = analyze_student_skill_gap(
+                selected_student_id, target_type=target_type, target_value=target_value
+            )
             if analysis and analysis.get("student"):
                 custom_skills = [s["skill_name"] for s in analysis["student"].get("skills", [])]
         except (ValueError, TypeError):
@@ -124,6 +133,7 @@ def recommender():
             pass
 
     from app.services.analytics_service import get_kpis
+
     kpis = get_kpis()
     total_students = kpis.get("total_students", 0)
 
@@ -139,8 +149,9 @@ def recommender():
         target_company=target_company,
         all_skills=all_skills,
         custom_skills=custom_skills,
-        total_students=total_students
+        total_students=total_students,
     )
+
 
 @skills_bp.route("/api/recommender", methods=["POST"])
 @csrf.exempt
@@ -161,4 +172,3 @@ def api_recommender():
     else:
         analysis = analyze_skill_gap(skills, target_type=target_type, target_value=target_value)
         return jsonify({"success": True, "analysis": analysis})
-

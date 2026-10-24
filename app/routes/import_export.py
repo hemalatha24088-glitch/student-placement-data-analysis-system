@@ -3,15 +3,17 @@ Data Import Blueprint.
 Allows uploading students and placements via CSV with full validation,
 secure filename sanitization, row caps, and RBAC protection.
 """
-from flask import Blueprint, render_template, request, flash, redirect, url_for, Response
+
+from flask import Blueprint, Response, flash, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
-from app.utils.auth import role_required
+
 from app.services.import_service import (
-    import_students_csv,
-    import_placements_csv,
+    generate_placement_csv_template,
     generate_student_csv_template,
-    generate_placement_csv_template
+    import_placements_csv,
+    import_students_csv,
 )
+from app.utils.auth import role_required
 
 import_bp = Blueprint("import_bp", __name__, url_prefix="/import")
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -103,8 +105,4 @@ def download_template(template_type):
         csv_data = generate_placement_csv_template()
         filename = "placements_template.csv"
 
-    return Response(
-        csv_data,
-        mimetype="text/csv",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
+    return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": f"attachment; filename={filename}"})

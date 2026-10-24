@@ -2,9 +2,12 @@
 Role-Based Access Control (RBAC) and Authentication Decorators.
 Enforces strict least-privilege security across all application endpoints.
 """
+
 import re
 from functools import wraps
-from flask import session, redirect, url_for, flash, abort, request, current_app
+
+from flask import abort, current_app, flash, redirect, request, session, url_for
+
 
 def is_strong_password(pw):
     """
@@ -16,19 +19,21 @@ def is_strong_password(pw):
     """
     if not pw or len(pw) < 8:
         return False, "Password must be at least 8 characters long."
-    if not re.search(r'[a-z]', pw):
+    if not re.search(r"[a-z]", pw):
         return False, "Password must contain at least one lowercase letter."
-    if not re.search(r'[A-Z]', pw):
+    if not re.search(r"[A-Z]", pw):
         return False, "Password must contain at least one uppercase letter."
-    if not re.search(r'\d', pw):
+    if not re.search(r"\d", pw):
         return False, "Password must contain at least one digit (0-9)."
     return True, ""
+
 
 def login_required(f):
     """
     Decorator requiring an active authenticated user session.
     Redirects unauthenticated visitors to /login with next redirection URL.
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get("user_id"):
@@ -37,7 +42,9 @@ def login_required(f):
             next_url = request.url if request.path not in ("/", "/login") else url_for("main.dashboard")
             return redirect(url_for("auth.login", next=next_url))
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 def role_required(*allowed_roles):
     """
@@ -45,6 +52,7 @@ def role_required(*allowed_roles):
     Allowed roles: 'admin', 'placement_officer', 'student'.
     Aborts with HTTP 403 Forbidden if user lacks required role.
     """
+
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -63,8 +71,11 @@ def role_required(*allowed_roles):
                 abort(403)
 
             return f(*args, **kwargs)
+
         return decorated_function
+
     return decorator
+
 
 def student_self_or_staff_required(get_target_student_id_func=None):
     """
@@ -72,6 +83,7 @@ def student_self_or_staff_required(get_target_student_id_func=None):
     - Officers and Admins: access any student record.
     - Students: access ONLY their own linked student profile.
     """
+
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -96,5 +108,7 @@ def student_self_or_staff_required(get_target_student_id_func=None):
 
             # If student is not linked or attempting to access other profile
             abort(403)
+
         return decorated_function
+
     return decorator

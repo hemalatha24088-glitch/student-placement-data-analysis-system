@@ -3,9 +3,10 @@ Smart Skill Gap & Career Pathway Recommender Service.
 Analyzes student skill inventories against target recruiter requirements,
 computes match scores, isolates critical skill gaps, and generates learning roadmaps.
 """
+
 from app.database.connection import get_db_cursor
-from app.services.student_service import get_student_by_id
 from app.services.company_service import get_company_by_id
+from app.services.student_service import get_student_by_id
 
 # Benchmark skill profiles by hiring tiers (derived from campus drive standards)
 TIER_PROFILES = {
@@ -18,9 +19,14 @@ TIER_PROFILES = {
             {"skill_name": "Python", "category": "Programming", "priority": "High", "weight": 20},
             {"skill_name": "SQL", "category": "Database & Querying", "priority": "High", "weight": 15},
             {"skill_name": "Machine Learning", "category": "AI/Data Science", "priority": "High", "weight": 15},
-            {"skill_name": "Cloud Computing (AWS/GCP)", "category": "DevOps & Cloud", "priority": "Medium", "weight": 15},
-            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "High", "weight": 10}
-        ]
+            {
+                "skill_name": "Cloud Computing (AWS/GCP)",
+                "category": "DevOps & Cloud",
+                "priority": "Medium",
+                "weight": 15,
+            },
+            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "High", "weight": 10},
+        ],
     },
     "Dream": {
         "title": "Dream Companies (8 - 15 LPA CTC)",
@@ -31,9 +37,14 @@ TIER_PROFILES = {
             {"skill_name": "Python", "category": "Programming", "priority": "High", "weight": 20},
             {"skill_name": "Data Structures & Algorithms", "category": "Core CS", "priority": "High", "weight": 20},
             {"skill_name": "React.js", "category": "Web Development", "priority": "Medium", "weight": 15},
-            {"skill_name": "Communication Skills", "category": "Aptitude & Soft Skills", "priority": "High", "weight": 10},
-            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "Medium", "weight": 10}
-        ]
+            {
+                "skill_name": "Communication Skills",
+                "category": "Aptitude & Soft Skills",
+                "priority": "High",
+                "weight": 10,
+            },
+            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "Medium", "weight": 10},
+        ],
     },
     "Core Engineering": {
         "title": "Core Engineering Companies (6 - 12 LPA CTC)",
@@ -41,11 +52,16 @@ TIER_PROFILES = {
         "benchmark_ctc": "8.5 LPA",
         "core_skills": [
             {"skill_name": "Embedded Systems", "category": "Core Engineering", "priority": "Critical", "weight": 25},
-            {"skill_name": "IoT & Microcontrollers", "category": "Core Engineering", "priority": "Critical", "weight": 25},
+            {
+                "skill_name": "IoT & Microcontrollers",
+                "category": "Core Engineering",
+                "priority": "Critical",
+                "weight": 25,
+            },
             {"skill_name": "C++", "category": "Programming", "priority": "High", "weight": 20},
             {"skill_name": "Python", "category": "Programming", "priority": "Medium", "weight": 15},
-            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "High", "weight": 15}
-        ]
+            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "High", "weight": 15},
+        ],
     },
     "Mass / IT Services": {
         "title": "Mass Recruitment & IT Services (3.5 - 7 LPA CTC)",
@@ -54,12 +70,18 @@ TIER_PROFILES = {
         "core_skills": [
             {"skill_name": "SQL", "category": "Database & Querying", "priority": "Critical", "weight": 25},
             {"skill_name": "Python", "category": "Programming", "priority": "High", "weight": 25},
-            {"skill_name": "Communication Skills", "category": "Aptitude & Soft Skills", "priority": "Critical", "weight": 25},
+            {
+                "skill_name": "Communication Skills",
+                "category": "Aptitude & Soft Skills",
+                "priority": "Critical",
+                "weight": 25,
+            },
             {"skill_name": "HTML/CSS/JavaScript", "category": "Web Development", "priority": "Medium", "weight": 15},
-            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "Medium", "weight": 10}
-        ]
-    }
+            {"skill_name": "Problem Solving", "category": "Aptitude & Soft Skills", "priority": "Medium", "weight": 10},
+        ],
+    },
 }
+
 
 def get_target_skills_for_company(company_id):
     """
@@ -88,18 +110,21 @@ def get_target_skills_for_company(company_id):
     if rows and len(rows) >= 3:
         skills_res = []
         for r in rows:
-            skills_res.append({
-                "skill_name": r["skill_name"],
-                "category": r["skill_category"],
-                "priority": "Critical" if r["hire_count"] >= 3 else "High",
-                "weight": 20
-            })
+            skills_res.append(
+                {
+                    "skill_name": r["skill_name"],
+                    "category": r["skill_category"],
+                    "priority": "Critical" if r["hire_count"] >= 3 else "High",
+                    "weight": 20,
+                }
+            )
         return skills_res
 
     # Fallback to tier profile
     tier = company.get("tier", "Dream")
     profile = TIER_PROFILES.get(tier, TIER_PROFILES["Dream"])
     return profile["core_skills"]
+
 
 def analyze_skill_gap(current_skills_list, target_type="tier", target_value="Super Dream"):
     """
@@ -166,18 +191,18 @@ def analyze_skill_gap(current_skills_list, target_type="tier", target_value="Sup
         {
             "phase": "Phase 1: Foundational Core Mastery (Weeks 1-2)",
             "focus": f"Master critical missing prerequisites: {', '.join(phase1_skills) if phase1_skills else 'Reinforce Data Structures & Problem Solving speed'}.",
-            "action": "Complete daily LeetCode/HackerRank challenges and verify conceptual depth."
+            "action": "Complete daily LeetCode/HackerRank challenges and verify conceptual depth.",
         },
         {
             "phase": "Phase 2: Project Implementation & GitHub Proof (Weeks 3-4)",
             "focus": f"Build practical capstone projects incorporating: {', '.join(phase2_skills) if phase2_skills else 'Full-Stack / Machine Learning architectures'}.",
-            "action": "Deploy live web applications and document README architecture on GitHub."
+            "action": "Deploy live web applications and document README architecture on GitHub.",
         },
         {
             "phase": "Phase 3: Mock Recruitment & Interview Polish (Weeks 5-6)",
             "focus": "Simulate technical coding rounds, aptitude tests, and behavioral HR interviews.",
-            "action": "Schedule 2 mock technical evaluations with department placement coordinators."
-        }
+            "action": "Schedule 2 mock technical evaluations with department placement coordinators.",
+        },
     ]
 
     return {
@@ -190,8 +215,9 @@ def analyze_skill_gap(current_skills_list, target_type="tier", target_value="Sup
         "acquired_skills": acquired,
         "missing_skills": missing,
         "total_required": len(target_skills),
-        "roadmap": roadmap
+        "roadmap": roadmap,
     }
+
 
 def analyze_student_skill_gap(student_id, target_type="tier", target_value="Super Dream"):
     """Run skill gap analysis for an existing registered student."""

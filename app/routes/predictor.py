@@ -4,13 +4,15 @@ Provides interactive Machine Learning classification, what-if candidate evaluati
 feature importance diagnostics, unplaced student risk prioritization,
 and model performance analytics (/model-info).
 """
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+
 from app import csrf
-from app.utils.auth import login_required, role_required
-from app.services.ml_service import predictor_service, salary_predictor_service
-from app.services.student_service import get_all_departments, get_all_graduation_years, get_all_students_simple
-from app.services.skill_service import get_all_skills
 from app.services.analytics_service import get_kpis
+from app.services.ml_service import predictor_service, salary_predictor_service
+from app.services.skill_service import get_all_skills
+from app.services.student_service import get_all_departments, get_all_graduation_years, get_all_students_simple
+from app.utils.auth import login_required, role_required
 
 predictor_bp = Blueprint("predictor", __name__, url_prefix="/predictor")
 
@@ -49,11 +51,7 @@ def index():
         selected_skills = request.form.getlist("skills")
 
         prediction_result = predictor_service.predict_custom(
-            cgpa=cgpa,
-            department=dept,
-            skills_list=selected_skills,
-            graduation_year=year,
-            eligible=eligible
+            cgpa=cgpa, department=dept, skills_list=selected_skills, graduation_year=year, eligible=eligible
         )
         default_cgpa = cgpa
         default_dept = dept
@@ -65,7 +63,7 @@ def index():
             department=default_dept,
             skills_list=default_skills,
             graduation_year=default_year,
-            eligible=1
+            eligible=1,
         )
 
     unplaced_cohort = predictor_service.get_unplaced_risk_cohort()
@@ -83,7 +81,7 @@ def index():
         form_dept=default_dept,
         form_year=default_year,
         form_skills=default_skills,
-        total_students=total_students
+        total_students=total_students,
     )
 
 
@@ -99,11 +97,7 @@ def api_predict():
     eligible = int(data.get("eligible", 1))
 
     res = predictor_service.predict_custom(
-        cgpa=cgpa,
-        department=dept,
-        skills_list=skills,
-        graduation_year=year,
-        eligible=eligible
+        cgpa=cgpa, department=dept, skills_list=skills, graduation_year=year, eligible=eligible
     )
     return jsonify({"success": True, "prediction": res})
 
@@ -184,7 +178,7 @@ def salary_predictor():
         form_skills=default_skills,
         model_metrics=salary_predictor_service.metrics,
         feature_importances=salary_predictor_service.feature_importances[:8],
-        total_students=total_students
+        total_students=total_students,
     )
 
 
@@ -204,6 +198,7 @@ def api_predict_salary():
 
 
 @predictor_bp.route("/salary/retrain", methods=["POST"])
+@predictor_bp.route("/retrain-salary", methods=["POST"])
 @login_required
 @role_required("admin", "placement_officer")
 def retrain_salary_model():
@@ -238,7 +233,7 @@ def model_info():
         reg_metrics=salary_predictor_service.metrics,
         clf_features=predictor_service.feature_importances[:8],
         reg_features=salary_predictor_service.feature_importances[:8],
-        total_students=total_students
+        total_students=total_students,
     )
 
 

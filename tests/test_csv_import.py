@@ -1,13 +1,16 @@
 """
 Unit tests for CSV import validation and error diagnostics.
 """
+
 import pytest
+
 from app.services.import_service import (
-    generate_student_csv_template,
     generate_placement_csv_template,
+    generate_student_csv_template,
+    import_placements_csv,
     import_students_csv,
-    import_placements_csv
 )
+
 
 def test_csv_templates_generation():
     """Verify CSV sample templates contain standard required headers."""
@@ -21,9 +24,11 @@ def test_csv_templates_generation():
     assert "company_name" in placement_tmpl
     assert "package_amount" in placement_tmpl
 
+
 def test_student_csv_validation_errors():
     """Verify that invalid rows (duplicate roll no, bad CGPA) are trapped and reported."""
-    from app.services.student_service import get_student_by_roll_no, delete_student
+    from app.services.student_service import delete_student, get_student_by_roll_no
+
     st = get_student_by_roll_no("22TESTCSV99")
     if st:
         delete_student(st["student_id"])
@@ -35,7 +40,7 @@ def test_student_csv_validation_errors():
         "roll_no,student_name,department,graduation_year,cgpa,email,phone,gender,eligible_for_placement",
         "22TESTCSV99,Test User New,Computer Science and Engineering,2026,8.5,t1@col.edu,9999,Other,1",
         "22TESTCSV98,Test User Two,Computer Science and Engineering,2026,15.5,t2@col.edu,9998,Other,1",
-        "22BCE1001,Aarav Sharma Duplicate,Computer Science and Engineering,2026,9.0,aarav@col.edu,9997,Male,1"
+        "22BCE1001,Aarav Sharma Duplicate,Computer Science and Engineering,2026,9.0,aarav@col.edu,9997,Male,1",
     ]
     res = import_students_csv(bad_csv_lines)
     assert res["success"] is True

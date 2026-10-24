@@ -2,10 +2,13 @@
 Machine Learning Model Integrity, Empirical Performance & Persistence Tests.
 Verifies /model-info diagnostics, 5-fold cross validation, joblib serialization, and zero data leakage.
 """
+
 import os
+
 import pytest
-from app.services.ml_service import predictor_service, salary_predictor_service, CLASSIFIER_PATH, REGRESSOR_PATH
+
 from app.services.large_seed_service import generate_large_synthetic_dataset
+from app.services.ml_service import CLASSIFIER_PATH, REGRESSOR_PATH, predictor_service, salary_predictor_service
 
 
 def test_model_info_route_accessible(student_client):
@@ -76,14 +79,24 @@ def test_joblib_model_persistence():
 def test_zero_data_leakage_feature_names():
     """Verify no post-placement outcome features (target leakage) exist in predictor feature sets."""
     forbidden_features = [
-        "is_placed", "placement_id", "status", "company_id", "company_name",
-        "package_amount", "package_unit", "placement_date", "offer_type"
+        "is_placed",
+        "placement_id",
+        "status",
+        "company_id",
+        "company_name",
+        "package_amount",
+        "package_unit",
+        "placement_date",
+        "offer_type",
     ]
     for feature in predictor_service.feature_names:
         assert feature.lower() not in forbidden_features, f"Data leakage detected: {feature} in predictor features"
 
     for feature in salary_predictor_service.feature_names:
-        assert feature.lower() not in ["package_amount", "package_unit"], f"Target leakage detected in regressor: {feature}"
+        assert feature.lower() not in [
+            "package_amount",
+            "package_unit",
+        ], f"Target leakage detected in regressor: {feature}"
 
 
 def test_large_synthetic_seed_idempotency():

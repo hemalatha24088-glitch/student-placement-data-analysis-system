@@ -1,0 +1,6 @@
+# Development, Testing, Linting & Coverage Tooling
+pytest==9.1.1
+pytest-cov==7.1.0
+coverage==7.17.0
+black==26.10.1
+ruff==0.17.2

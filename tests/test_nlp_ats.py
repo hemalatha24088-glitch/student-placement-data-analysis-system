@@ -1,15 +1,18 @@
 """
 Unit tests for Natural Language Processing (NLP) ATS Resume & Job Description Matcher.
 """
+
 import pytest
+
 from app import create_app
 from app.services.nlp_service import (
+    SAMPLE_JOB_DESCRIPTIONS,
+    calculate_ats_match,
     clean_text,
     extract_keywords,
-    calculate_ats_match,
     generate_student_resume_text,
-    SAMPLE_JOB_DESCRIPTIONS
 )
+
 
 def test_clean_text_normalization():
     """Verify text cleaning removes punctuation and normalizes whitespace."""
@@ -19,6 +22,7 @@ def test_clean_text_normalization():
     assert "machine learning" in cleaned
     assert "!" not in cleaned
 
+
 def test_keyword_extraction():
     """Verify domain keyword extraction against ontology."""
     sample = "Software engineer skilled in Python, SQL, React.js, Docker, and Data Structures."
@@ -27,6 +31,7 @@ def test_keyword_extraction():
     assert "sql" in kws
     assert "docker" in kws
     assert "data structures" in kws
+
 
 def test_calculate_ats_match():
     """Verify TF-IDF and keyword matching between resume and job description."""
@@ -41,11 +46,13 @@ def test_calculate_ats_match():
     assert "recommendations" in result
     assert len(result["recommendations"]) > 0
 
+
 def test_empty_ats_match():
     """Verify handling of empty inputs."""
     res = calculate_ats_match("", "")
     assert res["ats_score"] == 0.0
     assert "Input Required" in res["readiness"]
+
 
 def test_generate_student_resume_text():
     """Verify dynamic resume generation for registered student."""
@@ -54,24 +61,28 @@ def test_generate_student_resume_text():
     assert "Candidate Name:" in resume_text
     assert "TECHNICAL COMPETENCIES" in resume_text
 
+
 def test_ats_routes(client):
     """Verify GET and POST requests to the /ats UI and API routes."""
     get_resp = client.get("/ats")
     assert get_resp.status_code == 200
     assert b"ATS Compatibility" in get_resp.data
 
-    post_resp = client.post("/ats", data={
-        "resume_text": "Experienced Python and SQL developer with Machine Learning capstones.",
-        "jd_text": SAMPLE_JOB_DESCRIPTIONS["google_swe"]["text"]
-    })
+    post_resp = client.post(
+        "/ats",
+        data={
+            "resume_text": "Experienced Python and SQL developer with Machine Learning capstones.",
+            "jd_text": SAMPLE_JOB_DESCRIPTIONS["google_swe"]["text"],
+        },
+    )
     assert post_resp.status_code == 200
     assert b"ATS Score" in post_resp.data
 
     # Test API endpoints
-    api_resp = client.post("/ats/api/match", json={
-        "resume_text": "Python, SQL, DSA engineer",
-        "jd_text": "Looking for Python, SQL, DSA developer"
-    })
+    api_resp = client.post(
+        "/ats/api/match",
+        json={"resume_text": "Python, SQL, DSA engineer", "jd_text": "Looking for Python, SQL, DSA developer"},
+    )
     assert api_resp.status_code == 200
     assert api_resp.get_json()["success"] is True
 

@@ -3,9 +3,12 @@ Analytics Service Module.
 Uses Pandas and NumPy for aggregations, placement rate formulas,
 department cross-tabulations, salary distributions, and data-driven insights.
 """
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
 from app.database.connection import get_db_cursor
+
 
 def load_placement_dataframe(department=None, graduation_year=None, company_id=None, status=None):
     """
@@ -67,11 +70,26 @@ def load_placement_dataframe(department=None, graduation_year=None, company_id=N
     """
 
     EXPECTED_COLUMNS = [
-        "student_id", "roll_no", "student_name", "department", "graduation_year",
-        "cgpa", "gender", "eligible_for_placement", "placement_id", "company_id",
-        "company_name", "company_industry", "company_tier", "role",
-        "package_amount", "package_unit", "placement_date", "placement_year",
-        "placement_status", "offer_type"
+        "student_id",
+        "roll_no",
+        "student_name",
+        "department",
+        "graduation_year",
+        "cgpa",
+        "gender",
+        "eligible_for_placement",
+        "placement_id",
+        "company_id",
+        "company_name",
+        "company_industry",
+        "company_tier",
+        "role",
+        "package_amount",
+        "package_unit",
+        "placement_date",
+        "placement_year",
+        "placement_status",
+        "offer_type",
     ]
 
     with get_db_cursor(commit=False) as cursor:
@@ -88,14 +106,16 @@ def load_placement_dataframe(department=None, graduation_year=None, company_id=N
     df["eligible_for_placement"] = df["eligible_for_placement"].astype(int)
     return df
 
+
 def get_kpis(department=None, graduation_year=None, company_id=None, status=None):
     """
     Calculate top-level placement performance metrics strictly adhering to definitions:
     - distinct eligible placed / total eligible * 100
     - unplaced = total eligible - distinct eligible placed
     """
-    df = load_placement_dataframe(department=department, graduation_year=graduation_year,
-                                  company_id=company_id, status=status)
+    df = load_placement_dataframe(
+        department=department, graduation_year=graduation_year, company_id=company_id, status=status
+    )
 
     if df.empty:
         return {
@@ -109,22 +129,22 @@ def get_kpis(department=None, graduation_year=None, company_id=None, status=None
             "highest_package": 0.0,
             "lowest_package": 0.0,
             "total_companies": 0,
-            "sample_label": "Synthetic Demonstration Data"
+            "sample_label": "Synthetic Demonstration Data",
         }
 
     # Distinct students
     unique_students_df = df.drop_duplicates(subset=["student_id"])
     total_students = int(len(unique_students_df))
-    
+
     # Eligible students
     eligible_students_df = unique_students_df[unique_students_df["eligible_for_placement"] == 1]
     total_eligible = int(len(eligible_students_df))
 
     # Placed students (only distinct eligible students who have a confirmed placed offer)
     placed_offers_df = df[
-        (df["eligible_for_placement"] == 1) & 
-        (df["placement_status"].isin(["Placed", "Offer Accepted"])) &
-        (df["package_amount"].notna())
+        (df["eligible_for_placement"] == 1)
+        & (df["placement_status"].isin(["Placed", "Offer Accepted"]))
+        & (df["package_amount"].notna())
     ]
     placed_student_ids = placed_offers_df["student_id"].unique()
     total_placed = int(len(placed_student_ids))
@@ -166,8 +186,9 @@ def get_kpis(department=None, graduation_year=None, company_id=None, status=None
         "highest_package": highest_package,
         "lowest_package": lowest_package,
         "total_companies": total_companies,
-        "sample_label": "Synthetic Demonstration Data"
+        "sample_label": "Synthetic Demonstration Data",
     }
+
 
 def get_department_analytics(graduation_year=None):
     """
@@ -183,15 +204,15 @@ def get_department_analytics(graduation_year=None):
     for dept in departments:
         dept_df = df[df["department"] == dept]
         dept_unique = dept_df.drop_duplicates(subset=["student_id"])
-        
+
         total_students = int(len(dept_unique))
         eligible_df = dept_unique[dept_unique["eligible_for_placement"] == 1]
         eligible_count = int(len(eligible_df))
 
         placed_offers = dept_df[
-            (dept_df["eligible_for_placement"] == 1) & 
-            (dept_df["placement_status"].isin(["Placed", "Offer Accepted"])) &
-            (dept_df["package_amount"].notna())
+            (dept_df["eligible_for_placement"] == 1)
+            & (dept_df["placement_status"].isin(["Placed", "Offer Accepted"]))
+            & (dept_df["package_amount"].notna())
         ]
         placed_students_count = int(len(placed_offers["student_id"].unique()))
         unplaced_count = max(0, eligible_count - placed_students_count)
@@ -203,31 +224,31 @@ def get_department_analytics(graduation_year=None):
         med_pkg = round(float(np.median(packages)), 2) if len(packages) > 0 else 0.0
         max_pkg = round(float(np.max(packages)), 2) if len(packages) > 0 else 0.0
 
-        dept_records.append({
-            "department": dept,
-            "total_students": total_students,
-            "eligible_students": eligible_count,
-            "placed_students": placed_students_count,
-            "unplaced_students": unplaced_count,
-            "placement_rate": rate,
-            "avg_package": avg_pkg,
-            "median_package": med_pkg,
-            "highest_package": max_pkg
-        })
+        dept_records.append(
+            {
+                "department": dept,
+                "total_students": total_students,
+                "eligible_students": eligible_count,
+                "placed_students": placed_students_count,
+                "unplaced_students": unplaced_count,
+                "placement_rate": rate,
+                "avg_package": avg_pkg,
+                "median_package": med_pkg,
+                "highest_package": max_pkg,
+            }
+        )
 
     # Sort descending by placement rate
     dept_records.sort(key=lambda x: x["placement_rate"], reverse=True)
     return dept_records
+
 
 def get_package_analytics(department=None, graduation_year=None):
     """
     Calculate salary package distributions, percentiles, tiers, and top offers.
     """
     df = load_placement_dataframe(department=department, graduation_year=graduation_year)
-    placed_offers = df[
-        (df["placement_status"].isin(["Placed", "Offer Accepted"])) & 
-        (df["package_amount"].notna())
-    ]
+    placed_offers = df[(df["placement_status"].isin(["Placed", "Offer Accepted"])) & (df["package_amount"].notna())]
 
     packages = placed_offers["package_amount"].values
     if len(packages) == 0:
@@ -242,7 +263,7 @@ def get_package_analytics(department=None, graduation_year=None):
             "p75": 0.0,
             "p90": 0.0,
             "brackets": {},
-            "top_offers": []
+            "top_offers": [],
         }
 
     stats = {
@@ -264,28 +285,47 @@ def get_package_analytics(department=None, graduation_year=None):
     b_above_15 = int(np.sum(packages >= 15.0))
 
     stats["brackets"] = {
-        "less_than_5": {"label": "< 5 LPA (Mass / Entry)", "count": b_less_5, "pct": round(b_less_5 / len(packages) * 100, 1)},
-        "5_to_8": {"label": "5 - 8 LPA (Standard / Core)", "count": b_5_to_8, "pct": round(b_5_to_8 / len(packages) * 100, 1)},
-        "8_to_15": {"label": "8 - 15 LPA (Dream Offers)", "count": b_8_to_15, "pct": round(b_8_to_15 / len(packages) * 100, 1)},
-        "above_15": {"label": "Above 15 LPA (Super Dream)", "count": b_above_15, "pct": round(b_above_15 / len(packages) * 100, 1)},
+        "less_than_5": {
+            "label": "< 5 LPA (Mass / Entry)",
+            "count": b_less_5,
+            "pct": round(b_less_5 / len(packages) * 100, 1),
+        },
+        "5_to_8": {
+            "label": "5 - 8 LPA (Standard / Core)",
+            "count": b_5_to_8,
+            "pct": round(b_5_to_8 / len(packages) * 100, 1),
+        },
+        "8_to_15": {
+            "label": "8 - 15 LPA (Dream Offers)",
+            "count": b_8_to_15,
+            "pct": round(b_8_to_15 / len(packages) * 100, 1),
+        },
+        "above_15": {
+            "label": "Above 15 LPA (Super Dream)",
+            "count": b_above_15,
+            "pct": round(b_above_15 / len(packages) * 100, 1),
+        },
     }
 
     # Top offers
     top_df = placed_offers.sort_values(by="package_amount", ascending=False).head(10)
     top_offers = []
     for _, row in top_df.iterrows():
-        top_offers.append({
-            "student_name": row["student_name"],
-            "roll_no": row["roll_no"],
-            "department": row["department"],
-            "company_name": row["company_name"],
-            "role": row["role"],
-            "package_amount": row["package_amount"],
-            "tier": row["company_tier"]
-        })
+        top_offers.append(
+            {
+                "student_name": row["student_name"],
+                "roll_no": row["roll_no"],
+                "department": row["department"],
+                "company_name": row["company_name"],
+                "role": row["role"],
+                "package_amount": row["package_amount"],
+                "tier": row["company_tier"],
+            }
+        )
     stats["top_offers"] = top_offers
 
     return stats
+
 
 def get_skill_analytics(department=None):
     """
@@ -314,6 +354,7 @@ def get_skill_analytics(department=None):
         cursor.execute(query, params)
         rows = cursor.fetchall()
     return rows
+
 
 def get_yearly_trends():
     """
@@ -344,6 +385,7 @@ def get_yearly_trends():
         r["unplaced_students"] = max(0, eligible - placed)
 
     return rows
+
 
 def generate_placement_insights(department=None, graduation_year=None):
     """

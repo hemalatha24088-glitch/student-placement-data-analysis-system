@@ -2,21 +2,24 @@
 Placement Records Blueprint.
 Provides placement offers CRUD, duplicate enforcement, package validation, and filtering.
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+
+from app.services.company_service import get_companies
 from app.services.placement_service import (
-    get_placements,
-    get_placement_by_id,
-    create_placement,
-    update_placement,
-    delete_placement,
+    VALID_OFFER_TYPES,
     VALID_STATUSES,
-    VALID_OFFER_TYPES
+    create_placement,
+    delete_placement,
+    get_placement_by_id,
+    get_placements,
+    update_placement,
 )
 from app.services.student_service import get_all_departments, get_all_graduation_years, get_students
-from app.services.company_service import get_companies
 from app.utils.auth import role_required
 
 placements_bp = Blueprint("placements", __name__, url_prefix="/placements")
+
 
 @placements_bp.route("/")
 @role_required("admin", "placement_officer")
@@ -29,13 +32,7 @@ def list_placements():
     search = request.args.get("search", "").strip()
 
     result = get_placements(
-        department=dept,
-        graduation_year=year,
-        company_id=comp_id,
-        status=status,
-        search=search,
-        page=page,
-        per_page=12
+        department=dept, graduation_year=year, company_id=comp_id, status=status, search=search, page=page, per_page=12
     )
 
     departments = get_all_departments()
@@ -57,8 +54,9 @@ def list_placements():
         selected_year=year,
         selected_company=comp_id,
         selected_status=status,
-        search=search
+        search=search,
     )
+
 
 @placements_bp.route("/add", methods=["GET", "POST"])
 @role_required("admin", "placement_officer")
@@ -74,7 +72,7 @@ def add_placement():
             "placement_year": request.form.get("placement_year"),
             "status": request.form.get("status"),
             "offer_type": request.form.get("offer_type"),
-            "notes": request.form.get("notes")
+            "notes": request.form.get("notes"),
         }
         success, result = create_placement(data)
         if success:
@@ -93,8 +91,9 @@ def add_placement():
         companies=companies,
         statuses=VALID_STATUSES,
         offer_types=VALID_OFFER_TYPES,
-        action="Add"
+        action="Add",
     )
+
 
 @placements_bp.route("/<int:placement_id>/edit", methods=["GET", "POST"])
 @role_required("admin", "placement_officer")
@@ -115,7 +114,7 @@ def edit_placement(placement_id):
             "placement_year": request.form.get("placement_year"),
             "status": request.form.get("status"),
             "offer_type": request.form.get("offer_type"),
-            "notes": request.form.get("notes")
+            "notes": request.form.get("notes"),
         }
         success, result = update_placement(placement_id, data)
         if success:
@@ -133,8 +132,9 @@ def edit_placement(placement_id):
         companies=companies,
         statuses=VALID_STATUSES,
         offer_types=VALID_OFFER_TYPES,
-        action="Edit"
+        action="Edit",
     )
+
 
 @placements_bp.route("/<int:placement_id>/delete", methods=["POST"])
 @role_required("admin", "placement_officer")
@@ -145,7 +145,7 @@ def remove_placement(placement_id):
         return redirect(url_for("placements.list_placements"))
 
     if delete_placement(placement_id):
-        flash("Placement offer record removed.", "info")
+        flash("Placement record deleted successfully.", "info")
     else:
         flash("Could not delete placement record.", "danger")
     return redirect(url_for("placements.list_placements"))

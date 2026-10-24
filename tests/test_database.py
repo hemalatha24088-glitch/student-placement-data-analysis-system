@@ -1,8 +1,11 @@
 """
 Unit tests for MySQL database connectivity and health monitoring.
 """
+
 import pytest
-from app.database.connection import check_db_health, get_db_cursor, get_db_connection
+
+from app.database.connection import check_db_health, get_db_connection, get_db_cursor
+
 
 def test_database_connection():
     """Verify that a direct connection to MySQL 8.0 can be established."""
@@ -14,6 +17,7 @@ def test_database_connection():
     assert res["alive"] == 1
     cursor.close()
     conn.close()
+
 
 def test_health_check_endpoint():
     """Verify that check_db_health reports healthy and returns valid table counts."""

@@ -2,9 +2,11 @@
 CSV Import/Export Security & Injection Hardening Tests.
 Validates formula injection mitigation (CWE-1236) and bulk row cap limits.
 """
+
 import pytest
+
 from app.routes.reports import sanitize_csv_cell, sanitize_row
-from app.services.import_service import import_students_csv, import_placements_csv, MAX_IMPORT_ROWS
+from app.services.import_service import MAX_IMPORT_ROWS, import_placements_csv, import_students_csv
 
 
 def test_csv_cell_formula_injection_sanitization():
@@ -35,7 +37,10 @@ def test_csv_import_row_limit_enforcement():
     """CSV imports exceeding 1,000 rows must be rejected with a clear message."""
     header = "roll_no,student_name,department,graduation_year,cgpa,email,phone,gender,eligible_for_placement"
     # Create 1005 rows
-    lines = [header] + [f"TEST{i:04d},Student {i},Computer Science and Engineering,2026,8.0,s{i}@mail.com,9000000000,Female,1" for i in range(1005)]
+    lines = [header] + [
+        f"TEST{i:04d},Student {i},Computer Science and Engineering,2026,8.0,s{i}@mail.com,9000000000,Female,1"
+        for i in range(1005)
+    ]
 
     result = import_students_csv(lines)
     assert result["success"] is False

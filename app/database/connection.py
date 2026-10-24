@@ -2,11 +2,15 @@
 Database Connection Manager for Student Placement Data Analysis System.
 Provides thread-safe connections, DictCursor contexts, and connectivity diagnostics.
 """
+
+from contextlib import contextmanager
+
 import pymysql
 import pymysql.cursors
-from contextlib import contextmanager
 from flask import current_app, g
+
 from config import Config
+
 
 def get_db_connection():
     """Create and return a new MySQL connection with DictCursor."""
@@ -18,11 +22,12 @@ def get_db_connection():
         "database": Config.DB_NAME,
         "charset": "utf8mb4",
         "cursorclass": pymysql.cursors.DictCursor,
-        "autocommit": False
+        "autocommit": False,
     }
     if getattr(Config, "DB_SSL", False):
         conn_kwargs["ssl"] = {"ssl": True}
     return pymysql.connect(**conn_kwargs)
+
 
 @contextmanager
 def get_db_cursor(commit=True):
@@ -44,6 +49,7 @@ def get_db_cursor(commit=True):
         cursor.close()
         conn.close()
 
+
 def execute_query(query, params=None, fetchone=False, fetchall=False, commit=False):
     """Convenience helper to run parameterized queries safely."""
     with get_db_cursor(commit=commit) as cursor:
@@ -53,6 +59,7 @@ def execute_query(query, params=None, fetchone=False, fetchall=False, commit=Fal
         if fetchall:
             return cursor.fetchall()
         return cursor.lastrowid
+
 
 def check_db_health():
     """
@@ -85,12 +92,8 @@ def check_db_health():
                     "students": students_count,
                     "placements": placements_count,
                     "companies": companies_count,
-                    "skills": skills_count
-                }
+                    "skills": skills_count,
+                },
             }
     except Exception as e:
-        return {
-            "status": "unhealthy",
-            "connected": False,
-            "error": str(e)
-        }
+        return {"status": "unhealthy", "connected": False, "error": str(e)}

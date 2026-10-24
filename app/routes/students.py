@@ -2,20 +2,23 @@
 Student Management Blueprint.
 Provides full CRUD: List, Add, View, Edit, Delete, and Skill Association.
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, abort, session
+
+from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, session, url_for
+
+from app.services.skill_service import get_all_skills
 from app.services.student_service import (
-    get_students,
-    get_student_by_id,
     create_student,
-    update_student,
     delete_student,
     get_all_departments,
-    get_all_graduation_years
+    get_all_graduation_years,
+    get_student_by_id,
+    get_students,
+    update_student,
 )
-from app.services.skill_service import get_all_skills
 from app.utils.auth import login_required, role_required
 
 students_bp = Blueprint("students", __name__, url_prefix="/students")
+
 
 @students_bp.route("/")
 @role_required("admin", "placement_officer")
@@ -34,7 +37,7 @@ def list_students():
         search=search,
         page=page,
         per_page=12,
-        sort_by=sort_by
+        sort_by=sort_by,
     )
 
     departments = get_all_departments()
@@ -53,8 +56,9 @@ def list_students():
         selected_year=year,
         selected_eligibility=eligibility,
         search=search,
-        sort_by=sort_by
+        sort_by=sort_by,
     )
+
 
 @students_bp.route("/add", methods=["GET", "POST"])
 @role_required("admin", "placement_officer")
@@ -69,7 +73,7 @@ def add_student():
             "email": request.form.get("email"),
             "phone": request.form.get("phone"),
             "gender": request.form.get("gender"),
-            "eligible_for_placement": request.form.get("eligible_for_placement")
+            "eligible_for_placement": request.form.get("eligible_for_placement"),
         }
         selected_skills = request.form.getlist("skills")
 
@@ -82,7 +86,10 @@ def add_student():
 
     departments = get_all_departments()
     all_skills = get_all_skills()
-    return render_template("students/form.html", student=None, departments=departments, all_skills=all_skills, action="Add")
+    return render_template(
+        "students/form.html", student=None, departments=departments, all_skills=all_skills, action="Add"
+    )
+
 
 @students_bp.route("/<int:student_id>")
 @login_required
@@ -95,14 +102,17 @@ def view_student(student_id):
 
     if user_role == "student":
         user_student_id = session.get("student_id")
-        is_own_profile = (user_student_id and int(user_student_id) == int(student_id)) or \
-                         (student.get("email") and student.get("email") == session.get("email")) or \
-                         (student.get("roll_no") and student.get("roll_no") == session.get("username"))
+        is_own_profile = (
+            (user_student_id and int(user_student_id) == int(student_id))
+            or (student.get("email") and student.get("email") == session.get("email"))
+            or (student.get("roll_no") and student.get("roll_no") == session.get("username"))
+        )
         if not is_own_profile:
             abort(403)
-    
+
     from app.services.ml_service import predictor_service, salary_predictor_service
     from app.services.skill_recommender_service import analyze_student_skill_gap
+
     prediction = predictor_service.predict_student(student_id)
     salary_pred = salary_predictor_service.predict_student(student_id)
     dream_gap = analyze_student_skill_gap(student_id, target_type="tier", target_value="Dream")
@@ -113,8 +123,9 @@ def view_student(student_id):
         prediction=prediction,
         salary_pred=salary_pred,
         dream_gap=dream_gap,
-        super_dream_gap=super_dream_gap
+        super_dream_gap=super_dream_gap,
     )
+
 
 @students_bp.route("/<int:student_id>/resume")
 @login_required
@@ -131,22 +142,21 @@ def student_resume(student_id):
 
     if user_role == "student":
         user_student_id = session.get("student_id")
-        is_own_profile = (user_student_id and int(user_student_id) == int(student_id)) or \
-                         (student.get("email") and student.get("email") == session.get("email")) or \
-                         (student.get("roll_no") and student.get("roll_no") == session.get("username"))
+        is_own_profile = (
+            (user_student_id and int(user_student_id) == int(student_id))
+            or (student.get("email") and student.get("email") == session.get("email"))
+            or (student.get("roll_no") and student.get("roll_no") == session.get("username"))
+        )
         if not is_own_profile:
             abort(403)
 
     from app.services.ml_service import predictor_service, salary_predictor_service
+
     prediction = predictor_service.predict_student(student_id)
     salary_pred = salary_predictor_service.predict_student(student_id)
 
-    return render_template(
-        "students/resume.html",
-        student=student,
-        prediction=prediction,
-        salary_pred=salary_pred
-    )
+    return render_template("students/resume.html", student=student, prediction=prediction, salary_pred=salary_pred)
+
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
 @role_required("admin", "placement_officer")
@@ -166,7 +176,7 @@ def edit_student(student_id):
             "email": request.form.get("email"),
             "phone": request.form.get("phone"),
             "gender": request.form.get("gender"),
-            "eligible_for_placement": request.form.get("eligible_for_placement")
+            "eligible_for_placement": request.form.get("eligible_for_placement"),
         }
         selected_skills = request.form.getlist("skills")
 
@@ -187,8 +197,9 @@ def edit_student(student_id):
         departments=departments,
         all_skills=all_skills,
         student_skill_ids=student_skill_ids,
-        action="Edit"
+        action="Edit",
     )
+
 
 @students_bp.route("/<int:student_id>/delete", methods=["POST"])
 @role_required("admin", "placement_officer")

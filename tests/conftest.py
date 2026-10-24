@@ -2,8 +2,10 @@
 Pytest configuration and fixtures for Student Placement Data Analysis System.
 Provides app, client, authenticated sessions, and isolated test configurations.
 """
-import sys
+
 import os
+import sys
+
 import pytest
 
 # Ensure project root is in sys.path

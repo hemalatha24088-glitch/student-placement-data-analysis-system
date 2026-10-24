@@ -1,8 +1,11 @@
 """
 Unit tests for Machine Learning Salary Package (CTC) Regressor & Placement Bio-Data service.
 """
+
 import pytest
+
 from app.services.ml_service import salary_predictor_service
+
 
 def test_salary_regressor_training_and_metrics():
     """Verify that Random Forest Regressor trains properly on MySQL compensation data."""
@@ -16,12 +19,13 @@ def test_salary_regressor_training_and_metrics():
     assert salary_predictor_service.metrics["mean_package"] > 0
     assert len(salary_predictor_service.feature_importances) > 0
 
+
 def test_salary_custom_prediction():
     """Verify CTC inference for candidate with strong skills and GPA."""
     pred = salary_predictor_service.predict_custom(
         cgpa=9.1,
         department="Computer Science and Engineering",
-        skills_list=["Python", "SQL", "Data Structures & Algorithms", "Machine Learning"]
+        skills_list=["Python", "SQL", "Data Structures & Algorithms", "Machine Learning"],
     )
     assert 3.5 <= pred["predicted_ctc"] <= 45.0
     assert pred["predicted_ctc"] >= 12.0
@@ -29,6 +33,7 @@ def test_salary_custom_prediction():
     assert "Dream" in pred["tier"]
     assert pred["cgpa_delta"] > 0
     assert isinstance(pred["uplift_opportunities"], list)
+
 
 def test_salary_student_inference():
     """Verify inference for an existing student from MySQL."""
@@ -38,26 +43,27 @@ def test_salary_student_inference():
     assert "student" in pred
     assert pred["student"]["student_id"] == 1
 
+
 def test_salary_predictor_routes(student_client):
     """Verify GET and POST requests to the /predictor/salary UI route (accessible by student)."""
     response = student_client.get("/predictor/salary")
     assert response.status_code == 200
     assert b"Candidate Salary Package (CTC) Predictor" in response.data or b"Salary Package" in response.data
 
-    post_resp = student_client.post("/predictor/salary", data={
-        "cgpa": "8.5",
-        "department": "Computer Science and Engineering",
-        "skills": ["Python", "SQL"]
-    })
+    post_resp = student_client.post(
+        "/predictor/salary",
+        data={"cgpa": "8.5", "department": "Computer Science and Engineering", "skills": ["Python", "SQL"]},
+    )
     assert post_resp.status_code == 200
     assert b"Projected Compensation" in post_resp.data
+
 
 def test_api_predict_salary(client):
     """Verify JSON API endpoint for real-time CTC prediction reactivity."""
     payload = {
         "cgpa": 8.75,
         "department": "Artificial Intelligence and Machine Learning",
-        "skills": ["Python", "Machine Learning", "Data Structures & Algorithms"]
+        "skills": ["Python", "Machine Learning", "Data Structures & Algorithms"],
     }
     response = client.post("/predictor/api/predict-salary", json=payload)
     assert response.status_code == 200
@@ -66,8 +72,16 @@ def test_api_predict_salary(client):
     assert "prediction" in data
     assert data["prediction"]["predicted_ctc"] > 0
 
+
 def test_student_resume_route(officer_client):
     """Verify printable placement bio-data / resume route (requires officer or admin session)."""
     response = officer_client.get("/students/1/resume")
     assert response.status_code == 200
     assert b"Verified Candidate Bio-Data" in response.data or b"Placement Bio-Data" in response.data
+
+
+def test_salary_retrain_route(officer_client):
+    """Verify salary regressor retraining route (requires officer session)."""
+    resp = officer_client.post("/predictor/retrain-salary", follow_redirects=True)
+    assert resp.status_code == 200
+    assert b"retrained and persisted" in resp.data

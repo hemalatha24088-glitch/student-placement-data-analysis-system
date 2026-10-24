@@ -3,35 +3,111 @@ CSV Import and Export Service Module.
 Handles validation, duplicate detection, row-by-row error reporting,
 and sample template generation.
 """
-import io
-import csv
-from datetime import datetime
-from app.database.connection import get_db_cursor
-from app.services.student_service import get_student_by_roll_no
-from app.services.placement_service import check_duplicate_placement, VALID_STATUSES, VALID_OFFER_TYPES
 
-STUDENT_CSV_HEADERS = ["roll_no", "student_name", "department", "graduation_year", "cgpa", "email", "phone", "gender", "eligible_for_placement"]
-PLACEMENT_CSV_HEADERS = ["roll_no", "company_name", "role", "package_amount", "package_unit", "placement_date", "placement_year", "status", "offer_type", "notes"]
+import csv
+import io
+from datetime import datetime
+
+from app.database.connection import get_db_cursor
+from app.services.placement_service import VALID_OFFER_TYPES, VALID_STATUSES, check_duplicate_placement
+from app.services.student_service import get_student_by_roll_no
+
+STUDENT_CSV_HEADERS = [
+    "roll_no",
+    "student_name",
+    "department",
+    "graduation_year",
+    "cgpa",
+    "email",
+    "phone",
+    "gender",
+    "eligible_for_placement",
+]
+PLACEMENT_CSV_HEADERS = [
+    "roll_no",
+    "company_name",
+    "role",
+    "package_amount",
+    "package_unit",
+    "placement_date",
+    "placement_year",
+    "status",
+    "offer_type",
+    "notes",
+]
 
 MAX_IMPORT_ROWS = 1000
+
 
 def generate_student_csv_template():
     """Generate sample CSV template string for student bulk upload."""
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(STUDENT_CSV_HEADERS)
-    writer.writerow(["22BCE1099", "Sample Student", "Computer Science and Engineering", 2026, 8.50, "sample@college.edu", "9876543299", "Female", 1])
-    writer.writerow(["22AML1099", "Candidate Two", "Artificial Intelligence and Machine Learning", 2026, 9.10, "cand2@college.edu", "9876543298", "Male", 1])
+    writer.writerow(
+        [
+            "22BCE1099",
+            "Sample Student",
+            "Computer Science and Engineering",
+            2026,
+            8.50,
+            "sample@college.edu",
+            "9876543299",
+            "Female",
+            1,
+        ]
+    )
+    writer.writerow(
+        [
+            "22AML1099",
+            "Candidate Two",
+            "Artificial Intelligence and Machine Learning",
+            2026,
+            9.10,
+            "cand2@college.edu",
+            "9876543298",
+            "Male",
+            1,
+        ]
+    )
     return output.getvalue()
+
 
 def generate_placement_csv_template():
     """Generate sample CSV template string for placement bulk upload."""
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(PLACEMENT_CSV_HEADERS)
-    writer.writerow(["22BCE1099", "Microsoft", "Software Engineer", 24.50, "LPA", "2025-10-15", 2026, "Placed", "Super Dream", "Campus hire"])
-    writer.writerow(["22AML1099", "NVIDIA", "AI Research Engineer", 38.00, "LPA", "2025-09-20", 2026, "Placed", "Super Dream", "Research drive"])
+    writer.writerow(
+        [
+            "22BCE1099",
+            "Microsoft",
+            "Software Engineer",
+            24.50,
+            "LPA",
+            "2025-10-15",
+            2026,
+            "Placed",
+            "Super Dream",
+            "Campus hire",
+        ]
+    )
+    writer.writerow(
+        [
+            "22AML1099",
+            "NVIDIA",
+            "AI Research Engineer",
+            38.00,
+            "LPA",
+            "2025-09-20",
+            2026,
+            "Placed",
+            "Super Dream",
+            "Research drive",
+        ]
+    )
     return output.getvalue()
+
 
 def import_students_csv(file_stream):
     """
@@ -59,7 +135,7 @@ def import_students_csv(file_stream):
     if len(rows_list) > MAX_IMPORT_ROWS:
         return {
             "success": False,
-            "message": f"CSV exceeds maximum allowable limit of {MAX_IMPORT_ROWS} rows (uploaded file has {len(rows_list)} rows)."
+            "message": f"CSV exceeds maximum allowable limit of {MAX_IMPORT_ROWS} rows (uploaded file has {len(rows_list)} rows).",
         }
 
     total_rows = 0
@@ -104,7 +180,9 @@ def import_students_csv(file_stream):
                 if cgpa < 0.0 or cgpa > 10.0:
                     raise ValueError()
             except ValueError:
-                errors.append({"row": idx, "roll_no": roll_no, "reason": f"CGPA must be between 0.0 and 10.0 (got '{cgpa_str}')."})
+                errors.append(
+                    {"row": idx, "roll_no": roll_no, "reason": f"CGPA must be between 0.0 and 10.0 (got '{cgpa_str}')."}
+                )
                 continue
 
         # Eligibility
@@ -113,7 +191,13 @@ def import_students_csv(file_stream):
 
         # Check existing roll_no
         if get_student_by_roll_no(roll_no):
-            errors.append({"row": idx, "roll_no": roll_no, "reason": f"Student with roll number '{roll_no}' already exists in database."})
+            errors.append(
+                {
+                    "row": idx,
+                    "roll_no": roll_no,
+                    "reason": f"Student with roll number '{roll_no}' already exists in database.",
+                }
+            )
             continue
 
         email = row.get("email", "").strip() or None
@@ -126,10 +210,13 @@ def import_students_csv(file_stream):
     if rows_to_insert:
         with get_db_cursor(commit=True) as cursor:
             for r in rows_to_insert:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO students (roll_no, student_name, department, graduation_year, cgpa, email, phone, gender, eligible_for_placement)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                """, r)
+                """,
+                    r,
+                )
                 imported += 1
 
     return {
@@ -137,8 +224,9 @@ def import_students_csv(file_stream):
         "total_rows": total_rows,
         "imported_rows": imported,
         "failed_rows": len(errors),
-        "errors": errors
+        "errors": errors,
     }
+
 
 def import_placements_csv(file_stream):
     """
@@ -157,7 +245,7 @@ def import_placements_csv(file_stream):
     if len(rows_list) > MAX_IMPORT_ROWS:
         return {
             "success": False,
-            "message": f"CSV exceeds maximum allowable limit of {MAX_IMPORT_ROWS} rows (uploaded file has {len(rows_list)} rows)."
+            "message": f"CSV exceeds maximum allowable limit of {MAX_IMPORT_ROWS} rows (uploaded file has {len(rows_list)} rows).",
         }
 
     total_rows = 0
@@ -178,13 +266,17 @@ def import_placements_csv(file_stream):
         pkg_str = row.get("package_amount", "").strip()
 
         if not roll_no or not comp_name or not role or not pkg_str:
-            errors.append({"row": idx, "roll_no": roll_no, "reason": "Roll No, Company, Role, and Package are mandatory."})
+            errors.append(
+                {"row": idx, "roll_no": roll_no, "reason": "Roll No, Company, Role, and Package are mandatory."}
+            )
             continue
 
         # Look up student
         student = get_student_by_roll_no(roll_no)
         if not student:
-            errors.append({"row": idx, "roll_no": roll_no, "reason": f"Student with Roll No '{roll_no}' not found in database."})
+            errors.append(
+                {"row": idx, "roll_no": roll_no, "reason": f"Student with Roll No '{roll_no}' not found in database."}
+            )
             continue
 
         # Look up or auto-register company
@@ -193,7 +285,10 @@ def import_placements_csv(file_stream):
         if not company_id:
             # Auto-insert company
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute("INSERT INTO companies (company_name, industry) VALUES (%s, 'Information Technology');", (comp_name,))
+                cursor.execute(
+                    "INSERT INTO companies (company_name, industry) VALUES (%s, 'Information Technology');",
+                    (comp_name,),
+                )
                 company_id = cursor.lastrowid
                 comp_map[norm_comp] = company_id
 
@@ -203,17 +298,29 @@ def import_placements_csv(file_stream):
             if pkg <= 0 or pkg > 200.0:
                 raise ValueError()
         except ValueError:
-            errors.append({"row": idx, "roll_no": roll_no, "reason": f"Package amount must be between 0 and 200 LPA (got '{pkg_str}')."})
+            errors.append(
+                {
+                    "row": idx,
+                    "roll_no": roll_no,
+                    "reason": f"Package amount must be between 0 and 200 LPA (got '{pkg_str}').",
+                }
+            )
             continue
 
         unit = row.get("package_unit", "LPA").strip() or "LPA"
-        
+
         # Placement Date
         date_str = row.get("placement_date", "").strip()
         try:
             p_date = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else datetime.now().date()
         except ValueError:
-            errors.append({"row": idx, "roll_no": roll_no, "reason": f"Invalid date format for '{date_str}', expected YYYY-MM-DD."})
+            errors.append(
+                {
+                    "row": idx,
+                    "roll_no": roll_no,
+                    "reason": f"Invalid date format for '{date_str}', expected YYYY-MM-DD.",
+                }
+            )
             continue
 
         year_str = row.get("placement_year", "").strip()
@@ -228,19 +335,30 @@ def import_placements_csv(file_stream):
 
         # Duplicate check
         if check_duplicate_placement(student["student_id"], company_id, role, p_year):
-            errors.append({"row": idx, "roll_no": roll_no, "reason": f"Duplicate offer: student already has an offer from {comp_name} for '{role}' in {p_year}."})
+            errors.append(
+                {
+                    "row": idx,
+                    "roll_no": roll_no,
+                    "reason": f"Duplicate offer: student already has an offer from {comp_name} for '{role}' in {p_year}.",
+                }
+            )
             continue
 
-        rows_to_insert.append((student["student_id"], company_id, role, pkg, unit, p_date, p_year, status, offer_type, notes))
+        rows_to_insert.append(
+            (student["student_id"], company_id, role, pkg, unit, p_date, p_year, status, offer_type, notes)
+        )
 
     if rows_to_insert:
         with get_db_cursor(commit=True) as cursor:
             for r in rows_to_insert:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO placements (student_id, company_id, role, package_amount, package_unit,
                                             placement_date, placement_year, status, offer_type, notes)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                """, r)
+                """,
+                    r,
+                )
                 imported += 1
 
     return {
@@ -248,5 +366,5 @@ def import_placements_csv(file_stream):
         "total_rows": total_rows,
         "imported_rows": imported,
         "failed_rows": len(errors),
-        "errors": errors
+        "errors": errors,
     }

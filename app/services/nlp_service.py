@@ -3,30 +3,94 @@ Natural Language Processing (NLP) ATS Resume & Job Description Matcher Service.
 Computes TF-IDF vector similarity, cosine alignment, keyword extraction,
 and actionable ATS optimization recommendations.
 """
+
 import re
+
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
 from app.services.student_service import get_student_by_id
 
 # Curated Technical & Core Competencies Taxonomy for keyword extraction
 TECH_KEYWORDS = [
     # Languages
-    "python", "java", "c++", "c#", "c", "javascript", "typescript", "html", "css", "sql", "r", "go",
+    "python",
+    "java",
+    "c++",
+    "c#",
+    "c",
+    "javascript",
+    "typescript",
+    "html",
+    "css",
+    "sql",
+    "r",
+    "go",
     # Frameworks & Web
-    "react", "react.js", "angular", "vue", "node.js", "django", "flask", "fastapi", "spring boot", "bootstrap",
+    "react",
+    "react.js",
+    "angular",
+    "vue",
+    "node.js",
+    "django",
+    "flask",
+    "fastapi",
+    "spring boot",
+    "bootstrap",
     # AI / ML & Data Science
-    "machine learning", "deep learning", "natural language processing", "nlp", "computer vision",
-    "data science", "data analysis", "pandas", "numpy", "scikit-learn", "tensorflow", "pytorch",
-    "artificial intelligence", "generative ai", "neural networks",
+    "machine learning",
+    "deep learning",
+    "natural language processing",
+    "nlp",
+    "computer vision",
+    "data science",
+    "data analysis",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "tensorflow",
+    "pytorch",
+    "artificial intelligence",
+    "generative ai",
+    "neural networks",
     # Databases & Storage
-    "mysql", "postgresql", "mongodb", "redis", "oracle", "database", "nosql", "query optimization",
+    "mysql",
+    "postgresql",
+    "mongodb",
+    "redis",
+    "oracle",
+    "database",
+    "nosql",
+    "query optimization",
     # Cloud & DevOps
-    "aws", "amazon web services", "azure", "gcp", "google cloud", "docker", "kubernetes", "git",
-    "github", "ci/cd", "linux", "rest api", "microservices", "cloud computing",
+    "aws",
+    "amazon web services",
+    "azure",
+    "gcp",
+    "google cloud",
+    "docker",
+    "kubernetes",
+    "git",
+    "github",
+    "ci/cd",
+    "linux",
+    "rest api",
+    "microservices",
+    "cloud computing",
     # Core CS & Professional
-    "data structures", "algorithms", "dsa", "object oriented programming", "oop", "system design",
-    "problem solving", "communication skills", "agile", "scrum", "unit testing", "debugging"
+    "data structures",
+    "algorithms",
+    "dsa",
+    "object oriented programming",
+    "oop",
+    "system design",
+    "problem solving",
+    "communication skills",
+    "agile",
+    "scrum",
+    "unit testing",
+    "debugging",
 ]
 
 # Preloaded Benchmark Job Descriptions for campus drives
@@ -42,7 +106,7 @@ Requirements:
 - Strong foundation in Data Structures and Algorithms (DSA), time-space complexity, and problem solving.
 - Familiarity with Cloud Computing (Google Cloud Platform / GCP), REST API design, and distributed databases (SQL, NoSQL).
 - Experience with Git version control, unit testing, CI/CD pipelines, and Linux environments.
-- Excellent analytical, communication skills, and collaborative team mindset."""
+- Excellent analytical, communication skills, and collaborative team mindset.""",
     },
     "amazon_sde": {
         "title": "Amazon — Software Development Engineer I (SDE-1)",
@@ -55,7 +119,7 @@ Key Responsibilities & Qualifications:
 - Proven command of Data Structures, Algorithms, dynamic programming, and systems architecture.
 - Experience building scalable web applications and REST APIs using AWS (Amazon Web Services), Lambda, S3, or DynamoDB.
 - Practical knowledge of SQL relational databases, MySQL, query optimization, and NoSQL storage.
-- Passion for customer obsession, clean code, automated testing, and agile scrum delivery."""
+- Passion for customer obsession, clean code, automated testing, and agile scrum delivery.""",
     },
     "microsoft_ai": {
         "title": "Microsoft — Cloud & AI Software Engineer",
@@ -67,7 +131,7 @@ Qualifications:
 - Hands-on experience with Machine Learning, Deep Learning, Natural Language Processing (NLP), or Computer Vision.
 - Familiarity with Azure cloud computing, Docker containers, Kubernetes, and microservices architecture.
 - Working knowledge of SQL, database modeling, and Git collaboration workflows.
-- Strong mathematical reasoning, problem solving, and verbal communication skills."""
+- Strong mathematical reasoning, problem solving, and verbal communication skills.""",
     },
     "tcs_digital": {
         "title": "TCS — Digital Specialist Programmer",
@@ -80,7 +144,7 @@ Job Description:
 - Relational database management using MySQL or SQL Server.
 - Understanding of Data Structures, Algorithms, and logical problem solving.
 - Familiarity with version control (Git/GitHub), Agile methodologies, and software unit testing.
-- Strong aptitude, communication skills, and fast learning agility."""
+- Strong aptitude, communication skills, and fast learning agility.""",
     },
     "deloitte_analyst": {
         "title": "Deloitte — Technology & Data Analyst",
@@ -92,9 +156,10 @@ Role Requirements:
 - Familiarity with Machine Learning, statistics, Pandas, NumPy, and Scikit-Learn.
 - Experience creating dashboards and reporting insights using SQL databases.
 - Exceptional written and verbal communication skills, client presentation, and business problem solving.
-- Ability to work effectively in cross-functional agile teams."""
-    }
+- Ability to work effectively in cross-functional agile teams.""",
+    },
 }
+
 
 def clean_text(text):
     """Normalize text: lowercase, replace hyphens/slashes with spaces, remove punctuation, collapse whitespace."""
@@ -106,6 +171,7 @@ def clean_text(text):
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
+
 def extract_keywords(text):
     """Isolate matched technical and domain competencies from text using ontology lookup."""
     cleaned = clean_text(text)
@@ -116,6 +182,7 @@ def extract_keywords(text):
         if re.search(pattern, cleaned):
             matched.add(kw)
     return matched
+
 
 def calculate_ats_match(resume_text, job_description_text):
     """
@@ -141,16 +208,12 @@ def calculate_ats_match(resume_text, job_description_text):
             "missing_keywords": [],
             "readiness": "Input Required",
             "badge_class": "badge-rejected",
-            "advice": "Please provide both candidate resume text and recruiter job description."
+            "advice": "Please provide both candidate resume text and recruiter job description.",
         }
 
     # 1. TF-IDF & Cosine Similarity
     try:
-        vectorizer = TfidfVectorizer(
-            stop_words="english",
-            ngram_range=(1, 2),
-            max_features=2500
-        )
+        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), max_features=2500)
         tfidf_matrix = vectorizer.fit_transform([cleaned_resume, cleaned_jd])
         cosine_sim = float(cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0])
         cosine_pct = round(max(0.0, min(1.0, cosine_sim)) * 100, 1)
@@ -194,11 +257,19 @@ def calculate_ats_match(resume_text, job_description_text):
     recommendations = []
     if missing:
         top_missing = missing[:5]
-        recommendations.append(f"Incorporate missing core keywords into your Experience & Project descriptions: {', '.join([k.title() for k in top_missing])}.")
+        recommendations.append(
+            f"Incorporate missing core keywords into your Experience & Project descriptions: {', '.join([k.title() for k in top_missing])}."
+        )
     if cosine_pct < 25.0:
-        recommendations.append("Align project descriptions with the exact industry phrasing used in the job description.")
-    recommendations.append("Ensure your technical skills section uses standard industry terms (e.g., 'REST API', 'MySQL', 'Git').")
-    recommendations.append("Quantify project outcomes with concrete numerical results (e.g., 'Optimized query latency by 35%').")
+        recommendations.append(
+            "Align project descriptions with the exact industry phrasing used in the job description."
+        )
+    recommendations.append(
+        "Ensure your technical skills section uses standard industry terms (e.g., 'REST API', 'MySQL', 'Git')."
+    )
+    recommendations.append(
+        "Quantify project outcomes with concrete numerical results (e.g., 'Optimized query latency by 35%')."
+    )
 
     return {
         "ats_score": ats_score,
@@ -211,8 +282,9 @@ def calculate_ats_match(resume_text, job_description_text):
         "readiness": readiness,
         "badge_class": badge_class,
         "advice": advice,
-        "recommendations": recommendations
+        "recommendations": recommendations,
     }
+
 
 def generate_student_resume_text(student_id):
     """

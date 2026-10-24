@@ -1,11 +1,14 @@
 """
 Unit tests for Authentication, Session Protection, RBAC, Password Policy, and OAuth.
 """
+
 import time
+
 import pytest
+
 from app import create_app
-from config import Config
 from app.utils.auth import is_strong_password
+from config import Config
 
 
 def test_login_page_renders_with_demo_mode(app, client):
@@ -20,6 +23,7 @@ def test_login_page_renders_with_demo_mode(app, client):
 
 def test_login_page_hides_demo_buttons_when_demo_mode_disabled():
     """Verify that demo buttons are hidden when DEMO_MODE is False (Security Requirement)."""
+
     class SecureConfig(Config):
         TESTING = True
         DEMO_MODE = False
@@ -58,6 +62,7 @@ def test_demo_login_admin_when_enabled(app, client):
 
 def test_demo_login_rejected_when_disabled():
     """Verify demo login is rejected with an error when DEMO_MODE is False."""
+
     class SecureConfig(Config):
         TESTING = True
         DEMO_MODE = False
@@ -73,10 +78,9 @@ def test_demo_login_rejected_when_disabled():
 
 def test_invalid_credential_login(client):
     """Verify that bad credentials are rejected with a generic security error message."""
-    response = client.post("/login", data={
-        "username": "nonexistent_user",
-        "password": "wrongpassword"
-    }, follow_redirects=True)
+    response = client.post(
+        "/login", data={"username": "nonexistent_user", "password": "wrongpassword"}, follow_redirects=True
+    )
     assert response.status_code == 200
     assert b"Invalid credentials" in response.data or b"Invalid username or password" in response.data
 
@@ -111,14 +115,18 @@ def test_user_registration_enforces_student_role(client):
     unique_email = f"{unique_user}@university.edu"
     test_pass = "SecurePass123!"
 
-    reg_response = client.post("/register", data={
-        "full_name": "New Candidate",
-        "username": unique_user,
-        "email": unique_email,
-        "role": "admin",  # Malicious attempt to elevate role
-        "password": test_pass,
-        "confirm_password": test_pass
-    }, follow_redirects=False)
+    reg_response = client.post(
+        "/register",
+        data={
+            "full_name": "New Candidate",
+            "username": unique_user,
+            "email": unique_email,
+            "role": "admin",  # Malicious attempt to elevate role
+            "password": test_pass,
+            "confirm_password": test_pass,
+        },
+        follow_redirects=False,
+    )
 
     assert reg_response.status_code == 302
     with client.session_transaction() as sess:
@@ -129,12 +137,16 @@ def test_user_registration_enforces_student_role(client):
 
 def test_user_registration_mismatched_passwords(client):
     """Verify rejection when passwords do not match."""
-    response = client.post("/register", data={
-        "full_name": "Mismatch Tester",
-        "username": f"mismatch_{int(time.time())}",
-        "password": "Password123!",
-        "confirm_password": "DifferentPassword456!"
-    }, follow_redirects=True)
+    response = client.post(
+        "/register",
+        data={
+            "full_name": "Mismatch Tester",
+            "username": f"mismatch_{int(time.time())}",
+            "password": "Password123!",
+            "confirm_password": "DifferentPassword456!",
+        },
+        follow_redirects=True,
+    )
 
     assert response.status_code == 200
     assert b"Passwords do not match" in response.data
@@ -144,23 +156,30 @@ def test_user_registration_duplicate_username(client):
     """Verify rejection when attempting to register an already taken username."""
     # First registration
     uname = f"dup_{int(time.time())}"
-    client.post("/register", data={
-        "full_name": "Original User",
-        "username": uname,
-        "email": f"{uname}@mail.com",
-        "password": "Password123!",
-        "confirm_password": "Password123!"
-    })
+    client.post(
+        "/register",
+        data={
+            "full_name": "Original User",
+            "username": uname,
+            "email": f"{uname}@mail.com",
+            "password": "Password123!",
+            "confirm_password": "Password123!",
+        },
+    )
     client.get("/logout")
 
     # Second registration with same username
-    response = client.post("/register", data={
-        "full_name": "Imposter User",
-        "username": uname,
-        "email": f"other_{uname}@mail.com",
-        "password": "Password123!",
-        "confirm_password": "Password123!"
-    }, follow_redirects=True)
+    response = client.post(
+        "/register",
+        data={
+            "full_name": "Imposter User",
+            "username": uname,
+            "email": f"other_{uname}@mail.com",
+            "password": "Password123!",
+            "confirm_password": "Password123!",
+        },
+        follow_redirects=True,
+    )
 
     assert response.status_code == 200
     assert b"already taken" in response.data
@@ -202,3 +221,72 @@ def test_password_policy_validation():
 
     valid, msg = is_strong_password("ValidPassword123")
     assert valid is True
+
+
+def test_login_rate_limiting():
+    """Verify rate limiter blocks brute-force login attempts (HTTP 429)."""
+
+    class RateLimitConfig(Config):
+        TESTING = True
+        RATELIMIT_ENABLED = True
+        WTF_CSRF_ENABLED = False
+        SECRET_KEY = "test-secret-rl"
+        DEMO_MODE = False
+
+    app = create_app(RateLimitConfig)
+    app.config["RATELIMIT_ENABLED"] = True
+    with app.test_client() as c:
+        responses = []
+        for i in range(7):
+            resp = c.post("/login", data={"username": f"user_{i}", "password": "wrong"})
+            responses.append(resp.status_code)
+        assert 429 in responses
+
+
+def test_change_password_flow(officer_client):
+    """Verify logged-in user can change password securely."""
+    # First test mismatched new passwords
+    resp = officer_client.post(
+        "/auth/change-password",
+        data={"current_password": "any", "new_password": "NewSecurePass123!", "confirm_password": "MismatchPass123!"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert b"do not match" in resp.data
+
+    # Test weak new password
+    resp = officer_client.post(
+        "/auth/change-password",
+        data={"current_password": "any", "new_password": "weak", "confirm_password": "weak"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert b"8 characters" in resp.data
+
+
+def test_valid_user_login_and_empty_check(client):
+    """Verify login with registered user credentials and empty validation."""
+    # 1. Empty check
+    empty_resp = client.post("/login", data={"username": "", "password": ""}, follow_redirects=True)
+    assert empty_resp.status_code == 200
+    assert b"Invalid credentials" in empty_resp.data
+
+    # 2. Register new student
+    uname = f"logintest_{int(time.time() * 1000) % 100000}"
+    pw = "SecretPass123!"
+    client.post(
+        "/register",
+        data={
+            "full_name": "Login Test User",
+            "username": uname,
+            "email": f"{uname}@univ.edu",
+            "password": pw,
+            "confirm_password": pw,
+        },
+    )
+    client.get("/logout")
+
+    # 3. Successful login
+    login_resp = client.post("/login", data={"username": uname, "password": pw}, follow_redirects=True)
+    assert login_resp.status_code == 200
+    assert b"Signed in" in login_resp.data or uname.encode() in login_resp.data or b"Dashboard" in login_resp.data

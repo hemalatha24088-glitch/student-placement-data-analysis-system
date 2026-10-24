@@ -2,6 +2,7 @@
 Role-Based Access Control (RBAC) Security Verification Test Suite.
 Validates least-privilege matrix across Anonymous, Student, Placement Officer, and Admin.
 """
+
 import pytest
 
 
@@ -16,7 +17,7 @@ def test_anonymous_redirected_to_login(client):
         "/import/",
         "/reports/",
         "/admin/users",
-        "/auth/change-password"
+        "/auth/change-password",
     ]
     for url in protected_urls:
         resp = client.get(url, follow_redirects=False)
@@ -27,25 +28,13 @@ def test_anonymous_redirected_to_login(client):
 def test_student_role_access_boundaries(student_client):
     """Students can access self profile, predictor, and recommender, but are blocked from staff routes."""
     # Permitted endpoints
-    allowed_urls = [
-        "/predictor/",
-        "/predictor/salary",
-        "/skills/recommender",
-        "/ats/"
-    ]
+    allowed_urls = ["/predictor/", "/predictor/salary", "/skills/recommender", "/ats/"]
     for url in allowed_urls:
         resp = student_client.get(url)
         assert resp.status_code == 200, f"Expected 200 OK for student on {url}, got {resp.status_code}"
 
     # Forbidden endpoints (Must return 403 Forbidden)
-    forbidden_urls = [
-        "/students/add",
-        "/companies/add",
-        "/placements/add",
-        "/import/",
-        "/reports/",
-        "/admin/users"
-    ]
+    forbidden_urls = ["/students/add", "/companies/add", "/placements/add", "/import/", "/reports/", "/admin/users"]
     for url in forbidden_urls:
         resp = student_client.get(url)
         assert resp.status_code == 403, f"Expected 403 Forbidden for student on {url}, got {resp.status_code}"
@@ -70,7 +59,7 @@ def test_placement_officer_access_boundaries(officer_client):
         "/import/",
         "/reports/",
         "/predictor/",
-        "/skills/recommender"
+        "/skills/recommender",
     ]
     for url in officer_allowed_urls:
         resp = officer_client.get(url)
@@ -83,15 +72,7 @@ def test_placement_officer_access_boundaries(officer_client):
 
 def test_administrator_full_access(admin_client):
     """Administrators have access across all management portals including User Management."""
-    admin_urls = [
-        "/dashboard",
-        "/students/",
-        "/companies/",
-        "/placements/",
-        "/import/",
-        "/reports/",
-        "/admin/users"
-    ]
+    admin_urls = ["/dashboard", "/students/", "/companies/", "/placements/", "/import/", "/reports/", "/admin/users"]
     for url in admin_urls:
         resp = admin_client.get(url)
         assert resp.status_code == 200, f"Expected 200 OK for admin on {url}, got {resp.status_code}"

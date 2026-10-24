@@ -1,16 +1,19 @@
 """
 Unit tests for Placement Rate Formulas, Pandas/NumPy statistics, and edge cases.
 """
-import pytest
+
 import numpy as np
 import pandas as pd
+import pytest
+
 from app.services.analytics_service import (
-    get_kpis,
     get_department_analytics,
+    get_kpis,
     get_package_analytics,
     get_skill_analytics,
-    get_yearly_trends
+    get_yearly_trends,
 )
+
 
 def test_kpi_calculations_and_formulas():
     """Verify primary analytics formulas and bounds."""
@@ -31,6 +34,7 @@ def test_kpi_calculations_and_formulas():
     assert kpis["median_package"] > 0
     assert kpis["lowest_package"] <= kpis["highest_package"]
 
+
 def test_empty_dataset_edge_cases():
     """Verify handling when filters yield zero records (no division by zero)."""
     # Non-existent department and year
@@ -42,6 +46,7 @@ def test_empty_dataset_edge_cases():
     assert kpis["placement_rate"] == 0.0
     assert kpis["avg_package"] == 0.0
     assert kpis["median_package"] == 0.0
+
 
 def test_department_analytics():
     """Verify department grouping and individual placement rates."""
@@ -57,6 +62,7 @@ def test_department_analytics():
             calc_rate = round((d["placed_students"] / d["eligible_students"]) * 100, 2)
             assert d["placement_rate"] == calc_rate
 
+
 def test_package_percentiles_with_numpy():
     """Verify package statistics percentiles."""
     pkg = get_package_analytics()
@@ -64,6 +70,7 @@ def test_package_percentiles_with_numpy():
     assert pkg["min"] <= pkg["p25"] <= pkg["median"] <= pkg["p75"] <= pkg["p90"] <= pkg["max"]
     assert "brackets" in pkg
     assert len(pkg["brackets"]) == 4
+
 
 def test_skill_analytics():
     """Verify skills tracking among placed students."""

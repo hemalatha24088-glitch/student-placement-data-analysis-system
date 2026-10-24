@@ -2,27 +2,44 @@
 Application Factory for Student Placement Data Analysis System.
 Configures security extensions, blueprints, error handlers, and context processors.
 """
+
 import os
-from flask import Flask, render_template, request, session, redirect, url_for, flash
-from flask_wtf.csrf import CSRFProtect
-from flask_talisman import Talisman
+
 from authlib.integrations.flask_client import OAuth
-from config import Config
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_talisman import Talisman
+from flask_wtf.csrf import CSRFProtect
+
 from app.limiter import limiter
+from config import Config
 
 csrf = CSRFProtect()
 oauth = OAuth()
 talisman = Talisman()
 
+
 def create_app(config_class=Config):
-    app = Flask(__name__,
-                template_folder="templates",
-                static_folder="static")
+    app = Flask(__name__, template_folder="templates", static_folder="static")
     app.config.from_object(config_class)
 
     # Ensure upload and log directories exist
     os.makedirs(app.config.get("UPLOAD_FOLDER", "uploads"), exist_ok=True)
     os.makedirs("logs", exist_ok=True)
+
+    # Configure Structured Logging with RotatingFileHandler
+    if not app.config.get("TESTING"):
+        import logging
+        from logging.handlers import RotatingFileHandler
+
+        log_file = os.path.join("logs", "app.log")
+        file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
+        file_handler.setFormatter(
+            logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s (%(process)d): %(message)s")
+        )
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info("Student Placement Data Analysis System starting up.")
 
     # Initialize Extensions
     csrf.init_app(app)
@@ -33,32 +50,23 @@ def create_app(config_class=Config):
         talisman.init_app(app, force_https=False, content_security_policy=None)
     else:
         csp = {
-            'default-src': ["'self'"],
-            'script-src': [
+            "default-src": ["'self'"],
+            "script-src": [
                 "'self'",
                 "'unsafe-inline'",
                 "'unsafe-eval'",
                 "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com"
+                "https://cdnjs.cloudflare.com",
             ],
-            'style-src': [
+            "style-src": [
                 "'self'",
                 "'unsafe-inline'",
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com",
-                "https://fonts.googleapis.com"
+                "https://fonts.googleapis.com",
             ],
-            'font-src': [
-                "'self'",
-                "https://fonts.gstatic.com",
-                "https://cdnjs.cloudflare.com",
-                "data:"
-            ],
-            'img-src': [
-                "'self'",
-                "data:",
-                "https:"
-            ]
+            "font-src": ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
+            "img-src": ["'self'", "data:", "https:"],
         }
         force_https = app.config.get("SESSION_COOKIE_SECURE", False)
         talisman.init_app(
@@ -66,7 +74,7 @@ def create_app(config_class=Config):
             content_security_policy=csp,
             force_https=force_https,
             frame_options="SAMEORIGIN",
-            referrer_policy="strict-origin-when-cross-origin"
+            referrer_policy="strict-origin-when-cross-origin",
         )
 
     # Register Google OAuth 2.0 if credentials are provided
@@ -77,23 +85,23 @@ def create_app(config_class=Config):
             client_id=app.config["GOOGLE_CLIENT_ID"],
             client_secret=app.config["GOOGLE_CLIENT_SECRET"],
             server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-            client_kwargs={"scope": "openid email profile"}
+            client_kwargs={"scope": "openid email profile"},
         )
 
     # Register Blueprints
-    from app.routes.main import main_bp
-    from app.routes.auth import auth_bp
     from app.routes.admin import admin_bp
-    from app.routes.students import students_bp
-    from app.routes.companies import companies_bp
-    from app.routes.skills import skills_bp
-    from app.routes.placements import placements_bp
     from app.routes.analytics import analytics_bp
-    from app.routes.reports import reports_bp
-    from app.routes.import_export import import_bp
     from app.routes.api import api_bp
-    from app.routes.predictor import predictor_bp
     from app.routes.ats import ats_bp
+    from app.routes.auth import auth_bp
+    from app.routes.companies import companies_bp
+    from app.routes.import_export import import_bp
+    from app.routes.main import main_bp
+    from app.routes.placements import placements_bp
+    from app.routes.predictor import predictor_bp
+    from app.routes.reports import reports_bp
+    from app.routes.skills import skills_bp
+    from app.routes.students import students_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -125,7 +133,7 @@ def create_app(config_class=Config):
             "auth.logout",
             "main.health_page",
             "api.health_check",
-            "static"
+            "static",
         }
 
         if request.endpoint and (request.endpoint in allowed_endpoints or request.endpoint.startswith("static")):
@@ -142,7 +150,7 @@ def create_app(config_class=Config):
         return {
             "demo_mode": app.config.get("DEMO_MODE", False),
             "google_auth_enabled": google_enabled,
-            "current_user_role": session.get("role", "anonymous")
+            "current_user_role": session.get("role", "anonymous"),
         }
 
     # Custom Jinja2 Filters

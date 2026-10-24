@@ -4,22 +4,81 @@ Generates 600 realistic student academic and recruitment records with authentic
 distributions for machine learning training, cross-validation, and benchmarking.
 All generated records are clearly labelled as synthetic.
 """
+
 import random
+
 import numpy as np
+
 from app.database.connection import get_db_cursor
 
 FIRST_NAMES = [
-    "Aarav", "Aditi", "Aditya", "Akash", "Ananya", "Aniket", "Ankita", "Arjun",
-    "Bhavya", "Chetan", "Deepika", "Dev", "Divya", "Gaurav", "Harsh", "Isha",
-    "Karan", "Kavya", "Madhav", "Manish", "Meera", "Neha", "Nikhil", "Nisha",
-    "Pooja", "Pranav", "Priya", "Rahul", "Rhea", "Rishi", "Rohan", "Sahil",
-    "Sakshi", "Sanjay", "Shreya", "Siddharth", "Sneha", "Tarun", "Varun", "Vikas"
+    "Aarav",
+    "Aditi",
+    "Aditya",
+    "Akash",
+    "Ananya",
+    "Aniket",
+    "Ankita",
+    "Arjun",
+    "Bhavya",
+    "Chetan",
+    "Deepika",
+    "Dev",
+    "Divya",
+    "Gaurav",
+    "Harsh",
+    "Isha",
+    "Karan",
+    "Kavya",
+    "Madhav",
+    "Manish",
+    "Meera",
+    "Neha",
+    "Nikhil",
+    "Nisha",
+    "Pooja",
+    "Pranav",
+    "Priya",
+    "Rahul",
+    "Rhea",
+    "Rishi",
+    "Rohan",
+    "Sahil",
+    "Sakshi",
+    "Sanjay",
+    "Shreya",
+    "Siddharth",
+    "Sneha",
+    "Tarun",
+    "Varun",
+    "Vikas",
 ]
 
 LAST_NAMES = [
-    "Sharma", "Verma", "Gupta", "Patel", "Reddy", "Nair", "Iyer", "Rao",
-    "Kumar", "Singh", "Joshi", "Bose", "Mehta", "Chopra", "Kulkarni", "Deshmukh",
-    "Mishra", "Pandey", "Agarwal", "Bhatia", "Saxena", "Das", "Menon", "Pillai"
+    "Sharma",
+    "Verma",
+    "Gupta",
+    "Patel",
+    "Reddy",
+    "Nair",
+    "Iyer",
+    "Rao",
+    "Kumar",
+    "Singh",
+    "Joshi",
+    "Bose",
+    "Mehta",
+    "Chopra",
+    "Kulkarni",
+    "Deshmukh",
+    "Mishra",
+    "Pandey",
+    "Agarwal",
+    "Bhatia",
+    "Saxena",
+    "Das",
+    "Menon",
+    "Pillai",
 ]
 
 DEPARTMENTS = [
@@ -28,14 +87,19 @@ DEPARTMENTS = [
     ("Information Technology", "BIT", 100),
     ("Electronics and Communication Engineering", "ECE", 90),
     ("Electrical and Electronics Engineering", "EEE", 40),
-    ("Mechanical Engineering", "MEC", 40)
+    ("Mechanical Engineering", "MEC", 40),
 ]
 
 ROLES_BY_TIER = {
-    "Super Dream": ["Software Development Engineer II", "AI Research Engineer", "Systems Architect", "Machine Learning Engineer"],
+    "Super Dream": [
+        "Software Development Engineer II",
+        "AI Research Engineer",
+        "Systems Architect",
+        "Machine Learning Engineer",
+    ],
     "Dream": ["Full-Stack Software Engineer", "Data Engineer", "Cloud Associate", "DevOps Engineer"],
     "Core Engineering": ["Embedded Systems Engineer", "Robotics Firmware Engineer", "Control Systems Associate"],
-    "Mass Recruit": ["Systems Engineer", "Associate Software Consultant", "Application Developer"]
+    "Mass Recruit": ["Systems Engineer", "Associate Software Consultant", "Application Developer"],
 }
 
 
@@ -65,8 +129,6 @@ def generate_large_synthetic_dataset(target_count=600):
         companies_by_tier.setdefault(tier, []).append(c)
 
     students_to_insert = []
-    student_skills_map = []
-    placements_to_insert = []
 
     roll_counter = 2000
     total_generated = 0
@@ -90,18 +152,20 @@ def generate_large_synthetic_dataset(target_count=600):
             # Eligibility rule
             eligible = 1 if (cgpa >= 6.25 and random.random() > 0.05) else 0
 
-            students_to_insert.append({
-                "roll_no": roll_no,
-                "student_name": full_name,
-                "department": dept_name,
-                "graduation_year": grad_year,
-                "cgpa": cgpa,
-                "email": email,
-                "phone": phone,
-                "gender": gender,
-                "eligible": eligible,
-                "temp_id": total_generated
-            })
+            students_to_insert.append(
+                {
+                    "roll_no": roll_no,
+                    "student_name": full_name,
+                    "department": dept_name,
+                    "graduation_year": grad_year,
+                    "cgpa": cgpa,
+                    "email": email,
+                    "phone": phone,
+                    "gender": gender,
+                    "eligible": eligible,
+                    "temp_id": total_generated,
+                }
+            )
             total_generated += 1
 
     # Insert students into database
@@ -115,14 +179,25 @@ def generate_large_synthetic_dataset(target_count=600):
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE student_name = VALUES(student_name), cgpa = VALUES(cgpa);
                 """,
-                (st["roll_no"], st["student_name"], st["department"], st["graduation_year"], st["cgpa"],
-                 st["email"], st["phone"], st["gender"], st["eligible"])
+                (
+                    st["roll_no"],
+                    st["student_name"],
+                    st["department"],
+                    st["graduation_year"],
+                    st["cgpa"],
+                    st["email"],
+                    st["phone"],
+                    st["gender"],
+                    st["eligible"],
+                ),
             )
             created_student_ids.append((cursor.lastrowid or 0, st))
 
     # Fetch inserted student records with their auto-increment IDs
     with get_db_cursor(commit=False) as cursor:
-        cursor.execute("SELECT student_id, roll_no, department, cgpa, eligible_for_placement FROM students WHERE roll_no LIKE '22%';")
+        cursor.execute(
+            "SELECT student_id, roll_no, department, cgpa, eligible_for_placement FROM students WHERE roll_no LIKE '22%';"
+        )
         persisted_students = cursor.fetchall()
 
     # Skill assignment and placement offer determination
@@ -188,17 +263,25 @@ def generate_large_synthetic_dataset(target_count=600):
             status = "Placed"
             placement_date = f"2025-{random.randint(9, 12):02d}-{random.randint(1, 28):02d}"
 
-            placement_rows.append((
-                sid, comp["company_id"], role, pkg, "LPA", placement_date, 2026, status, tier, "Synthetic Benchmark Dataset"
-            ))
+            placement_rows.append(
+                (
+                    sid,
+                    comp["company_id"],
+                    role,
+                    pkg,
+                    "LPA",
+                    placement_date,
+                    2026,
+                    status,
+                    tier,
+                    "Synthetic Benchmark Dataset",
+                )
+            )
 
     # Bulk insert skills and placements
     with get_db_cursor(commit=True) as cursor:
         if skill_rows:
-            cursor.executemany(
-                "INSERT IGNORE INTO student_skills (student_id, skill_id) VALUES (%s, %s);",
-                skill_rows
-            )
+            cursor.executemany("INSERT IGNORE INTO student_skills (student_id, skill_id) VALUES (%s, %s);", skill_rows)
         if placement_rows:
             cursor.execute("DELETE FROM placements WHERE notes = 'Synthetic Benchmark Dataset';")
             cursor.executemany(
@@ -207,7 +290,10 @@ def generate_large_synthetic_dataset(target_count=600):
                 (student_id, company_id, role, package_amount, package_unit, placement_date, placement_year, status, offer_type, notes)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """,
-                placement_rows
+                placement_rows,
             )
 
-    return True, f"Successfully populated {len(persisted_students)} synthetic student profiles and {len(placement_rows)} placement records."
+    return (
+        True,
+        f"Successfully populated {len(persisted_students)} synthetic student profiles and {len(placement_rows)} placement records.",
+    )

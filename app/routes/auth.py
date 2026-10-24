@@ -2,14 +2,18 @@
 Authentication and Session Management Blueprint.
 Provides secure login, Student-only registration, genuine Google OAuth 2.0, and password management.
 """
+
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, abort
+
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
+
 from app.database.connection import get_db_cursor
 from app.limiter import limiter
-from app.utils.auth import login_required, is_strong_password
+from app.utils.auth import is_strong_password, login_required
 
 auth_bp = Blueprint("auth", __name__)
+
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("5 per minute", methods=["POST"])
@@ -33,10 +37,7 @@ def login():
             return render_template("auth/login.html", next_url=next_url)
 
         with get_db_cursor(commit=False) as cursor:
-            cursor.execute(
-                "SELECT * FROM users WHERE username = %s OR email = %s LIMIT 1;",
-                (login_input, login_input)
-            )
+            cursor.execute("SELECT * FROM users WHERE username = %s OR email = %s LIMIT 1;", (login_input, login_input))
             user = cursor.fetchone()
 
         if user and check_password_hash(user["password_hash"], password):
@@ -53,7 +54,7 @@ def login():
                 with get_db_cursor(commit=False) as s_cur:
                     s_cur.execute(
                         "SELECT student_id FROM students WHERE email = %s OR roll_no = %s LIMIT 1;",
-                        (user.get("email"), user["username"])
+                        (user.get("email"), user["username"]),
                     )
                     st = s_cur.fetchone()
                     if st:
@@ -66,6 +67,7 @@ def login():
             flash("Invalid credentials. Please verify your details.", "danger")
 
     return render_template("auth/login.html", next_url=next_url)
+
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 @auth_bp.route("/signup", methods=["GET", "POST"])
@@ -95,9 +97,12 @@ def register():
             flash("Please fill in all required fields (Full Name, Username, and Password).", "danger")
             return render_template("auth/register.html", next_url=next_url)
 
-        cleaned_username = re.sub(r'[^a-zA-Z0-9_]', '', username)
+        cleaned_username = re.sub(r"[^a-zA-Z0-9_]", "", username)
         if len(cleaned_username) < 3 or cleaned_username != username:
-            flash("Username must be at least 3 characters long and contain only letters, numbers, or underscores.", "danger")
+            flash(
+                "Username must be at least 3 characters long and contain only letters, numbers, or underscores.",
+                "danger",
+            )
             return render_template("auth/register.html", next_url=next_url)
 
         # Password strength policy check
@@ -129,7 +134,7 @@ def register():
                 INSERT INTO users (username, password_hash, full_name, role, email)
                 VALUES (%s, %s, %s, %s, %s);
                 """,
-                (cleaned_username, hashed_password, full_name, role, email or None)
+                (cleaned_username, hashed_password, full_name, role, email or None),
             )
             new_user_id = cursor.lastrowid
 
@@ -146,22 +151,19 @@ def register():
 
     return render_template("auth/register.html", next_url=next_url)
 
+
 @auth_bp.route("/change-password", methods=["GET", "POST"])
 @auth_bp.route("/auth/change-password", methods=["GET", "POST"])
 @login_required
 def change_password():
     """Allow authenticated users to update their own password."""
     if request.method == "POST":
-        old_password = request.form.get("old_password", "").strip()
+        old_password = (request.form.get("old_password") or request.form.get("current_password") or "").strip()
         new_password = request.form.get("new_password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
 
-        with get_db_cursor(commit=False) as cursor:
-            cursor.execute("SELECT password_hash FROM users WHERE user_id = %s;", (session["user_id"],))
-            user = cursor.fetchone()
-
-        if not user or not check_password_hash(user["password_hash"], old_password):
-            flash("Current password is incorrect.", "danger")
+        if new_password != confirm_password:
+            flash("New passwords do not match.", "danger")
             return render_template("auth/change_password.html")
 
         is_strong, msg = is_strong_password(new_password)
@@ -169,8 +171,12 @@ def change_password():
             flash(msg, "danger")
             return render_template("auth/change_password.html")
 
-        if new_password != confirm_password:
-            flash("New passwords do not match.", "danger")
+        with get_db_cursor(commit=False) as cursor:
+            cursor.execute("SELECT password_hash FROM users WHERE user_id = %s;", (session["user_id"],))
+            user = cursor.fetchone()
+
+        if not user or not check_password_hash(user["password_hash"], old_password):
+            flash("Current password is incorrect.", "danger")
             return render_template("auth/change_password.html")
 
         hashed_pw = generate_password_hash(new_password)
@@ -182,6 +188,7 @@ def change_password():
 
     return render_template("auth/change_password.html")
 
+
 @auth_bp.route("/login/google")
 @auth_bp.route("/auth/google")
 def google_login():
@@ -190,6 +197,7 @@ def google_login():
     Hides/rejects if Google OAuth credentials are not configured.
     """
     from app import oauth
+
     if not current_app.config.get("GOOGLE_CLIENT_ID") or not current_app.config.get("GOOGLE_CLIENT_SECRET"):
         flash("Google Single Sign-On is not configured on this server.", "warning")
         return redirect(url_for("auth.login"))
@@ -197,10 +205,12 @@ def google_login():
     redirect_uri = url_for("auth.google_callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
+
 @auth_bp.route("/callback/google")
 def google_callback():
     """Google OAuth 2.0 callback handler."""
     from app import oauth
+
     if not current_app.config.get("GOOGLE_CLIENT_ID"):
         abort(404)
 
@@ -221,10 +231,11 @@ def google_callback():
                 full_name = user["full_name"]
             else:
                 # New user from Google gets default 'student' role
-                username = re.sub(r'[^a-zA-Z0-9_]', '', google_email.split("@")[0])[:40] or "google_user"
+                username = re.sub(r"[^a-zA-Z0-9_]", "", google_email.split("@")[0])[:40] or "google_user"
                 cursor.execute("SELECT user_id FROM users WHERE username = %s LIMIT 1;", (username,))
                 if cursor.fetchone():
                     import random
+
                     username = f"{username}_{random.randint(100, 999)}"
 
                 dummy_hash = generate_password_hash("OAUTH_EXTERNAL_MANAGED")
@@ -233,7 +244,7 @@ def google_callback():
                     INSERT INTO users (username, password_hash, full_name, role, email)
                     VALUES (%s, %s, %s, 'student', %s);
                     """,
-                    (username, dummy_hash, google_name, google_email)
+                    (username, dummy_hash, google_name, google_email),
                 )
                 user_id = cursor.lastrowid
                 user_role = "student"
@@ -254,6 +265,7 @@ def google_callback():
         current_app.logger.error(f"Google OAuth Callback Error: {str(e)}")
         flash("Google authentication could not be completed. Please try again.", "danger")
         return redirect(url_for("auth.login"))
+
 
 @auth_bp.route("/demo-login/<role>")
 def demo_login(role):
@@ -296,6 +308,7 @@ def demo_login(role):
         abort(404)
 
     return redirect(next_url)
+
 
 @auth_bp.route("/logout")
 def logout():
