@@ -10,16 +10,19 @@ from config import Config
 
 def get_db_connection():
     """Create and return a new MySQL connection with DictCursor."""
-    return pymysql.connect(
-        host=Config.DB_HOST,
-        port=Config.DB_PORT,
-        user=Config.DB_USER,
-        password=Config.DB_PASSWORD,
-        database=Config.DB_NAME,
-        charset="utf8mb4",
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=False
-    )
+    conn_kwargs = {
+        "host": Config.DB_HOST,
+        "port": Config.DB_PORT,
+        "user": Config.DB_USER,
+        "password": Config.DB_PASSWORD,
+        "database": Config.DB_NAME,
+        "charset": "utf8mb4",
+        "cursorclass": pymysql.cursors.DictCursor,
+        "autocommit": False
+    }
+    if getattr(Config, "DB_SSL", False):
+        conn_kwargs["ssl"] = {"ssl": True}
+    return pymysql.connect(**conn_kwargs)
 
 @contextmanager
 def get_db_cursor(commit=True):

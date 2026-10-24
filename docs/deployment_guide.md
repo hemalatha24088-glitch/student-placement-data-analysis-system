@@ -81,7 +81,36 @@ Since Render's free tier specializes in web servers, pair it with a free cloud M
 
 ---
 
-## 📶 Option 3: College Campus LAN / Wi-Fi Deployment
+## ⚡ Option 3: Vercel Cloud Serverless Deployment (1-Click via GitHub)
+*Best for: Lightning fast global edge hosting on Vercel with free HTTPS (`https://your-project.vercel.app`).*
+
+The project is already pre-configured for Vercel with `vercel.json`, `api/index.py`, and `.vercelignore`.
+
+### Step 3.1: Push Project to GitHub
+Ensure the project is pushed to your GitHub repository:
+```powershell
+git add .
+git commit -m "Configure Vercel serverless deployment"
+git push origin main
+```
+
+### Step 3.2: Import into Vercel
+1. Go to [https://vercel.com](https://vercel.com) and log in with your GitHub account.
+2. Click **"Add New..."** &rarr; select **"Project"**.
+3. Locate `student-placement-data-analysis-system` from your GitHub repositories and click **"Import"**.
+4. In the **Environment Variables** section, enter your cloud database credentials:
+   - `DB_HOST`: Your remote MySQL database host (e.g. from TiDB Cloud, Aiven, or Railway)
+   - `DB_PORT`: `4000` or `3306`
+   - `DB_USER`: Your MySQL username
+   - `DB_PASSWORD`: Your MySQL password
+   - `DB_NAME`: `placement_db`
+   - `DB_SSL`: `True` (for TiDB Cloud or Aiven)
+   - `SECRET_KEY`: Any secure random secret string
+5. Click **"Deploy"**. Vercel will build the serverless function and give you an instant live URL like `https://student-placement-data-analysis-system.vercel.app`!
+
+---
+
+## 📶 Option 4: College Campus LAN / Wi-Fi Deployment
 *Best for: Letting faculty and examiners connect to your laptop directly over the college Wi-Fi or lab network without internet access.*
 
 1. Connect your laptop to the college Wi-Fi or hotspot.
