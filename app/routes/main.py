@@ -33,6 +33,13 @@ def overview():
     departments = get_all_departments()
     return render_template("index.html", kpis=kpis, departments=departments)
 
+@main_bp.route("/model-info")
+@login_required
+def model_info_alias():
+    """Direct root endpoint to Model Performance and Diagnostics portal."""
+    from app.routes.predictor import model_info
+    return model_info()
+
 @main_bp.route("/dashboard")
 @login_required
 def dashboard():

@@ -1,21 +1,29 @@
 """
 Placement Probability Predictor Blueprint.
 Provides interactive Machine Learning classification, what-if candidate evaluation,
-feature importance diagnostics, and unplaced student risk prioritization.
+feature importance diagnostics, unplaced student risk prioritization,
+and model performance analytics (/model-info).
 """
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from app import csrf
+from app.utils.auth import login_required, role_required
 from app.services.ml_service import predictor_service, salary_predictor_service
 from app.services.student_service import get_all_departments, get_all_graduation_years, get_all_students_simple
 from app.services.skill_service import get_all_skills
+from app.services.analytics_service import get_kpis
 
 predictor_bp = Blueprint("predictor", __name__, url_prefix="/predictor")
 
+
 @predictor_bp.route("/", methods=["GET", "POST"])
+@login_required
 def index():
     departments = get_all_departments()
     years = get_all_graduation_years()
     all_skills = get_all_skills()
+
+    kpis = get_kpis()
+    total_students = kpis.get("total_students", 0)
 
     prediction_result = None
     default_cgpa = 8.0
@@ -52,7 +60,6 @@ def index():
         default_year = year
         default_skills = selected_skills
     else:
-        # Default initial prediction for display
         prediction_result = predictor_service.predict_custom(
             cgpa=default_cgpa,
             department=default_dept,
@@ -61,7 +68,6 @@ def index():
             eligible=1
         )
 
-    # Risk ranking of current unplaced candidates
     unplaced_cohort = predictor_service.get_unplaced_risk_cohort()
 
     return render_template(
@@ -76,8 +82,10 @@ def index():
         form_cgpa=default_cgpa,
         form_dept=default_dept,
         form_year=default_year,
-        form_skills=default_skills
+        form_skills=default_skills,
+        total_students=total_students
     )
+
 
 @predictor_bp.route("/api/predict", methods=["POST"])
 @csrf.exempt
@@ -99,26 +107,34 @@ def api_predict():
     )
     return jsonify({"success": True, "prediction": res})
 
+
 @predictor_bp.route("/retrain", methods=["POST"])
+@login_required
+@role_required("admin", "placement_officer")
 def retrain_model():
-    """Retrain the model on updated MySQL records."""
+    """Retrain the classifier on updated MySQL records."""
     success, msg = predictor_service.train()
     if success:
-        flash("Random Forest Placement Predictor successfully retrained on current database records!", "success")
+        flash("Random Forest Placement Predictor successfully retrained and persisted via Joblib!", "success")
     else:
         flash(f"Model retraining failed: {msg}", "danger")
     return redirect(url_for("predictor.index"))
 
+
 @predictor_bp.route("/salary", methods=["GET", "POST"])
+@login_required
 def salary_predictor():
     """
-    Salary Package (CTC) Predictor Blueprint.
+    Salary Package (CTC) Predictor.
     Uses Machine Learning Regression to estimate annual compensation package in LPA,
     salary confidence bands, tier classification, and skill value drivers.
     """
     departments = get_all_departments()
     all_skills = get_all_skills()
     students = get_all_students_simple()
+
+    kpis = get_kpis()
+    total_students = kpis.get("total_students", 0)
 
     default_cgpa = 8.0
     default_dept = departments[0] if departments else "Computer Science and Engineering"
@@ -140,12 +156,15 @@ def salary_predictor():
         except (ValueError, TypeError):
             prediction_result = salary_predictor_service.predict_custom(default_cgpa, default_dept, default_skills)
     elif request.method == "POST":
+        cgpa_str = request.form.get("cgpa", "8.0")
         try:
-            cgpa = float(request.form.get("cgpa", default_cgpa))
-        except (ValueError, TypeError):
+            cgpa = float(cgpa_str)
+        except ValueError:
             cgpa = 8.0
+
         dept = request.form.get("department", default_dept)
         selected_skills = request.form.getlist("skills")
+
         prediction_result = salary_predictor_service.predict_custom(cgpa, dept, selected_skills)
         default_cgpa = cgpa
         default_dept = dept
@@ -164,8 +183,10 @@ def salary_predictor():
         form_dept=default_dept,
         form_skills=default_skills,
         model_metrics=salary_predictor_service.metrics,
-        feature_importances=salary_predictor_service.feature_importances[:8]
+        feature_importances=salary_predictor_service.feature_importances[:8],
+        total_students=total_students
     )
+
 
 @predictor_bp.route("/api/predict-salary", methods=["POST"])
 @csrf.exempt
@@ -181,13 +202,55 @@ def api_predict_salary():
     res = salary_predictor_service.predict_custom(cgpa, dept, skills)
     return jsonify({"success": True, "prediction": res})
 
+
 @predictor_bp.route("/salary/retrain", methods=["POST"])
+@login_required
+@role_required("admin", "placement_officer")
 def retrain_salary_model():
     """Retrain Random Forest CTC Regressor on updated MySQL records."""
     success, msg = salary_predictor_service.train()
     if success:
-        flash("Random Forest Salary Package Regressor successfully retrained on current database records!", "success")
+        flash("Random Forest Salary Package Regressor successfully retrained and persisted via Joblib!", "success")
     else:
         flash(f"Model retraining failed: {msg}", "danger")
     return redirect(url_for("predictor.salary_predictor"))
 
+
+@predictor_bp.route("/model-info")
+@login_required
+def model_info():
+    """
+    Model Performance & Diagnostics Page (/model-info).
+    Displays empirical metrics, 5-fold cross-validation scores,
+    train/test splits, model timestamps, and feature importance rankings.
+    """
+    if not predictor_service._is_trained or not predictor_service.metrics:
+        predictor_service.train()
+    if not salary_predictor_service._is_trained or not salary_predictor_service.metrics:
+        salary_predictor_service.train()
+
+    kpis = get_kpis()
+    total_students = kpis.get("total_students", 0)
+
+    return render_template(
+        "predictor/model_info.html",
+        clf_metrics=predictor_service.metrics,
+        reg_metrics=salary_predictor_service.metrics,
+        clf_features=predictor_service.feature_importances[:8],
+        reg_features=salary_predictor_service.feature_importances[:8],
+        total_students=total_students
+    )
+
+
+@predictor_bp.route("/retrain-all", methods=["POST"])
+@login_required
+@role_required("admin", "placement_officer")
+def retrain_all_models():
+    """Retrain and persist both models on latest database records."""
+    s1, msg1 = predictor_service.train()
+    s2, msg2 = salary_predictor_service.train()
+    if s1 and s2:
+        flash("Successfully retrained and persisted both Random Forest models on latest database records!", "success")
+    else:
+        flash(f"Model retraining warning: {msg1} | {msg2}", "warning")
+    return redirect(url_for("predictor.model_info"))

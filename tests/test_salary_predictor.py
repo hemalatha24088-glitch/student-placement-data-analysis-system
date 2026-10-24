@@ -38,13 +38,13 @@ def test_salary_student_inference():
     assert "student" in pred
     assert pred["student"]["student_id"] == 1
 
-def test_salary_predictor_routes(client):
-    """Verify GET and POST requests to the /predictor/salary UI route."""
-    response = client.get("/predictor/salary")
+def test_salary_predictor_routes(student_client):
+    """Verify GET and POST requests to the /predictor/salary UI route (accessible by student)."""
+    response = student_client.get("/predictor/salary")
     assert response.status_code == 200
     assert b"Candidate Salary Package (CTC) Predictor" in response.data or b"Salary Package" in response.data
 
-    post_resp = client.post("/predictor/salary", data={
+    post_resp = student_client.post("/predictor/salary", data={
         "cgpa": "8.5",
         "department": "Computer Science and Engineering",
         "skills": ["Python", "SQL"]

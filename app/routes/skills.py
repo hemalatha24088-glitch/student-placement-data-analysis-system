@@ -123,6 +123,10 @@ def recommender():
         except (ValueError, TypeError):
             pass
 
+    from app.services.analytics_service import get_kpis
+    kpis = get_kpis()
+    total_students = kpis.get("total_students", 0)
+
     return render_template(
         "skills/recommender.html",
         students=students,
@@ -134,7 +138,8 @@ def recommender():
         target_value=target_value,
         target_company=target_company,
         all_skills=all_skills,
-        custom_skills=custom_skills
+        custom_skills=custom_skills,
+        total_students=total_students
     )
 
 @skills_bp.route("/api/recommender", methods=["POST"])

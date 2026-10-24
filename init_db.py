@@ -210,8 +210,8 @@ if __name__ == "__main__":
     elif args.seed_demo:
         seed_demo_accounts()
     elif args.large_seed:
-        # Phase 3 feature hook: will be implemented in Phase 3
-        from app.services.large_seed_service import generate_large_dataset
-        generate_large_dataset()
+        from app.services.large_seed_service import generate_large_synthetic_dataset
+        success, msg = generate_large_synthetic_dataset(target_count=600)
+        print(f"[{'SUCCESS' if success else 'ERROR'}] {msg}")
     else:
         init_database()

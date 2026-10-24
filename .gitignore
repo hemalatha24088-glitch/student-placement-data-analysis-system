@@ -10,6 +10,8 @@ __pycache__/
 *$py.class
 *.so
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Environment files
 .env
@@ -21,6 +23,8 @@ Desktop.ini
 
 # Static generated files
 app/static/charts/temp_*.png
+*.joblib
+app/models/*.joblib
 
 # Executables & Binaries
 *.exe

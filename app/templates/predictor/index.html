@@ -17,14 +17,55 @@
         </p>
     </div>
 
-    <form method="POST" action="{{ url_for('predictor.retrain_model') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-secondary btn-sm" title="Retrain Random Forest on latest MySQL records">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-            Retrain Model on Live DB
-        </button>
-    </form>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <a href="{{ url_for('predictor.model_info') }}" class="btn btn-secondary btn-sm" title="Inspect 5-Fold Cross Validation & Detailed Evaluation Metrics">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"></path></svg>
+            Model Performance (/model-info)
+        </a>
+        {% if session.get('role') in ('admin', 'placement_officer') %}
+        <form method="POST" action="{{ url_for('predictor.retrain_model') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary btn-sm" title="Retrain Random Forest on latest MySQL records">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                Retrain Model
+            </button>
+        </form>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Estimation Disclaimer Alert -->
+<div style="background: rgba(99, 102, 241, 0.08); border-left: 4px solid var(--indigo-600); padding: 0.9rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <svg style="width: 18px; height: 18px; color: var(--indigo-600); flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span style="font-size: 0.86rem; color: var(--primary-900); font-weight: 500;">
+            <strong>Advisory Notice:</strong> Predictions are estimates based on the dataset size and are not guarantees.
+        </span>
+    </div>
+    <a href="{{ url_for('predictor.model_info') }}" style="font-size: 0.8rem; font-weight: 600; color: var(--indigo-600); text-decoration: none;">
+        View Metrics & 5-Fold CV &rarr;
+    </a>
+</div>
+
+{% if total_students and total_students < 200 %}
+<!-- Low Data Volume Warning Banner -->
+<div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 0.9rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <svg style="width: 20px; height: 20px; color: #d97706; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span style="font-size: 0.84rem; color: #92400e;">
+            <strong>Low data volume:</strong> Predictions are based on fewer than 200 student records (currently {{ total_students }}). Execute <code>python init_db.py --large-seed</code> for the 600-student benchmark dataset.
+        </span>
+    </div>
+</div>
+{% endif %}
 
 <!-- Section 1: Interactive Calculator & Live Prediction Card -->
 <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start;">

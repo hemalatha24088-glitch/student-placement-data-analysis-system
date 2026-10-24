@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Model Performance & Diagnostics | Student Placement Data Analysis System{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div>
+        <h1 class="page-title">Machine Learning Model Diagnostics</h1>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.25rem;">
+            Empirical validation metrics, 5-fold cross-validation scores, and feature importance drivers
+            for production placement classification and compensation regression models.
+        </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="{{ url_for('predictor.index') }}" class="btn btn-secondary btn-sm">
+            &larr; Placement Predictor
+        </a>
+        <a href="{{ url_for('predictor.salary_predictor') }}" class="btn btn-secondary btn-sm">
+            Salary CTC Regressor
+        </a>
+        {% if session.get('role') in ('admin', 'placement_officer') %}
+        <form method="POST" action="{{ url_for('predictor.retrain_all_models') }}" style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-indigo btn-sm" title="Retrain and persist models with 5-fold cross-validation on live database">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                Retrain All Models
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estimation Disclaimer Alert -->
+<div style="background: rgba(99, 102, 241, 0.08); border-left: 4px solid var(--indigo-600); padding: 1rem 1.25rem; border-radius: 6px; margin-bottom: 1.75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <svg style="width: 20px; height: 20px; color: var(--indigo-600); flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span style="font-size: 0.88rem; color: var(--primary-900); font-weight: 500;">
+            <strong>Evaluation Advisory:</strong> Predictions are estimates based on the dataset size and are not guarantees.
+        </span>
+    </div>
+    <span style="font-size: 0.78rem; color: var(--text-muted); white-space: nowrap;">
+        Joblib Persistent Storage Active
+    </span>
+</div>
+
+{% if total_students < 200 %}
+<!-- Low Data Volume Warning Banner -->
+<div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.25rem; border-radius: 6px; margin-bottom: 1.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <svg style="width: 22px; height: 22px; color: #d97706; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <div>
+            <div style="font-weight: 700; color: #92400e; font-size: 0.9rem;">Low Data Volume Warning</div>
+            <div style="font-size: 0.82rem; color: #b45309; margin-top: 0.15rem;">
+                Currently trained on {{ total_students }} student records (under 200 recommended). Model variance may be higher.
+                Execute <code>python init_db.py --large-seed</code> to populate the 600-student benchmark dataset.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Model 1: Random Forest Classifier -->
+<div class="table-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--primary-900); margin: 0;">
+                    1. Placement Likelihood Classifier
+                </h2>
+                <span class="badge badge-placed" style="font-size: 0.75rem;">Classification</span>
+                <span class="badge badge-dream" style="font-size: 0.75rem;">v{{ clf_metrics.version|default('1.2.0') }}</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 0;">
+                Algorithm: <strong>{{ clf_metrics.algorithm }}</strong> &bull; Split: <strong>{{ clf_metrics.train_test_split }}</strong> &bull; Samples: <strong>{{ clf_metrics.training_samples }} candidates</strong>
+            </p>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); text-align: right;">
+            Last Trained: <strong>{{ clf_metrics.trained_at|default('Live Session') }}</strong><br>
+            Artifact: <code>app/models/placement_classifier.joblib</code>
+        </div>
+    </div>
+
+    <!-- Classifier KPI Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Accuracy</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: var(--indigo-600); margin-top: 0.35rem;">
+                {{ clf_metrics.accuracy }}%
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Hold-out test sample</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Precision</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: var(--emerald-600); margin-top: 0.35rem;">
+                {{ clf_metrics.precision }}%
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Positive predictive value</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Recall (Sensitivity)</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: var(--blue-600); margin-top: 0.35rem;">
+                {{ clf_metrics.recall }}%
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">True positive rate</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">F1-Score (Harmonic)</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #8b5cf6; margin-top: 0.35rem;">
+                {{ clf_metrics.f1_score }}%
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Precision-recall balance</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">ROC-AUC Score</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #0284c7; margin-top: 0.35rem;">
+                {{ clf_metrics.roc_auc }}%
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Area under ROC curve</div>
+        </div>
+    </div>
+
+    <!-- 5-Fold Cross Validation & Feature Importance -->
+    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.5rem; align-items: start;">
+        <!-- CV Breakdown -->
+        <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.5rem;">
+                5-Fold Cross-Validation Performance
+            </h4>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Stratified 5-fold evaluation ensuring model generalizability without fold overfitting.
+            </p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                <span style="font-size: 0.85rem; font-weight: 600;">Mean CV Accuracy:</span>
+                <span style="font-size: 1rem; font-weight: 700; color: var(--indigo-600);">
+                    {{ clf_metrics.cv_mean }}% &plusmn; {{ clf_metrics.cv_std }}%
+                </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+                {% for score in clf_metrics.cv_scores %}
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                    <span style="color: var(--text-muted);">Fold {{ loop.index }}:</span>
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <div style="width: 100px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                            <div style="width: {{ score }}%; height: 100%; background: var(--indigo-600);"></div>
+                        </div>
+                        <span style="font-weight: 600; width: 45px; text-align: right;">{{ score }}%</span>
+                    </div>
+                </div>
+                {% else %}
+                <div style="font-size: 0.8rem; color: var(--text-muted);">CV executed across dataset.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Top Feature Drivers -->
+        <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.5rem;">
+                Top Classification Feature Drivers
+            </h4>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Random Forest Gini importance weights (relative decision split contribution).
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                {% for f in clf_features %}
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">
+                        <span style="color: var(--primary-900);">{{ f.label }}</span>
+                        <span style="color: var(--indigo-600);">{{ f.importance }}%</span>
+                    </div>
+                    <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                        <div style="width: {{ f.importance * 2.5 }}%; max-width: 100%; height: 100%; background: linear-gradient(90deg, var(--indigo-600), #4f46e5);"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model 2: Random Forest Regressor -->
+<div class="table-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--primary-900); margin: 0;">
+                    2. Annual CTC Compensation Regressor
+                </h2>
+                <span class="badge badge-mass" style="font-size: 0.75rem;">Regression</span>
+                <span class="badge badge-dream" style="font-size: 0.75rem;">v{{ reg_metrics.version|default('1.2.0') }}</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 0;">
+                Algorithm: <strong>{{ reg_metrics.algorithm }}</strong> &bull; Split: <strong>{{ reg_metrics.train_test_split }}</strong> &bull; Samples: <strong>{{ reg_metrics.training_samples }} verified offers</strong>
+            </p>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); text-align: right;">
+            Last Trained: <strong>{{ reg_metrics.trained_at|default('Live Session') }}</strong><br>
+            Artifact: <code>app/models/salary_regressor.joblib</code>
+        </div>
+    </div>
+
+    <!-- Regressor KPI Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Mean Absolute Error (MAE)</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: var(--emerald-600); margin-top: 0.35rem;">
+                {{ reg_metrics.mae }} <span style="font-size: 1rem; font-weight: 600;">LPA</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Average package divergence</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Root Mean Squared Error</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: var(--blue-600); margin-top: 0.35rem;">
+                {{ reg_metrics.rmse }} <span style="font-size: 1rem; font-weight: 600;">LPA</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Penalizes outlier deviations</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">R&sup2; Coefficient</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: var(--indigo-600); margin-top: 0.35rem;">
+                {{ reg_metrics.r2 }}
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Explained compensation variance</div>
+        </div>
+
+        <div class="kpi-card" style="padding: 1.25rem; border-radius: 8px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">5-Fold Cross-Val MAE</div>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #8b5cf6; margin-top: 0.35rem;">
+                {{ reg_metrics.cv_mae_mean }} <span style="font-size: 1rem; font-weight: 600;">LPA</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">K-Fold average error</div>
+        </div>
+    </div>
+
+    <!-- Regressor Feature Importance -->
+    <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.5rem;">
+            Compensation Value Drivers (Salary Feature Importance)
+        </h4>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Relative impact of verified engineering competencies and academic parameters on package value (LPA).
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            {% for f in reg_features %}
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">
+                    <span style="color: var(--primary-900);">{{ f.feature }}</span>
+                    <span style="color: var(--emerald-600);">{{ f.importance_pct }}%</span>
+                </div>
+                <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                    <div style="width: {{ f.importance_pct * 2.5 }}%; max-width: 100%; height: 100%; background: linear-gradient(90deg, var(--emerald-600), #10b981);"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
