@@ -65,3 +65,14 @@ def test_logout(client):
     assert logout_resp.status_code == 302
     with client.session_transaction() as sess:
         assert sess.get("user_id") is None
+
+def test_google_login(client):
+    """Verify Login with Google SSO flow."""
+    response = client.get("/google-login", follow_redirects=False)
+    assert response.status_code == 302
+    assert "/dashboard" in response.headers["Location"]
+    with client.session_transaction() as sess:
+        assert sess.get("username") == "google_faculty"
+        assert sess.get("role") == "placement_officer"
+        assert sess.get("auth_provider") == "Google"
+

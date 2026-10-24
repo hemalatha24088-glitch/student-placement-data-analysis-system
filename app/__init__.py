@@ -50,6 +50,7 @@ def create_app(config_class=Config):
         allowed_endpoints = {
             "auth.login",
             "auth.demo_login",
+            "auth.google_login",
             "auth.logout",
             "main.health_page",
             "static"

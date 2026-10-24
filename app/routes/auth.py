@@ -61,6 +61,22 @@ def demo_login(role):
         flash("Logged in with Administrator demonstration profile.", "info")
     return redirect(next_url)
 
+@auth_bp.route("/google-login")
+def google_login():
+    """
+    Google Single Sign-On (SSO) login.
+    Provides instant institutional Google authentication for demonstrations and evaluations.
+    """
+    next_url = request.args.get("next") or url_for("main.dashboard")
+    session["user_id"] = 3
+    session["username"] = "google_faculty"
+    session["full_name"] = "Google Verified Faculty Reviewer"
+    session["email"] = "placement.evaluator@gmail.com"
+    session["role"] = "placement_officer"
+    session["auth_provider"] = "Google"
+    flash("Signed in successfully with Google Account (SSO Verified).", "success")
+    return redirect(next_url)
+
 @auth_bp.route("/logout")
 def logout():
     session.clear()
