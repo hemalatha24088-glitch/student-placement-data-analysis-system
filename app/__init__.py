@@ -22,23 +22,34 @@ def create_app(config_class=Config):
     app = Flask(__name__, template_folder="templates", static_folder="static")
     app.config.from_object(config_class)
 
-    # Ensure upload and log directories exist
-    os.makedirs(app.config.get("UPLOAD_FOLDER", "uploads"), exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
+    # Ensure upload and log directories exist (handling serverless read-only filesystems)
+    is_serverless = os.environ.get("VERCEL") == "1" or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
+    upload_folder = "/tmp/uploads" if is_serverless else app.config.get("UPLOAD_FOLDER", "uploads")
+    try:
+        os.makedirs(upload_folder, exist_ok=True)
+        app.config["UPLOAD_FOLDER"] = upload_folder
+    except OSError:
+        pass
 
-    # Configure Structured Logging with RotatingFileHandler
+    # Configure Structured Logging
     if not app.config.get("TESTING"):
         import logging
-        from logging.handlers import RotatingFileHandler
 
-        log_file = os.path.join("logs", "app.log")
-        file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
-        file_handler.setFormatter(
-            logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s (%(process)d): %(message)s")
-        )
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
         app.logger.setLevel(logging.INFO)
+        if not is_serverless:
+            try:
+                from logging.handlers import RotatingFileHandler
+
+                os.makedirs("logs", exist_ok=True)
+                log_file = os.path.join("logs", "app.log")
+                file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
+                file_handler.setFormatter(
+                    logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s (%(process)d): %(message)s")
+                )
+                file_handler.setLevel(logging.INFO)
+                app.logger.addHandler(file_handler)
+            except OSError:
+                pass
         app.logger.info("Student Placement Data Analysis System starting up.")
 
     # Initialize Extensions
