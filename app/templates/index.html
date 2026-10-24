@@ -83,6 +83,16 @@
                                 </a>
                             </div>
                         {% else %}
+                            <!-- First-Time Visitors: Sign-Up Callout -->
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                                <div style="font-size: 0.78rem; color: #166534; font-weight: 600;">
+                                    First time? Create your account:
+                                </div>
+                                <a href="{{ url_for('auth.register') }}" class="btn btn-sm" style="background: #16a34a; color: white; padding: 0.25rem 0.65rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; border-radius: 4px;">
+                                    Sign Up &rarr;
+                                </a>
+                            </div>
+
                             <!-- One-Click Quick Evaluator Demo Logins -->
                             <div style="margin-bottom: 1.25rem;">
                                 <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem;">
@@ -109,8 +119,8 @@
                             <!-- Login Form -->
                             <form method="POST" action="{{ url_for('auth.login') }}">
                                 <div class="form-group" style="margin-bottom: 0.85rem;">
-                                    <label class="form-label" for="username" style="font-size: 0.8rem;">Username</label>
-                                    <input type="text" name="username" id="username" class="form-control" placeholder="admin or faculty" required>
+                                    <label class="form-label" for="username" style="font-size: 0.8rem;">Username or Email</label>
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="admin or your@email.com" required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 1.1rem;">
                                     <label class="form-label" for="password" style="font-size: 0.8rem;">Password</label>
@@ -120,6 +130,10 @@
                                     Sign In to System
                                 </button>
                             </form>
+
+                            <div style="margin-top: 0.65rem; text-align: center; font-size: 0.75rem; color: var(--text-muted);">
+                                Don't have an account? <a href="{{ url_for('auth.register') }}" style="color: var(--indigo-600); font-weight: 700;">Sign Up &rarr;</a>
+                            </div>
 
                             <!-- Login with Google button -->
                             <div style="margin-top: 0.85rem;">

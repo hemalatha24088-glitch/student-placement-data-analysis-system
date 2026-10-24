@@ -49,6 +49,8 @@ def create_app(config_class=Config):
 
         allowed_endpoints = {
             "auth.login",
+            "auth.register",
+            "auth.signup",
             "auth.demo_login",
             "auth.google_login",
             "auth.logout",
