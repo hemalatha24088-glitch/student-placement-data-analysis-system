@@ -2,7 +2,7 @@
 Main Blueprint.
 Handles Landing Page, Main Analytics Dashboard, and System Health Check.
 """
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session
 from app.services.analytics_service import (
     get_kpis,
     get_department_analytics,
@@ -19,8 +19,14 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def index():
-    """Public landing page introducing the project."""
-    # Fetch live summary metrics for the preview counters
+    """Root entry point: Require sign-in first before opening the system."""
+    if not session.get("user_id"):
+        return redirect(url_for("auth.login"))
+    return redirect(url_for("main.dashboard"))
+
+@main_bp.route("/overview")
+def overview():
+    """System Overview & Project Features Presentation (accessible after login)."""
     kpis = get_kpis()
     departments = get_all_departments()
     return render_template("index.html", kpis=kpis, departments=departments)

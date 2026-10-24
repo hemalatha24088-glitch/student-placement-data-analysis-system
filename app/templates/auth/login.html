@@ -1,118 +1,308 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In First | Student Placement Data Analysis System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #f8fafc;
+            margin: 0;
+        }
+        .portal-card {
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .portal-header {
+            background: linear-gradient(135deg, #1e3a8a, #4f46e5);
+            padding: 2rem;
+            text-align: center;
+            color: #ffffff;
+            position: relative;
+        }
+        .portal-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+        }
+        .portal-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            margin: 0 0 0.4rem 0;
+            color: #ffffff;
+        }
+        .portal-subtitle {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin: 0;
+            line-height: 1.45;
+        }
+        .portal-body {
+            padding: 2rem;
+        }
+        .demo-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .demo-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #475569;
+            margin-bottom: 0.65rem;
+        }
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+        }
+        .btn-demo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn-faculty {
+            background: #4f46e5;
+            color: #ffffff;
+            border: 1px solid #4338ca;
+        }
+        .btn-faculty:hover {
+            background: #4338ca;
+            color: #ffffff;
+        }
+        .btn-admin {
+            background: #0f172a;
+            color: #ffffff;
+            border: 1px solid #1e293b;
+        }
+        .btn-admin:hover {
+            background: #1e293b;
+            color: #ffffff;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            gap: 0.75rem;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .divider-text {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.35rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        .btn-submit {
+            width: 100%;
+            background: #1e3a8a;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover {
+            background: #172554;
+        }
+        .credentials-pill {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 0.45rem;
+            border-radius: 6px;
+        }
+        .portal-footer {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .feature-tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.4rem;
+        }
+        .tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+        }
+        .flash-alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+        }
+        .alert-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .alert-info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+    </style>
+</head>
+<body>
 
-{% block title %}Sign In | Student Placement Data Analysis System{% endblock %}
-{% block page_title %}Administrative & Faculty Authentication Portal{% endblock %}
+    <div class="portal-card">
+        <!-- Top Institutional Header -->
+        <div class="portal-header">
+            <div class="portal-badge">Department of Training &amp; Placements</div>
+            <h1 class="portal-title">Student Placement System</h1>
+            <p class="portal-subtitle">
+                B.Tech CSE (AI/ML) Capstone Project &bull; Please sign in first to access the placement system
+            </p>
+        </div>
 
-{% block content %}
-<div style="max-width: 960px; margin: 1.5rem auto;">
-    <div class="table-card" style="padding: 0; overflow: hidden; border-radius: var(--radius-lg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
-        <div style="display: grid; grid-template-columns: 1fr 1.15fr;">
-            <!-- Left Panel: Institutional Branding & AI Suite Preview -->
-            <div style="background: linear-gradient(135deg, var(--navy-dark), var(--primary-900)); color: #f8fafc; padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: inline-block; padding: 0.25rem 0.65rem; background: rgba(255,255,255,0.12); color: #93c5fd; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">
-                        Department of Training & Placements
-                    </div>
-                    <h2 style="font-size: 1.45rem; font-weight: 800; color: #ffffff; line-height: 1.3; margin-bottom: 0.75rem;">
-                        Student Placement Data Analysis System
-                    </h2>
-                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.55; margin-bottom: 1.75rem;">
-                        Secure access gateway for placement officers, academic evaluators, and system administrators. Enter your credentials or use the quick reviewer access buttons to enter the platform.
-                    </p>
-
-                    <!-- 4 AI Pillars Preview List -->
-                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: #cbd5e1; margin-bottom: 0.75rem;">
-                        Integrated AI & Analytical Capabilities:
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #e2e8f0;">
-                            <span style="color: #38bdf8;">&bull;</span>
-                            <span><strong>Random Forest Classifier:</strong> Placement probability & risk ranking</span>
+        <!-- Card Body -->
+        <div class="portal-body">
+            <!-- Flash Notification Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-alert alert-{{ category if category != 'error' else 'danger' }}">
+                            {{ message }}
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #e2e8f0;">
-                            <span style="color: #34d399;">&bull;</span>
-                            <span><strong>CTC Regressor:</strong> Salary package forecasting & dynamic bands</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #e2e8f0;">
-                            <span style="color: #fbbf24;">&bull;</span>
-                            <span><strong>Skill Gap Recommender:</strong> Tier matching & 6-week roadmaps</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #e2e8f0;">
-                            <span style="color: #c084fc;">&bull;</span>
-                            <span><strong>NLP ATS Matcher:</strong> TF-IDF Cosine Similarity & keyword audit</span>
-                        </div>
-                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Section 1: One-Click Evaluator Sign-In (For Project Viva Demo) -->
+            <div class="demo-box">
+                <div class="demo-title">
+                    One-Click Evaluator Access (For Faculty Viva &amp; Review)
                 </div>
-
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.25rem; margin-top: 2rem; font-size: 0.78rem; color: #64748b;">
-                    B.Tech CSE (AI/ML) Capstone Project &bull; Academic Year 2025–2026
-                </div>
-            </div>
-
-            <!-- Right Panel: Interactive Login Form & Quick Access -->
-            <div style="padding: 2.5rem; background: #ffffff;">
-                <div style="margin-bottom: 1.5rem;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary-900); margin-bottom: 0.25rem;">
-                        Sign In to System
-                    </h3>
-                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
-                        Enter your administrative credentials or use quick evaluator profiles below.
-                    </p>
-                </div>
-
-                <!-- Section 1: One-Click Quick Evaluator Access -->
-                <div style="background: var(--surface-bg); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem; text-align: center;">
-                        Quick Evaluator Profiles (Instant Viva Demonstration)
-                    </div>
-                    <div style="display: flex; gap: 0.6rem;">
-                        <a href="{{ url_for('auth.demo_login', role='faculty', next=next_url) }}" class="btn btn-indigo" style="flex: 1; font-size: 0.82rem; padding: 0.55rem; text-align: center; justify-content: center;">
-                            <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                            Faculty Officer
-                        </a>
-                        <a href="{{ url_for('auth.demo_login', role='admin', next=next_url) }}" class="btn btn-secondary" style="flex: 1; font-size: 0.82rem; padding: 0.55rem; text-align: center; justify-content: center;">
-                            <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                            Administrator
-                        </a>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; margin: 1.25rem 0; gap: 0.75rem;">
-                    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">or enter credentials</span>
-                    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                </div>
-
-                <!-- Section 2: Credential Login Form -->
-                <form method="POST" action="{{ url_for('auth.login') }}">
-                    <input type="hidden" name="next" value="{{ next_url or '' }}">
-
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label class="form-label" for="username">Username</label>
-                        <input type="text" name="username" id="username" class="form-control" placeholder="admin or faculty" required autofocus>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label class="form-label" for="password">Password</label>
-                        <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-indigo" style="width: 100%; padding: 0.65rem; font-size: 0.95rem; font-weight: 700;">
-                        Sign In to Placement System
-                    </button>
-                </form>
-
-                <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
-                    Pre-configured credentials: <code>faculty</code> / <code>faculty123</code> &bull; <code>admin</code> / <code>admin123</code>
-                </div>
-
-                <div style="margin-top: 0.75rem; text-align: center;">
-                    <a href="{{ url_for('main.index') }}" style="font-size: 0.8rem; color: var(--indigo-600); text-decoration: underline;">
-                        &larr; Return to Public Overview
+                <div class="demo-buttons">
+                    <a href="{{ url_for('auth.demo_login', role='faculty', next=next_url) }}" class="btn-demo btn-faculty" title="1-Click Login as Faculty Reviewer">
+                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        Faculty Officer
+                    </a>
+                    <a href="{{ url_for('auth.demo_login', role='admin', next=next_url) }}" class="btn-demo btn-admin" title="1-Click Login as Administrator">
+                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Administrator
                     </a>
                 </div>
             </div>
+
+            <!-- Divider -->
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">or sign in with credentials</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <!-- Section 2: Standard Username & Password Form -->
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <input type="hidden" name="next" value="{{ next_url or '' }}">
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Enter admin or faculty" required autofocus>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    Sign In to Placement System &rarr;
+                </button>
+            </form>
+
+            <div class="credentials-pill">
+                Pre-configured: <code>faculty</code> / <code>faculty123</code> &bull; <code>admin</code> / <code>admin123</code>
+            </div>
+        </div>
+
+        <!-- Footer Notice & Module Summary -->
+        <div class="portal-footer">
+            <div style="font-weight: 600; color: #475569; margin-bottom: 0.25rem;">
+                All system modules open immediately upon signing in:
+            </div>
+            <div class="feature-tags">
+                <span class="tag">Placement Dashboard</span>
+                <span class="tag">Student Management</span>
+                <span class="tag">ML Probability Predictor</span>
+                <span class="tag">Salary CTC Regressor</span>
+                <span class="tag">Skill Gap Recommender</span>
+                <span class="tag">NLP ATS Matcher</span>
+            </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+</body>
+</html>

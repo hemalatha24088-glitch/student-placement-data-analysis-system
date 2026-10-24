@@ -64,5 +64,5 @@ def demo_login(role):
 @auth_bp.route("/logout")
 def logout():
     session.clear()
-    flash("You have been signed out successfully.", "info")
-    return redirect(url_for("main.index"))
+    flash("You have been signed out. Please sign in to access the system.", "info")
+    return redirect(url_for("auth.login"))

@@ -51,7 +51,6 @@ def create_app(config_class=Config):
             "auth.login",
             "auth.demo_login",
             "auth.logout",
-            "main.index",
             "main.health_page",
             "static"
         }
@@ -60,8 +59,8 @@ def create_app(config_class=Config):
             return
 
         if request.endpoint and not session.get("user_id"):
-            flash("Please sign in first to access the placement system.", "warning")
-            return redirect(url_for("auth.login", next=request.url))
+            next_dest = url_for("main.dashboard") if request.path in ("/", "/login") else request.url
+            return redirect(url_for("auth.login", next=next_dest))
 
     # Custom Jinja2 Filters
     @app.template_filter("currency_lpa")
