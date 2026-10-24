@@ -4,6 +4,7 @@
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Public%20Repository-blue?logo=github)](https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system)
 [![Vercel Ready](https://img.shields.io/badge/Vercel-Deployment%20Ready-black?logo=vercel)](https://vercel.com)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhemalatha24088-glitch%2Fstudent-placement-data-analysis-system)
 [![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.1-black?logo=flask)](https://flask.palletsprojects.com)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?logo=mysql)](https://mysql.com)
