@@ -26,3 +26,5 @@ app/static/charts/temp_*.png
 *.exe
 cloudflared.exe
 
+
+.vercel
