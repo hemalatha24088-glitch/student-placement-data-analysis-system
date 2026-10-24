@@ -1,14 +1,46 @@
 # Student Placement Data Analysis System
-### A Full-Stack Analytics Platform for College Placement Management
+### A Full-Stack Analytics & AI/ML Platform for College Placement Management
 **Academic Capstone Project &bull; B.Tech Computer Science & Engineering (AI/ML)**
+
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Public%20Repository-blue?logo=github)](https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system)
+[![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.1-black?logo=flask)](https://flask.palletsprojects.com)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?logo=mysql)](https://mysql.com)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.9-orange?logo=scikit-learn)](https://scikit-learn.org)
+[![Tests](https://img.shields.io/badge/Pytest-48%20Passed-brightgreen)](https://pytest.org)
+
+---
+
+## 🌐 Public Live Access & Quick Demo
+
+Anyone on the internet can test and interact with the live running application:
+
+- **Live Public URL:** [https://educational-tony-sunglasses-punch.trycloudflare.com](https://educational-tony-sunglasses-punch.trycloudflare.com)
+- **Direct Sign-In Portal:** [https://educational-tony-sunglasses-punch.trycloudflare.com/login](https://educational-tony-sunglasses-punch.trycloudflare.com/login)
+- **Direct New User Registration:** [https://educational-tony-sunglasses-punch.trycloudflare.com/register](https://educational-tony-sunglasses-punch.trycloudflare.com/register)
+
+### 🔐 How Anyone Can Log In:
+1. **Create Your Own Account (Sign Up):** 
+   - Click **[Sign Up](https://educational-tony-sunglasses-punch.trycloudflare.com/register)** on the login screen.
+   - Enter your **Full Name**, choose your own **Username** &amp; **Password**, select your **Role** (Placement Officer, Administrator, or Student), and optionally add your email.
+   - Your account is immediately saved in the MySQL database and you are logged into the dashboard!
+   - Next time you return, simply type your username (or email) and password on `/login`.
+2. **Login with Google Account:** 
+   - Click **"Login with Google Account"** on `/login` or `/register`.
+   - Enter your personal or institutional Google email (or click the quick demo option) to sign in with an official Google badge.
+3. **One-Click Faculty / Admin Evaluator Demo:** 
+   - Click **"Faculty Officer"** or **"Administrator"** on the login screen for instant, one-click viva evaluation access.
+4. **Pre-configured Accounts:**
+   - **Faculty / Placement Officer:** `faculty` / `faculty123`
+   - **System Administrator:** `admin` / `admin123`
 
 ---
 
 ## 1. Project Overview
 
-The **Student Placement Data Analysis System** is a professional, full-stack web application designed to track, analyze, and visualize student recruitment performance across academic departments, salary tiers, hiring companies, and verified technical skills.
+The **Student Placement Data Analysis System** is a professional, full-stack web application designed to track, analyze, predict, and visualize student recruitment performance across academic departments, salary tiers, hiring companies, and verified technical skills.
 
-Built using **Python 3**, **Flask**, **MySQL 8.0**, **Pandas**, **NumPy**, and **Matplotlib**, this system moves college placement operations away from fragmented manual spreadsheets into an automated, relational, and auditable analytical platform.
+Built using **Python 3**, **Flask**, **MySQL 8.0**, **Scikit-Learn**, **Pandas**, **NumPy**, and **Matplotlib**, this system moves college placement operations away from fragmented manual spreadsheets into an automated, relational, and auditable analytical platform.
 
 > **Demonstration Notice:** The dataset pre-loaded into the database contains **synthetic sample data** structured specifically for college project reviews, algorithm verification, and faculty viva examination.
 
@@ -19,39 +51,59 @@ Built using **Python 3**, **Flask**, **MySQL 8.0**, **Pandas**, **NumPy**, and *
 - **Backend:** Python 3.14+, Flask 3.1
 - **Database:** MySQL Server 8.0 (Relational schema with InnoDB, Foreign Keys, Indexes)
 - **Database Driver:** PyMySQL 1.2 & MySQL Connector Python
+- **Machine Learning & NLP:** Scikit-Learn 1.9 (RandomForestClassifier, GradientBoostingClassifier, RandomForestRegressor, TF-IDF Vectorizer, Cosine Similarity)
 - **Data Analytics:** Pandas 3.1 (aggregations, multi-table grouping, CSV processing)
 - **Numerical Calculations:** NumPy 2.5 (mean, median, standard deviation, percentiles)
 - **Data Visualizations:** Matplotlib 3.11 (headless `Agg` engine generating responsive PNG charts)
 - **Frontend UI/UX:** HTML5, CSS3 (Modern Navy/Indigo SaaS Design System), Vanilla JavaScript
-- **Testing:** Pytest 9.1 (14 automated unit tests)
+- **Testing:** Pytest 9.1 (48 automated unit & integration tests)
 
 ---
 
 ## 3. Key Features
 
-1. **Interactive Analytics Dashboard (`/dashboard`):**
+1. **Mandatory Sign-In First Portal (`/login` & `/register`):**
+   - Unauthenticated visitors are automatically directed to the secure sign-in portal.
+   - Self-registration with encrypted password hashing (`werkzeug.security`).
+   - Dual-mode credential authentication (sign in with Username OR registered Email).
+   - Google Account SSO integration.
+   - One-click Faculty and Administrator demonstration access.
+2. **Interactive Analytics Dashboard (`/dashboard`):**
    - 8 live KPI metric cards (Registered, Eligible, Placed, Unplaced, Placement Rate %, Average CTC, Median CTC, Active Recruiters).
    - Global dynamic filter bar (Graduation Year, Department, Offer Status, Company).
    - 6 dynamic Matplotlib visualizations with instant image refresh and download capability.
    - Data-driven placement observations automatically generated from filtered records.
-2. **Student Management (`/students`):**
+3. **Machine Learning Placement Probability Predictor (`/predictor`):**
+   - Dual-model ML architecture (`RandomForestClassifier` & `GradientBoostingClassifier`).
+   - Features: CGPA, Department, Skill Count, Graduation Year, Eligibility.
+   - Interactive SVG Probability Gauge, confidence breakdown, top influential factors, and personalized recommendations.
+   - Pre-computed candidate roster with high/medium/risk classification and cohort filtering.
+4. **AI Skill Gap Analyzer & Learning Roadmap Recommender (`/recommender`):**
+   - Curated hiring tier benchmarks (`Tier-1 Super Dream`, `Tier-2 Dream`, `Tier-3 Core Tech`, `Tier-4 IT Services`).
+   - Match percentage scoring, verified student skills vs. missing high-yield skills.
+   - Curated 4-week step-by-step learning roadmap with free learning resources.
+5. **Machine Learning Salary Package (CTC) Regressor & Printable Bio-Data (`/salary-predictor`):**
+   - `RandomForestRegressor` predicting estimated package in Lakhs Per Annum (LPA) (MAE $\pm$3.63 LPA).
+   - What-if CGPA and technical skill scenario simulator.
+   - Printable Candidate Resume / Placement Bio-Data generator (`/students/<id>/resume`).
+6. **Natural Language Processing (NLP) ATS Resume & Job Description Matcher (`/ats`):**
+   - TF-IDF Vectorizer and Cosine Similarity scoring.
+   - Keyword frequency analysis and technical gap identification.
+   - Live sample job descriptions (Google SDE-1, Microsoft Cloud Engineer, Data Analyst, TCS Digital).
+7. **Student Management (`/students`):**
    - Complete CRUD (Create, Read, Update, Delete) with roll number uniqueness protection, CGPA tracking, placement eligibility controls, and skill associations.
-3. **Company Management (`/companies`):**
+8. **Company Management (`/companies`):**
    - Partner directory, hiring tiers (`Super Dream`, `Dream`, `Core Engineering`, `Mass / IT Services`), and average compensation tracking.
-4. **Skills Management & Demand Analytics (`/skills` & `/analytics/skills`):**
-   - Association tracking between recorded skills (Python, Java, DSA, Machine Learning, etc.) and placement outcomes.
-5. **Placement Records Registry (`/placements`):**
+9. **Placement Records Registry (`/placements`):**
    - Job offer management in INR Lakhs Per Annum (LPA) CTC. Enforces business rule preventing duplicate active offers for the same student, company, and role in a given year.
-6. **Deep Analytical Modules (`/analytics/`):**
-   - Department-Wise Comparisons (`/analytics/departments`).
-   - Salary Package Distributions, Percentiles & Tiers (`/analytics/packages`).
-   - Historical Trends across Graduation Classes 2024–2026 (`/analytics/trends`).
-7. **Reports & Dynamic CSV Export (`/reports`):**
-   - Printable report sheets and one-click CSV export for summaries, department rolls, student rosters, and compensation brackets.
-8. **Bulk CSV Data Import (`/import`):**
-   - Upload spreadsheet callsets for students and placements with row-by-row error logging and sample CSV templates.
-9. **System Diagnostics & Health Check (`/health` & `/api/health`):**
-   - Live MySQL connection status and table row counts.
+10. **Deep Analytical Modules (`/analytics/`):**
+    - Department-Wise Comparisons (`/analytics/departments`).
+    - Salary Package Distributions, Percentiles & Tiers (`/analytics/packages`).
+    - Historical Trends across Graduation Classes 2024–2026 (`/analytics/trends`).
+11. **Reports & Dynamic CSV Export (`/reports`):**
+    - Printable report sheets and one-click CSV export for summaries, department rolls, student rosters, and compensation brackets.
+12. **Bulk CSV Data Import (`/import`):**
+    - Upload spreadsheet callsets for students and placements with row-by-row error logging and sample CSV templates.
 
 ---
 
@@ -122,10 +174,11 @@ Open your browser and navigate to: **`http://127.0.0.1:5000/`**
 
 ## 5. Evaluation & Demo Login Credentials
 
-For faculty evaluation and project review:
-- **Faculty / Placement Officer:** Click the top-bar button **"Faculty Demo Login"** (or use username `faculty` / password `faculty123`).
-- **System Administrator:** Username `admin` / password `admin123`.
-- **Public / Guest View:** All dashboards, analytics, and reports are fully accessible without login.
+For faculty evaluation, project viva review, and demonstration:
+- **Sign Up / New User:** Click **[Sign Up](https://educational-tony-sunglasses-punch.trycloudflare.com/register)** to create any personal or institutional username & password.
+- **Login with Google:** Click **"Login with Google Account"** on the login screen.
+- **Faculty / Placement Officer:** Click **"Faculty Officer"** (or use username `faculty` / password `faculty123`).
+- **System Administrator:** Click **"Administrator"** (or use username `admin` / password `admin123`).
 
 ---
 
@@ -135,7 +188,15 @@ Run the full Pytest test suite:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests/ -v
 ```
-All 14 unit test suites will execute, covering:
+All **48 unit & integration test suites** will execute across 11 test modules, covering:
+- Mandatory Sign-In gateway and unauthenticated route blocking.
+- User self-registration with duplicate username rejection and password confirmation validation.
+- Dual-mode credential authentication (sign in with Username OR registered Email).
+- Google Account SSO authentication and automatic profile provisioning.
+- Machine Learning Placement Probability Predictor models (Random Forest & Gradient Boosting).
+- Machine Learning Salary Package (CTC) Regressor (Random Forest Regressor, MAE validation).
+- Natural Language Processing (NLP) ATS Resume & Job Description Matcher (TF-IDF & Cosine Similarity).
+- AI Skill Gap Analyzer & Learning Roadmap generation.
 - MySQL 8.0 connectivity and health verification.
 - Student CRUD lifecycle and duplicate roll number rejection.
 - Placement offer creation, duplicate offer prevention policy, and package boundary validation.
