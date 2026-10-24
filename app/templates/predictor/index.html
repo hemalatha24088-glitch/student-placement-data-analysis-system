@@ -18,6 +18,7 @@
     </div>
 
     <form method="POST" action="{{ url_for('predictor.retrain_model') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-secondary btn-sm" title="Retrain Random Forest on latest MySQL records">
             <svg class="icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
             Retrain Model on Live DB
@@ -37,6 +38,7 @@
         </p>
 
         <form method="POST" action="{{ url_for('predictor.index') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group">
                     <label class="form-label" for="department">Department</label>

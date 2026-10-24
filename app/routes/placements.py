@@ -14,10 +14,12 @@ from app.services.placement_service import (
 )
 from app.services.student_service import get_all_departments, get_all_graduation_years, get_students
 from app.services.company_service import get_companies
+from app.utils.auth import role_required
 
 placements_bp = Blueprint("placements", __name__, url_prefix="/placements")
 
 @placements_bp.route("/")
+@role_required("admin", "placement_officer")
 def list_placements():
     page = request.args.get("page", 1, type=int)
     dept = request.args.get("department", "All")
@@ -59,6 +61,7 @@ def list_placements():
     )
 
 @placements_bp.route("/add", methods=["GET", "POST"])
+@role_required("admin", "placement_officer")
 def add_placement():
     if request.method == "POST":
         data = {
@@ -94,6 +97,7 @@ def add_placement():
     )
 
 @placements_bp.route("/<int:placement_id>/edit", methods=["GET", "POST"])
+@role_required("admin", "placement_officer")
 def edit_placement(placement_id):
     placement = get_placement_by_id(placement_id)
     if not placement:
@@ -133,6 +137,7 @@ def edit_placement(placement_id):
     )
 
 @placements_bp.route("/<int:placement_id>/delete", methods=["POST"])
+@role_required("admin", "placement_officer")
 def remove_placement(placement_id):
     placement = get_placement_by_id(placement_id)
     if not placement:

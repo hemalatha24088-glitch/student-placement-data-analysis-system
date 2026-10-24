@@ -4,6 +4,7 @@ Provides interactive ATS resume screening, job description compatibility scoring
 keyword extraction, and keyword gap analysis.
 """
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from app import csrf
 from app.services.nlp_service import (
     calculate_ats_match,
     generate_student_resume_text,
@@ -51,6 +52,7 @@ def index():
     )
 
 @ats_bp.route("/api/match", methods=["POST"])
+@csrf.exempt
 def api_match():
     """JSON API endpoint for real-time ATS match scoring."""
     data = request.get_json() or {}

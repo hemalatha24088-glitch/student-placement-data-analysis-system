@@ -6,28 +6,12 @@
 {% block content %}
 <div style="max-width: 550px; margin: 4rem auto; text-align: center;">
     <div style="font-size: 4rem; font-weight: 800; color: #be123c; line-height: 1;">500</div>
-    <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--primary-900); margin: 1rem 0 0.5rem;">Internal Processing Error</h2>
-    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-        An unexpected error occurred while processing the analytics query or database transaction.
+    <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--primary-900); margin: 1rem 0 0.5rem;">
+        Internal Processing Error
+    </h2>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;">
+        An unexpected server error occurred while processing your request. The incident has been logged for system administrator review.
     </p>
-    {% if error %}
-        <div style="background: var(--rose-50); border: 1px solid #fecdd3; border-radius: var(--radius-sm); padding: 0.85rem; font-family: monospace; font-size: 0.8rem; color: #9f1239; margin-bottom: 1.5rem; text-align: left; overflow-x: auto;">
-            {{ error }}
-        </div>
-        {% if 'connect to MySQL' in error or 'Can\'t connect' in error or 'OperationalError' in error %}
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left; font-size: 0.82rem; color: #1e40af;">
-                <strong>☁️ Cloud / Vercel Database Connection Notice:</strong><br>
-                When running on Vercel or Cloud, please ensure your Remote MySQL database connection parameters (e.g. from TiDB Cloud, Aiven, or Railway) are configured in <strong>Vercel Settings &rarr; Environment Variables</strong>:
-                <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
-                    <li><code>DB_HOST</code> (e.g. <code>gateway01.prod.aws.tidbcloud.com</code>)</li>
-                    <li><code>DB_PORT</code> (e.g. <code>4000</code> or <code>3306</code>)</li>
-                    <li><code>DB_USER</code> and <code>DB_PASSWORD</code></li>
-                    <li><code>DB_NAME</code> (e.g. <code>placement_db</code>)</li>
-                    <li><code>DB_SSL=True</code> (if using TiDB Cloud or Aiven)</li>
-                </ul>
-            </div>
-        {% endif %}
-    {% endif %}
     <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
 </div>
 {% endblock %}

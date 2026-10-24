@@ -13,6 +13,8 @@ from app.services.placement_service import check_duplicate_placement, VALID_STAT
 STUDENT_CSV_HEADERS = ["roll_no", "student_name", "department", "graduation_year", "cgpa", "email", "phone", "gender", "eligible_for_placement"]
 PLACEMENT_CSV_HEADERS = ["roll_no", "company_name", "role", "package_amount", "package_unit", "placement_date", "placement_year", "status", "offer_type", "notes"]
 
+MAX_IMPORT_ROWS = 1000
+
 def generate_student_csv_template():
     """Generate sample CSV template string for student bulk upload."""
     output = io.StringIO()
@@ -53,13 +55,20 @@ def import_students_csv(file_stream):
     if missing:
         return {"success": False, "message": f"Missing required CSV columns: {', '.join(missing)}"}
 
+    rows_list = list(reader)
+    if len(rows_list) > MAX_IMPORT_ROWS:
+        return {
+            "success": False,
+            "message": f"CSV exceeds maximum allowable limit of {MAX_IMPORT_ROWS} rows (uploaded file has {len(rows_list)} rows)."
+        }
+
     total_rows = 0
     imported = 0
     errors = []
 
     rows_to_insert = []
 
-    for idx, row in enumerate(reader, start=2):
+    for idx, row in enumerate(rows_list, start=2):
         total_rows += 1
         roll_no = row.get("roll_no", "").strip().upper()
         name = row.get("student_name", "").strip()
@@ -144,6 +153,13 @@ def import_placements_csv(file_stream):
     if missing:
         return {"success": False, "message": f"Missing required CSV columns: {', '.join(missing)}"}
 
+    rows_list = list(reader)
+    if len(rows_list) > MAX_IMPORT_ROWS:
+        return {
+            "success": False,
+            "message": f"CSV exceeds maximum allowable limit of {MAX_IMPORT_ROWS} rows (uploaded file has {len(rows_list)} rows)."
+        }
+
     total_rows = 0
     imported = 0
     errors = []
@@ -154,7 +170,7 @@ def import_placements_csv(file_stream):
         cursor.execute("SELECT company_id, LOWER(company_name) AS norm_name FROM companies;")
         comp_map = {r["norm_name"]: r["company_id"] for r in cursor.fetchall()}
 
-    for idx, row in enumerate(reader, start=2):
+    for idx, row in enumerate(rows_list, start=2):
         total_rows += 1
         roll_no = row.get("roll_no", "").strip().upper()
         comp_name = row.get("company_name", "").strip()

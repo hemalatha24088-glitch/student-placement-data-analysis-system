@@ -28,6 +28,7 @@
             </p>
 
             <form method="POST" action="{{ url_for('import_bp.upload_students') }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label class="form-label" for="student_csv">Select .CSV File</label>
                     <input type="file" name="csv_file" id="student_csv" class="form-control" accept=".csv" required>
@@ -51,6 +52,7 @@
             </p>
 
             <form method="POST" action="{{ url_for('import_bp.upload_placements') }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label class="form-label" for="placement_csv">Select .CSV File</label>
                     <input type="file" name="csv_file" id="placement_csv" class="form-control" accept=".csv" required>

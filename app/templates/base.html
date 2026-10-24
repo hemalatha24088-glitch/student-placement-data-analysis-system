@@ -12,6 +12,11 @@
     {% block head_extra %}{% endblock %}
 </head>
 <body>
+    {% if demo_mode %}
+    <div style="background: #fef3c7; color: #92400e; border-bottom: 1px solid #fcd34d; padding: 0.4rem 1rem; text-align: center; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+        ⚠️ Demonstration Mode Active &bull; Synthetic Demo Profiles Enabled For Academic Evaluation
+    </div>
+    {% endif %}
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar">
@@ -24,29 +29,42 @@
             </a>
 
             <nav class="sidebar-nav">
-                <div class="nav-section-title">Main Menu</div>
                 <a href="{{ url_for('main.dashboard') }}" class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     Dashboard
                 </a>
 
-                <div class="nav-section-title">Management</div>
-                <a href="{{ url_for('students.list_students') }}" class="nav-item {% if 'students' in request.endpoint %}active{% endif %}">
+                {% if current_user_role in ('admin', 'placement_officer') %}
+                <div class="nav-section-title">Core Management</div>
+                <a href="{{ url_for('students.list_students') }}" class="nav-item {% if request.endpoint and 'students' in request.endpoint and 'resume' not in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    Students
+                    Students Directory
                 </a>
-                <a href="{{ url_for('companies.list_companies') }}" class="nav-item {% if 'companies' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('companies.list_companies') }}" class="nav-item {% if request.endpoint and 'companies' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><path d="M9 9h1"></path><path d="M9 13h1"></path><path d="M9 17h1"></path></svg>
                     Companies
                 </a>
-                <a href="{{ url_for('skills.list_skills') }}" class="nav-item {% if 'skills' in request.endpoint and 'analytics' not in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('skills.list_skills') }}" class="nav-item {% if request.endpoint and 'skills' in request.endpoint and 'analytics' not in request.endpoint and 'recommender' not in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
                     Skills Directory
                 </a>
-                <a href="{{ url_for('placements.list_placements') }}" class="nav-item {% if 'placements' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('placements.list_placements') }}" class="nav-item {% if request.endpoint and 'placements' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     Placement Records
                 </a>
+                {% elif current_user_role == 'student' %}
+                <div class="nav-section-title">My Academic Workspace</div>
+                {% if session.get('student_id') %}
+                <a href="{{ url_for('students.view_student', student_id=session.get('student_id')) }}" class="nav-item {% if request.endpoint == 'students.view_student' and request.view_args and request.view_args.get('student_id') == session.get('student_id') %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    My Student Profile
+                </a>
+                {% endif %}
+                <a href="{{ url_for('companies.list_companies') }}" class="nav-item {% if request.endpoint and 'companies' in request.endpoint %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><path d="M9 9h1"></path><path d="M9 13h1"></path><path d="M9 17h1"></path></svg>
+                    Partner Companies
+                </a>
+                {% endif %}
 
                 <div class="nav-section-title">AI & Machine Learning</div>
                 <a href="{{ url_for('predictor.index') }}" class="nav-item {% if request.endpoint == 'predictor.index' %}active{% endif %}">
@@ -59,12 +77,12 @@
                     Salary CTC Predictor
                     <span style="background: rgba(16,185,129,0.25); color: #6ee7b7; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Regression</span>
                 </a>
-                <a href="{{ url_for('skills.recommender') }}" class="nav-item {% if 'recommender' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('skills.recommender') }}" class="nav-item {% if request.endpoint and 'recommender' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><path d="M22 12h-4"></path></svg>
                     Skill Gap Recommender
                     <span style="background: rgba(13,148,136,0.25); color: #5eead4; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Recommender</span>
                 </a>
-                <a href="{{ url_for('ats.index') }}" class="nav-item {% if 'ats' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('ats.index') }}" class="nav-item {% if request.endpoint and 'ats' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                     AI Resume ATS Matcher
                     <span style="background: rgba(245,158,11,0.25); color: #fde68a; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">NLP</span>
@@ -92,15 +110,28 @@
                     Yearly Trends
                 </a>
 
+                {% if current_user_role in ('admin', 'placement_officer') %}
                 <div class="nav-section-title">Outputs & Tools</div>
-                <a href="{{ url_for('reports.index') }}" class="nav-item {% if 'reports' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('reports.index') }}" class="nav-item {% if request.endpoint and 'reports' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                     Reports & CSV Export
                 </a>
-                <a href="{{ url_for('import_bp.index') }}" class="nav-item {% if 'import' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('import_bp.index') }}" class="nav-item {% if request.endpoint and 'import' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                     CSV Data Import
                 </a>
+                {% endif %}
+
+                {% if current_user_role == 'admin' %}
+                <div class="nav-section-title">Administration</div>
+                <a href="{{ url_for('admin.list_users') }}" class="nav-item {% if 'admin.list_users' in request.endpoint %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                    User Management
+                    <span style="background: rgba(168,85,247,0.25); color: #c084fc; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Admin</span>
+                </a>
+                {% endif %}
+
+                <div class="nav-section-title">Diagnostics</div>
                 <a href="{{ url_for('main.health_page') }}" class="nav-item {% if request.endpoint == 'main.health_page' %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><activity><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></activity></svg>
                     System Health
@@ -129,13 +160,16 @@
 
                     {% if session.get('username') %}
                         <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">
-                            {{ session.get('full_name') }} <span style="font-size: 0.75rem; color: var(--indigo-600);">({{ session.get('role') }})</span>
+                            {{ session.get('full_name') }} <span style="font-size: 0.75rem; color: var(--indigo-600); font-weight: 700; text-transform: uppercase;">({{ session.get('role') }})</span>
                         </span>
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary btn-sm" title="Change your password">Password</a>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm">Sign Out</a>
                     {% else %}
+                        {% if demo_mode %}
                         <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="btn btn-indigo btn-sm" title="Quick 1-Click login as Faculty Reviewer">
                             Faculty Demo Login
                         </a>
+                        {% endif %}
                         <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Sign In Portal</a>
                     {% endif %}
                 </div>

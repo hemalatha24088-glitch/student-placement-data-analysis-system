@@ -121,6 +121,7 @@
                         <td style="text-align: right; white-space: nowrap;">
                             <a href="{{ url_for('placements.edit_placement', placement_id=p.placement_id) }}" class="btn btn-secondary btn-sm">Edit</a>
                             <form method="POST" action="{{ url_for('placements.remove_placement', placement_id=p.placement_id) }}" style="display: inline;" class="delete-confirm" data-item="offer for {{ p.student_name }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                         </td>

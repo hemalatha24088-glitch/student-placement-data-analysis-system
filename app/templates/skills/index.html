@@ -13,6 +13,7 @@
         </p>
 
         <form method="POST" action="{{ url_for('skills.add_skill') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group" style="margin-bottom: 1rem;">
                 <label class="form-label" for="skill_name">Skill Name <span style="color:red;">*</span></label>
                 <input type="text" name="skill_name" id="skill_name" class="form-control" required placeholder="e.g. PyTorch, Kubernetes">
@@ -86,6 +87,7 @@
                             </td>
                             <td style="text-align: right;">
                                 <form method="POST" action="{{ url_for('skills.remove_skill', skill_id=sk.skill_id) }}" style="display: inline;" class="delete-confirm" data-item="skill '{{ sk.skill_name }}'">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                             </td>

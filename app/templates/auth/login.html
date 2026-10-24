@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In First | Student Placement Data Analysis System</title>
+    <title>Sign In | Student Placement Data Analysis System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
@@ -19,7 +19,7 @@
         }
         .portal-card {
             width: 100%;
-            max-width: 520px;
+            max-width: 480px;
             background: #ffffff;
             color: #0f172a;
             border-radius: 16px;
@@ -31,7 +31,6 @@
             padding: 2rem;
             text-align: center;
             color: #ffffff;
-            position: relative;
         }
         .portal-badge {
             display: inline-block;
@@ -63,20 +62,24 @@
             padding: 2rem;
         }
         .demo-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
             border-radius: 10px;
-            padding: 1.1rem;
+            padding: 1rem;
             margin-bottom: 1.5rem;
             text-align: center;
         }
         .demo-title {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: #475569;
+            color: #b45309;
             margin-bottom: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
         }
         .demo-buttons {
             display: grid;
@@ -88,9 +91,9 @@
             align-items: center;
             justify-content: center;
             gap: 0.45rem;
-            padding: 0.65rem 0.75rem;
+            padding: 0.6rem 0.75rem;
             border-radius: 8px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 700;
             text-decoration: none;
             transition: all 0.2s ease;
@@ -112,24 +115,6 @@
         .btn-admin:hover {
             background: #1e293b;
             color: #ffffff;
-        }
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 1.5rem 0;
-            gap: 0.75rem;
-        }
-        .divider-line {
-            flex: 1;
-            height: 1px;
-            background: #e2e8f0;
-        }
-        .divider-text {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
         .form-group {
             margin-bottom: 1rem;
@@ -187,45 +172,27 @@
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
             box-sizing: border-box;
-            cursor: pointer;
         }
         .btn-google:hover {
             background: #f8fafc;
             border-color: #94a3b8;
             color: #0f172a;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .credentials-pill {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #64748b;
-            background: #f1f5f9;
-            padding: 0.45rem;
-            border-radius: 6px;
         }
         .portal-footer {
             background: #f8fafc;
             border-top: 1px solid #e2e8f0;
-            padding: 1rem 1.5rem;
+            padding: 1.1rem 1.5rem;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.82rem;
             color: #64748b;
         }
-        .feature-tags {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0.35rem;
-            margin-top: 0.4rem;
-        }
-        .tag {
-            background: #e0e7ff;
-            color: #3730a3;
-            font-size: 0.68rem;
+        .portal-footer a {
+            color: #4f46e5;
             font-weight: 700;
-            padding: 0.15rem 0.45rem;
-            border-radius: 4px;
+            text-decoration: none;
+        }
+        .portal-footer a:hover {
+            text-decoration: underline;
         }
         .flash-alert {
             padding: 0.75rem 1rem;
@@ -238,54 +205,20 @@
         .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
         .alert-info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
-
-        /* Google Modal */
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .modal-backdrop.active {
-            display: flex;
-        }
-        .google-modal {
-            background: #ffffff;
-            color: #1e293b;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 440px;
-            padding: 1.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            animation: modalFadeIn 0.2s ease-out;
-        }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
 
     <div class="portal-card">
-        <!-- Top Institutional Header -->
         <div class="portal-header">
             <div class="portal-badge">Department of Training &amp; Placements</div>
-            <h1 class="portal-title">Student Placement System</h1>
+            <h1 class="portal-title">Placement System Portal</h1>
             <p class="portal-subtitle">
-                B.Tech CSE (AI/ML) Capstone Project &bull; Please sign in first to access the placement system
+                Please authenticate with your credentials to access the analytics workspace
             </p>
         </div>
 
-        <!-- Card Body -->
         <div class="portal-body">
-            <!-- Flash Notification Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -296,52 +229,31 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- First-Time Users: Prominent Sign-Up Callout -->
-            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.9rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
-                <div>
-                    <div style="font-size: 0.75rem; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">
-                        First Time Here?
-                    </div>
-                    <div style="font-size: 0.82rem; color: #15803d; margin-top: 0.15rem;">
-                        Create your own username &amp; password to sign in anytime!
-                    </div>
-                </div>
-                <a href="{{ url_for('auth.register', next=next_url) }}" style="white-space: nowrap; background: #16a34a; color: #ffffff; padding: 0.45rem 0.85rem; border-radius: 6px; font-weight: 700; font-size: 0.82rem; text-decoration: none; box-shadow: 0 1px 2px rgba(22, 163, 74, 0.3);">
-                    Sign Up &rarr;
-                </a>
-            </div>
-
-            <!-- Section 1: One-Click Evaluator Sign-In (For Project Viva Demo) -->
+            {% if demo_mode %}
+            <!-- Demo Mode Section: Active ONLY when DEMO_MODE=true is configured -->
             <div class="demo-box">
                 <div class="demo-title">
-                    One-Click Evaluator Access (For Faculty Viva &amp; Review)
+                    <span>⚠️ Demonstration Mode Active</span>
                 </div>
                 <div class="demo-buttons">
                     <a href="{{ url_for('auth.demo_login', role='faculty', next=next_url) }}" class="btn-demo btn-faculty" title="1-Click Login as Faculty Reviewer">
-                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                         Faculty Officer
                     </a>
                     <a href="{{ url_for('auth.demo_login', role='admin', next=next_url) }}" class="btn-demo btn-admin" title="1-Click Login as Administrator">
-                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         Administrator
                     </a>
                 </div>
             </div>
+            {% endif %}
 
-            <!-- Divider -->
-            <div class="divider">
-                <div class="divider-line"></div>
-                <span class="divider-text">or sign in with credentials</span>
-                <div class="divider-line"></div>
-            </div>
-
-            <!-- Section 2: Standard Username / Email & Password Form -->
+            <!-- Standard Login Form -->
             <form method="POST" action="{{ url_for('auth.login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="next" value="{{ next_url or '' }}">
 
                 <div class="form-group">
                     <label class="form-label" for="username">Username or Email Address</label>
-                    <input type="text" name="username" id="username" class="form-control" placeholder="Enter username or your@email.com" required autofocus>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username or email" required autofocus>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.25rem;">
@@ -350,112 +262,36 @@
                 </div>
 
                 <button type="submit" class="btn-submit">
-                    Sign In to Placement System &rarr;
+                    Sign In &rarr;
                 </button>
             </form>
 
-            <div style="margin-top: 0.75rem; text-align: center; font-size: 0.82rem; color: #64748b;">
-                Don't have an account yet? 
-                <a href="{{ url_for('auth.register', next=next_url) }}" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Create one now &rarr;</a>
-            </div>
-
-            <!-- Google Single Sign-On (SSO) Section -->
+            {% if google_auth_enabled %}
             <div style="margin-top: 1.1rem;">
                 <div style="display: flex; align-items: center; margin-bottom: 0.85rem; gap: 0.75rem;">
                     <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
-                    <span style="font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">or continue with</span>
+                    <span style="font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">or continue with</span>
                     <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
                 </div>
 
-                <button type="button" class="btn-google" onclick="openGoogleModal()" title="Sign In with your Google Account">
+                <a href="{{ url_for('auth.google_login') }}" class="btn-google">
                     <svg style="width:18px;height:18px;" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                     </svg>
-                    <span>Login with Google Account</span>
-                </button>
-            </div>
-
-            <div class="credentials-pill" style="margin-top: 1rem;">
-                Default profiles: <code>faculty</code> / <code>faculty123</code> &bull; <code>admin</code> / <code>admin123</code>
-            </div>
-        </div>
-
-        <!-- Footer Notice & Module Summary -->
-        <div class="portal-footer">
-            <div style="font-weight: 600; color: #475569; margin-bottom: 0.25rem;">
-                All system modules open immediately upon signing in:
-            </div>
-            <div class="feature-tags">
-                <span class="tag">Placement Dashboard</span>
-                <span class="tag">Student Management</span>
-                <span class="tag">ML Probability Predictor</span>
-                <span class="tag">Salary CTC Regressor</span>
-                <span class="tag">Skill Gap Recommender</span>
-                <span class="tag">NLP ATS Matcher</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Google Account Modal -->
-    <div id="googleModal" class="modal-backdrop" onclick="handleBackdropClick(event)">
-        <div class="google-modal">
-            <div style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
-                <svg style="width:36px;height:36px;" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-            </div>
-            <h3 style="margin: 0 0 0.35rem 0; font-size: 1.2rem; font-weight: 700;">Sign in with Google</h3>
-            <p style="margin: 0 0 1.25rem 0; font-size: 0.82rem; color: #64748b;">
-                Enter your Google account email to sign in or register instantly
-            </p>
-
-            <form method="POST" action="{{ url_for('auth.google_login') }}">
-                <input type="hidden" name="next" value="{{ next_url or '' }}">
-
-                <div style="text-align: left; margin-bottom: 0.85rem;">
-                    <label style="display:block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem;">Google Email Address</label>
-                    <input type="email" name="google_email" class="form-control" placeholder="e.g. yourname@gmail.com" required autofocus>
-                </div>
-
-                <div style="text-align: left; margin-bottom: 1.1rem;">
-                    <label style="display:block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem;">Your Name (Optional)</label>
-                    <input type="text" name="google_name" class="form-control" placeholder="e.g. Hemalatha M">
-                </div>
-
-                <button type="submit" class="btn-submit" style="background: #1a73e8; margin-top: 0; box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);">
-                    Sign In with Google Account &rarr;
-                </button>
-            </form>
-
-            <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                <a href="{{ url_for('auth.google_login', next=next_url) }}" style="font-size: 0.75rem; color: #4f46e5; text-decoration: none; font-weight: 600;">
-                    Use Quick Evaluator Google Demo
+                    <span>Sign In with Google</span>
                 </a>
-                <button type="button" onclick="closeGoogleModal()" style="background: none; border: none; font-size: 0.78rem; color: #64748b; cursor: pointer; font-weight: 600;">
-                    Cancel
-                </button>
             </div>
+            {% endif %}
+        </div>
+
+        <div class="portal-footer">
+            Don't have an account? 
+            <a href="{{ url_for('auth.register', next=next_url) }}">Sign up as a Student &rarr;</a>
         </div>
     </div>
 
-    <script>
-        function openGoogleModal() {
-            document.getElementById('googleModal').classList.add('active');
-        }
-        function closeGoogleModal() {
-            document.getElementById('googleModal').classList.remove('active');
-        }
-        function handleBackdropClick(e) {
-            if (e.target.id === 'googleModal') {
-                closeGoogleModal();
-            }
-        }
-    </script>
 </body>
 </html>

@@ -1,9 +1,18 @@
 """
 Application Factory for Student Placement Data Analysis System.
+Configures security extensions, blueprints, error handlers, and context processors.
 """
 import os
 from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask_wtf.csrf import CSRFProtect
+from flask_talisman import Talisman
+from authlib.integrations.flask_client import OAuth
 from config import Config
+from app.limiter import limiter
+
+csrf = CSRFProtect()
+oauth = OAuth()
+talisman = Talisman()
 
 def create_app(config_class=Config):
     app = Flask(__name__,
@@ -11,12 +20,70 @@ def create_app(config_class=Config):
                 static_folder="static")
     app.config.from_object(config_class)
 
-    # Ensure upload directory exists
+    # Ensure upload and log directories exist
     os.makedirs(app.config.get("UPLOAD_FOLDER", "uploads"), exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
+
+    # Initialize Extensions
+    csrf.init_app(app)
+    limiter.init_app(app)
+
+    # Initialize Talisman (Security Headers)
+    if app.config.get("TESTING"):
+        talisman.init_app(app, force_https=False, content_security_policy=None)
+    else:
+        csp = {
+            'default-src': ["'self'"],
+            'script-src': [
+                "'self'",
+                "'unsafe-inline'",
+                "'unsafe-eval'",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com"
+            ],
+            'style-src': [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com",
+                "https://fonts.googleapis.com"
+            ],
+            'font-src': [
+                "'self'",
+                "https://fonts.gstatic.com",
+                "https://cdnjs.cloudflare.com",
+                "data:"
+            ],
+            'img-src': [
+                "'self'",
+                "data:",
+                "https:"
+            ]
+        }
+        force_https = app.config.get("SESSION_COOKIE_SECURE", False)
+        talisman.init_app(
+            app,
+            content_security_policy=csp,
+            force_https=force_https,
+            frame_options="SAMEORIGIN",
+            referrer_policy="strict-origin-when-cross-origin"
+        )
+
+    # Register Google OAuth 2.0 if credentials are provided
+    if app.config.get("GOOGLE_CLIENT_ID") and app.config.get("GOOGLE_CLIENT_SECRET"):
+        oauth.init_app(app)
+        oauth.register(
+            name="google",
+            client_id=app.config["GOOGLE_CLIENT_ID"],
+            client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile"}
+        )
 
     # Register Blueprints
     from app.routes.main import main_bp
     from app.routes.auth import auth_bp
+    from app.routes.admin import admin_bp
     from app.routes.students import students_bp
     from app.routes.companies import companies_bp
     from app.routes.skills import skills_bp
@@ -30,6 +97,7 @@ def create_app(config_class=Config):
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(students_bp)
     app.register_blueprint(companies_bp)
     app.register_blueprint(skills_bp)
@@ -41,7 +109,7 @@ def create_app(config_class=Config):
     app.register_blueprint(predictor_bp)
     app.register_blueprint(ats_bp)
 
-    # Route Protection: Enforce Login First for internal pages
+    # Enforce Route Protection for Unauthenticated Visitors
     @app.before_request
     def require_login_first():
         if app.config.get("TESTING"):
@@ -53,8 +121,10 @@ def create_app(config_class=Config):
             "auth.signup",
             "auth.demo_login",
             "auth.google_login",
+            "auth.google_callback",
             "auth.logout",
             "main.health_page",
+            "api.health_check",
             "static"
         }
 
@@ -64,6 +134,16 @@ def create_app(config_class=Config):
         if request.endpoint and not session.get("user_id"):
             next_dest = url_for("main.dashboard") if request.path in ("/", "/login") else request.url
             return redirect(url_for("auth.login", next=next_dest))
+
+    # Global Context Processor
+    @app.context_processor
+    def inject_security_context():
+        google_enabled = bool(app.config.get("GOOGLE_CLIENT_ID") and app.config.get("GOOGLE_CLIENT_SECRET"))
+        return {
+            "demo_mode": app.config.get("DEMO_MODE", False),
+            "google_auth_enabled": google_enabled,
+            "current_user_role": session.get("role", "anonymous")
+        }
 
     # Custom Jinja2 Filters
     @app.template_filter("currency_lpa")
@@ -83,13 +163,22 @@ def create_app(config_class=Config):
             return val.strftime(fmt)
         return str(val)
 
-    # Error Handlers
+    # Custom HTTP Error Handlers (Zero Leaked Stack Traces)
+    @app.errorhandler(403)
+    def forbidden_error(e):
+        return render_template("errors/403.html"), 403
+
     @app.errorhandler(404)
     def page_not_found(e):
         return render_template("errors/404.html"), 404
 
+    @app.errorhandler(429)
+    def ratelimit_exceeded(e):
+        return render_template("errors/429.html"), 429
+
     @app.errorhandler(500)
     def server_error(e):
-        return render_template("errors/500.html", error=str(e)), 500
+        app.logger.error(f"Internal Server Error: {str(e)}")
+        return render_template("errors/500.html"), 500
 
     return app

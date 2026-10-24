@@ -4,6 +4,7 @@ Provides interactive Machine Learning classification, what-if candidate evaluati
 feature importance diagnostics, and unplaced student risk prioritization.
 """
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from app import csrf
 from app.services.ml_service import predictor_service, salary_predictor_service
 from app.services.student_service import get_all_departments, get_all_graduation_years, get_all_students_simple
 from app.services.skill_service import get_all_skills
@@ -79,6 +80,7 @@ def index():
     )
 
 @predictor_bp.route("/api/predict", methods=["POST"])
+@csrf.exempt
 def api_predict():
     """JSON API endpoint for real-time slider/input reactivity."""
     data = request.get_json() or {}
@@ -166,6 +168,7 @@ def salary_predictor():
     )
 
 @predictor_bp.route("/api/predict-salary", methods=["POST"])
+@csrf.exempt
 def api_predict_salary():
     """JSON API endpoint for real-time CTC prediction reactivity."""
     data = request.get_json() or {}

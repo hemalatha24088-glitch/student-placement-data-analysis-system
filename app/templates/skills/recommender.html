@@ -42,6 +42,7 @@
         </p>
 
         <form method="POST" action="{{ url_for('skills.recommender') }}" id="recommenderForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <!-- Target Type Selection (Tier vs Company) -->
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label">Recruiter Target Benchmark</label>

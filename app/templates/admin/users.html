@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}User Management | Admin Portal{% endblock %}
+{% block page_title %}User Accounts &amp; Access Control{% endblock %}
+
+{% block content %}
+<div class="row" style="margin-bottom: 1.5rem;">
+    <div class="col-12" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary-900); margin: 0 0 0.25rem 0;">
+                User Management Directory
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                Review registered accounts, promote users to Placement Officer or Administrator, and manage access credentials.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <span class="badge" style="background: var(--purple-50); color: var(--purple-700); border: 1px solid var(--purple-200); padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700;">
+                Total Accounts: {{ users|length }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+    <div style="overflow-x: auto;">
+        <table class="table" style="width: 100%; margin: 0;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid var(--border-color);">
+                    <th style="padding: 0.85rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">User</th>
+                    <th style="padding: 0.85rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Email</th>
+                    <th style="padding: 0.85rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Role / Privilege</th>
+                    <th style="padding: 0.85rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Registered</th>
+                    <th style="padding: 0.85rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; text-align: right;">Manage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 1rem 1.25rem;">
+                        <div style="font-weight: 700; color: var(--primary-900); font-size: 0.92rem;">
+                            {{ u.full_name }}
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">
+                            @{{ u.username }} {% if u.user_id == session.get('user_id') %}<span style="color: var(--emerald-600); font-weight: 700;">(You)</span>{% endif %}
+                        </div>
+                    </td>
+                    <td style="padding: 1rem 1.25rem; font-size: 0.88rem; color: var(--text-secondary);">
+                        {{ u.email or 'N/A' }}
+                    </td>
+                    <td style="padding: 1rem 1.25rem;">
+                        <form method="POST" action="{{ url_for('admin.update_user_role', user_id=u.user_id) }}" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <select name="role" class="form-control" style="padding: 0.3rem 0.5rem; font-size: 0.78rem; height: auto; border-radius: 4px; font-weight: 700; width: auto;" onchange="this.form.submit()">
+                                <option value="student" {% if u.role == 'student' %}selected{% endif %}>Student</option>
+                                <option value="placement_officer" {% if u.role == 'placement_officer' %}selected{% endif %}>Placement Officer</option>
+                                <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Administrator</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td style="padding: 1rem 1.25rem; font-size: 0.82rem; color: var(--text-muted);">
+                        {{ u.created_at|format_date }}
+                    </td>
+                    <td style="padding: 1rem 1.25rem; text-align: right;">
+                        <div style="display: inline-flex; gap: 0.5rem; justify-content: flex-end;">
+                            <!-- Reset Password Button -->
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="openResetModal({{ u.user_id }}, '{{ u.username }}')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">
+                                Reset Pwd
+                            </button>
+
+                            <!-- Delete User Button -->
+                            {% if u.user_id != session.get('user_id') %}
+                            <form method="POST" action="{{ url_for('admin.delete_user', user_id=u.user_id) }}" style="display: inline;" onsubmit="return confirm('Permanently delete account for @{{ u.username }}? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">
+                                    Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="resetModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.6); z-index:1100; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:1.75rem; width:100%; max-width:420px; box-shadow:var(--shadow-lg);">
+        <h3 style="font-size:1.15rem; font-weight:800; color:var(--primary-900); margin:0 0 0.5rem 0;">Reset User Password</h3>
+        <p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 1.25rem 0;" id="resetModalSubtext">
+            Enter new password for user.
+        </p>
+        <form method="POST" id="resetPasswordForm" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label" for="new_password">New Password</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" placeholder="Minimum 8 characters" minlength="8" required>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeResetModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openResetModal(userId, username) {
+    document.getElementById('resetModalSubtext').innerText = 'Set a new password for @' + username + ' (minimum 8 characters).';
+    document.getElementById('resetPasswordForm').action = '/admin/users/' + userId + '/reset-password';
+    document.getElementById('resetModal').style.display = 'flex';
+}
+function closeResetModal() {
+    document.getElementById('resetModal').style.display = 'none';
+}
+</script>
+{% endblock %}

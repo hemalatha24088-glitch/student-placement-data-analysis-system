@@ -2,7 +2,7 @@
 Student Management Blueprint.
 Provides full CRUD: List, Add, View, Edit, Delete, and Skill Association.
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, abort, session
 from app.services.student_service import (
     get_students,
     get_student_by_id,
@@ -13,10 +13,12 @@ from app.services.student_service import (
     get_all_graduation_years
 )
 from app.services.skill_service import get_all_skills
+from app.utils.auth import login_required, role_required
 
 students_bp = Blueprint("students", __name__, url_prefix="/students")
 
 @students_bp.route("/")
+@role_required("admin", "placement_officer")
 def list_students():
     page = request.args.get("page", 1, type=int)
     dept = request.args.get("department", "All")
@@ -55,6 +57,7 @@ def list_students():
     )
 
 @students_bp.route("/add", methods=["GET", "POST"])
+@role_required("admin", "placement_officer")
 def add_student():
     if request.method == "POST":
         data = {
@@ -82,11 +85,21 @@ def add_student():
     return render_template("students/form.html", student=None, departments=departments, all_skills=all_skills, action="Add")
 
 @students_bp.route("/<int:student_id>")
+@login_required
 def view_student(student_id):
+    user_role = session.get("role", "student")
     student = get_student_by_id(student_id)
     if not student:
         flash("Student record not found.", "warning")
-        return redirect(url_for("students.list_students"))
+        return redirect(url_for("main.dashboard"))
+
+    if user_role == "student":
+        user_student_id = session.get("student_id")
+        is_own_profile = (user_student_id and int(user_student_id) == int(student_id)) or \
+                         (student.get("email") and student.get("email") == session.get("email")) or \
+                         (student.get("roll_no") and student.get("roll_no") == session.get("username"))
+        if not is_own_profile:
+            abort(403)
     
     from app.services.ml_service import predictor_service, salary_predictor_service
     from app.services.skill_recommender_service import analyze_student_skill_gap
@@ -104,15 +117,25 @@ def view_student(student_id):
     )
 
 @students_bp.route("/<int:student_id>/resume")
+@login_required
 def student_resume(student_id):
     """
     Automated Student Placement Bio-Data & Verified Credential Document.
     Print-ready and PDF-exportable for campus recruitment drives.
     """
+    user_role = session.get("role", "student")
     student = get_student_by_id(student_id)
     if not student:
         flash("Student record not found.", "warning")
-        return redirect(url_for("students.list_students"))
+        return redirect(url_for("main.dashboard"))
+
+    if user_role == "student":
+        user_student_id = session.get("student_id")
+        is_own_profile = (user_student_id and int(user_student_id) == int(student_id)) or \
+                         (student.get("email") and student.get("email") == session.get("email")) or \
+                         (student.get("roll_no") and student.get("roll_no") == session.get("username"))
+        if not is_own_profile:
+            abort(403)
 
     from app.services.ml_service import predictor_service, salary_predictor_service
     prediction = predictor_service.predict_student(student_id)
@@ -126,6 +149,7 @@ def student_resume(student_id):
     )
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
+@role_required("admin", "placement_officer")
 def edit_student(student_id):
     student = get_student_by_id(student_id)
     if not student:
@@ -167,6 +191,7 @@ def edit_student(student_id):
     )
 
 @students_bp.route("/<int:student_id>/delete", methods=["POST"])
+@role_required("admin", "placement_officer")
 def remove_student(student_id):
     student = get_student_by_id(student_id)
     if not student:

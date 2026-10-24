@@ -11,10 +11,12 @@ from app.services.company_service import (
     delete_company,
     get_all_industries
 )
+from app.utils.auth import login_required, role_required
 
 companies_bp = Blueprint("companies", __name__, url_prefix="/companies")
 
 @companies_bp.route("/")
+@login_required
 def list_companies():
     search = request.args.get("search", "").strip()
     industry = request.args.get("industry", "All")
@@ -23,6 +25,7 @@ def list_companies():
     return render_template("companies/index.html", companies=companies, industries=industries, search=search, selected_industry=industry)
 
 @companies_bp.route("/add", methods=["GET", "POST"])
+@role_required("admin", "placement_officer")
 def add_company():
     if request.method == "POST":
         data = {
@@ -42,6 +45,7 @@ def add_company():
     return render_template("companies/form.html", company=None, action="Add")
 
 @companies_bp.route("/<int:company_id>")
+@login_required
 def view_company(company_id):
     company = get_company_by_id(company_id)
     if not company:
@@ -50,6 +54,7 @@ def view_company(company_id):
     return render_template("companies/view.html", company=company)
 
 @companies_bp.route("/<int:company_id>/edit", methods=["GET", "POST"])
+@role_required("admin", "placement_officer")
 def edit_company(company_id):
     company = get_company_by_id(company_id)
     if not company:
@@ -74,6 +79,7 @@ def edit_company(company_id):
     return render_template("companies/form.html", company=company, action="Edit")
 
 @companies_bp.route("/<int:company_id>/delete", methods=["POST"])
+@role_required("admin", "placement_officer")
 def remove_company(company_id):
     company = get_company_by_id(company_id)
     if not company:

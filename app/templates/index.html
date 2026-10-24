@@ -93,10 +93,11 @@
                                 </a>
                             </div>
 
+                            {% if demo_mode %}
                             <!-- One-Click Quick Evaluator Demo Logins -->
                             <div style="margin-bottom: 1.25rem;">
                                 <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem;">
-                                    One-Click Evaluator Access (Viva Review)
+                                    Demo Mode Active &bull; Instant Access
                                 </div>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                                     <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="btn btn-indigo" style="font-size: 0.8rem; padding: 0.55rem 0.5rem; text-align: center; justify-content: center;">
@@ -115,12 +116,14 @@
                                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">or sign in with credentials</span>
                                 <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
                             </div>
+                            {% endif %}
 
                             <!-- Login Form -->
                             <form method="POST" action="{{ url_for('auth.login') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <div class="form-group" style="margin-bottom: 0.85rem;">
                                     <label class="form-label" for="username" style="font-size: 0.8rem;">Username or Email</label>
-                                    <input type="text" name="username" id="username" class="form-control" placeholder="admin or your@email.com" required>
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="username or your@email.com" required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 1.1rem;">
                                     <label class="form-label" for="password" style="font-size: 0.8rem;">Password</label>
@@ -135,6 +138,7 @@
                                 Don't have an account? <a href="{{ url_for('auth.register') }}" style="color: var(--indigo-600); font-weight: 700;">Sign Up &rarr;</a>
                             </div>
 
+                            {% if google_auth_enabled %}
                             <!-- Login with Google button -->
                             <div style="margin-top: 0.85rem;">
                                 <a href="{{ url_for('auth.google_login') }}" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; background: #ffffff; color: #374151; border: 1px solid #d1d5db; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; box-sizing: border-box;">
@@ -147,10 +151,7 @@
                                     <span>Login with Google</span>
                                 </a>
                             </div>
-
-                            <div style="margin-top: 0.75rem; text-align: center; font-size: 0.72rem; color: var(--text-muted);">
-                                Demo logins: <code>faculty</code> / <code>faculty123</code> &bull; <code>admin</code> / <code>admin123</code>
-                            </div>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

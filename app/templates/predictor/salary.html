@@ -24,6 +24,7 @@
             Probability Classifier
         </a>
         <form method="POST" action="{{ url_for('predictor.retrain_salary_model') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-secondary btn-sm" title="Retrain Random Forest Regressor on live MySQL compensation data">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
                 Retrain CTC Model
@@ -44,6 +45,7 @@
         </p>
 
         <form method="POST" action="{{ url_for('predictor.salary_predictor') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <!-- Student Quick-Fill -->
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label" for="student_id">Select Registered Student (Optional Auto-Fill)</label>

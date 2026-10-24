@@ -7,10 +7,8 @@
 
 USE `placement_db`;
 
--- 1. Insert Default Administrative & Evaluation Users
-INSERT INTO `users` (`username`, `password_hash`, `full_name`, `role`, `email`) VALUES
-('admin', 'scrypt:32768:8:1$rrQgjYh4c73Ag8An$7be224f435f5687437724c1f496c3ec2f96c6565210d17aec70f08a7407af0312b42648711ad60878597ef5a0e366292d0183394becdf1cb8a8f8b4aec5f8226', 'System Administrator', 'admin', 'admin@placement.edu'),
-('faculty', 'scrypt:32768:8:1$AnG7EoNiuIjC4odF$cff34249f2ff6dacb86da3cbc02d0cadbcb7ab0b6843abc0bcb3c60ff9848a456d4096172197d11e3f85eea32677e363a9931bbc353a2cb4d022cd97142f647b', 'Prof. Faculty Reviewer', 'placement_officer', 'faculty@placement.edu');
+-- NOTE: Administrative users must be created via 'python init_db.py --create-admin'
+-- or when DEMO_MODE=true is explicitly set. No hardcoded credentials are stored.
 
 -- 2. Insert In-Demand Industry Skills Master
 INSERT INTO `skills` (`skill_name`, `skill_category`) VALUES

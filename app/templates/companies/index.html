@@ -88,6 +88,7 @@
                             <a href="{{ url_for('companies.view_company', company_id=c.company_id) }}" class="btn btn-secondary btn-sm">View</a>
                             <a href="{{ url_for('companies.edit_company', company_id=c.company_id) }}" class="btn btn-secondary btn-sm">Edit</a>
                             <form method="POST" action="{{ url_for('companies.remove_company', company_id=c.company_id) }}" style="display: inline;" class="delete-confirm" data-item="company '{{ c.company_name }}'">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                         </td>

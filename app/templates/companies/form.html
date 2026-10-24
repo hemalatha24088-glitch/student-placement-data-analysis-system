@@ -12,6 +12,7 @@
         </div>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label" for="company_name">Company Name <span style="color: red;">*</span></label>
                 <input type="text" name="company_name" id="company_name" class="form-control" required placeholder="e.g. Google, Microsoft, TCS" value="{{ company.company_name if company else '' }}">

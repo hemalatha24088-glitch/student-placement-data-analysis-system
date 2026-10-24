@@ -19,6 +19,7 @@
         </div>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                 <div class="form-group">
                     <label class="form-label" for="roll_no">Roll Number <span style="color: red;">*</span></label>

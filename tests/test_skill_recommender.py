@@ -11,13 +11,6 @@ from app.services.skill_recommender_service import (
 )
 from app.services.student_service import get_all_students_simple
 
-@pytest.fixture
-def client():
-    app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
-
 def test_tier_profiles_structure():
     """Verify standard hiring tier profiles exist and have proper weighting."""
     assert "Super Dream" in TIER_PROFILES
@@ -67,13 +60,13 @@ def test_analyze_student_skill_gap_db():
         assert "student" in res
         assert res["student"]["student_id"] == st_id
 
-def test_recommender_routes(client):
-    """Verify GET and POST requests to the /skills/recommender UI route."""
-    response = client.get("/skills/recommender")
+def test_recommender_routes(student_client):
+    """Verify GET and POST requests to the /skills/recommender UI route (accessible by student)."""
+    response = student_client.get("/skills/recommender")
     assert response.status_code == 200
     assert b"Target Recruiter Competency &amp; Skill Gap Recommender" in response.data or b"Skill Gap" in response.data
 
-    post_resp = client.post("/skills/recommender", data={
+    post_resp = student_client.post("/skills/recommender", data={
         "target_type": "tier",
         "target_value": "Super Dream",
         "skills": ["Python", "SQL"]

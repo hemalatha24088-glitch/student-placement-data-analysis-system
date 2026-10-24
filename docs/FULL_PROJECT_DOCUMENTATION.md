@@ -9,7 +9,7 @@
 **Academic Year:** 2025–2026  
 **Project Classification:** Capstone Full-Stack Web Application with Machine Learning & NLP Analytics  
 **Repository:** [https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system](https://github.com/hemalatha24088-glitch/student-placement-data-analysis-system)  
-**Live Public Deployment:** [https://latest-mazda-collectibles-mounted.trycloudflare.com](https://latest-mazda-collectibles-mounted.trycloudflare.com)
+**Deployment Infrastructure:** Gunicorn WSGI, Docker Compose, Render PaaS, MySQL 8.0 Enterprise
 
 ---
 
@@ -523,13 +523,11 @@ tests/test_students.py::test_student_required_fields_validation PASSED   [100%]
    ```
    Access locally via `http://127.0.0.1:5000/`.
 
-### 7.2 Zero-Trust Cloudflare Secure HTTPS Tunnel
-To facilitate faculty evaluation without requiring router port-forwarding or public IP exposure, the application runs through a **Cloudflare Zero-Trust Tunnel** daemon:
-```bash
-cloudflared tunnel --url http://127.0.0.1:5000
-```
-- **Active Public URL:** [https://latest-mazda-collectibles-mounted.trycloudflare.com](https://latest-mazda-collectibles-mounted.trycloudflare.com)
-- Provides end-to-end TLS 1.3 encryption, automatic DDoS protection, and mobile device accessibility for review panels.
+### 7.2 Cloud PaaS & SSL Architecture
+The system supports automated deployment on cloud platforms (e.g. Render.com, Railway) paired with managed cloud MySQL (Aiven, TiDB Cloud):
+- Uses Gunicorn WSGI multi-worker runtime with automatic worker recycling.
+- Automated health probes via the `/health` endpoint ensuring zero-downtime rolling deploys.
+- Full TLS 1.3 encryption across all public traffic with secure session cookie controls.
 
 ### 7.3 Multi-Container Docker Orchestration
 The project includes a production-grade `Dockerfile` and `docker-compose.yml` orchestrating two isolated containers:

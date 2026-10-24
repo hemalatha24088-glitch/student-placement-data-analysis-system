@@ -130,6 +130,7 @@
                             <a href="{{ url_for('students.view_student', student_id=s.student_id) }}" class="btn btn-secondary btn-sm" title="View Profile">View</a>
                             <a href="{{ url_for('students.edit_student', student_id=s.student_id) }}" class="btn btn-secondary btn-sm" title="Edit Student">Edit</a>
                             <form method="POST" action="{{ url_for('students.remove_student', student_id=s.student_id) }}" style="display: inline;" class="delete-confirm" data-item="student '{{ s.student_name }}'">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger btn-sm" title="Delete Student">Delete</button>
                             </form>
                         </td>

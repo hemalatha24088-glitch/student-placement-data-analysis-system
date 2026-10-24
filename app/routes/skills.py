@@ -3,6 +3,7 @@ Skills Management Blueprint.
 Provides listing, creation, editing, and association breakdowns for skills.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from app import csrf
 from app.services.skill_service import (
     get_all_skills,
     get_skill_by_id,
@@ -19,10 +20,12 @@ from app.services.skill_recommender_service import (
 )
 from app.services.student_service import get_all_students_simple, get_student_by_id
 from app.services.company_service import get_companies
+from app.utils.auth import login_required, role_required
 
 skills_bp = Blueprint("skills", __name__, url_prefix="/skills")
 
 @skills_bp.route("/")
+@login_required
 def list_skills():
     category = request.args.get("category", "All")
     skills = get_all_skills(category=category)
@@ -30,6 +33,7 @@ def list_skills():
     return render_template("skills/index.html", skills=skills, categories=categories, selected_category=category)
 
 @skills_bp.route("/add", methods=["POST"])
+@role_required("admin", "placement_officer")
 def add_skill():
     name = request.form.get("skill_name", "")
     category = request.form.get("skill_category", "Technical")
@@ -41,6 +45,7 @@ def add_skill():
     return redirect(url_for("skills.list_skills"))
 
 @skills_bp.route("/<int:skill_id>/edit", methods=["POST"])
+@role_required("admin", "placement_officer")
 def edit_skill(skill_id):
     name = request.form.get("skill_name", "")
     category = request.form.get("skill_category", "Technical")
@@ -52,6 +57,7 @@ def edit_skill(skill_id):
     return redirect(url_for("skills.list_skills"))
 
 @skills_bp.route("/<int:skill_id>/delete", methods=["POST"])
+@role_required("admin", "placement_officer")
 def remove_skill(skill_id):
     skill = get_skill_by_id(skill_id)
     if not skill:
@@ -65,6 +71,7 @@ def remove_skill(skill_id):
     return redirect(url_for("skills.list_skills"))
 
 @skills_bp.route("/recommender", methods=["GET", "POST"])
+@login_required
 def recommender():
     """
     Smart Skill Gap & Preparation Roadmap Recommender.
@@ -131,6 +138,7 @@ def recommender():
     )
 
 @skills_bp.route("/api/recommender", methods=["POST"])
+@csrf.exempt
 def api_recommender():
     """JSON API endpoint for real-time skill gap analysis."""
     data = request.get_json() or {}

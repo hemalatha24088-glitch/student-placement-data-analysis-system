@@ -13,28 +13,23 @@
 
 ---
 
-## 🌐 Public Live Access & Quick Demo
+## 🌐 Access & Evaluation Quickstart
 
-Anyone on the internet can test and interact with the live running application:
-
-- **Live Public URL:** [https://educational-tony-sunglasses-punch.trycloudflare.com](https://educational-tony-sunglasses-punch.trycloudflare.com)
-- **Direct Sign-In Portal:** [https://educational-tony-sunglasses-punch.trycloudflare.com/login](https://educational-tony-sunglasses-punch.trycloudflare.com/login)
-- **Direct New User Registration:** [https://educational-tony-sunglasses-punch.trycloudflare.com/register](https://educational-tony-sunglasses-punch.trycloudflare.com/register)
-
-### 🔐 How Anyone Can Log In:
-1. **Create Your Own Account (Sign Up):** 
-   - Click **[Sign Up](https://educational-tony-sunglasses-punch.trycloudflare.com/register)** on the login screen.
-   - Enter your **Full Name**, choose your own **Username** &amp; **Password**, select your **Role** (Placement Officer, Administrator, or Student), and optionally add your email.
-   - Your account is immediately saved in the MySQL database and you are logged into the dashboard!
-   - Next time you return, simply type your username (or email) and password on `/login`.
-2. **Login with Google Account:** 
-   - Click **"Login with Google Account"** on `/login` or `/register`.
-   - Enter your personal or institutional Google email (or click the quick demo option) to sign in with an official Google badge.
-3. **One-Click Faculty / Admin Evaluator Demo:** 
-   - Click **"Faculty Officer"** or **"Administrator"** on the login screen for instant, one-click viva evaluation access.
-4. **Pre-configured Accounts:**
-   - **Faculty / Placement Officer:** `faculty` / `faculty123`
-   - **System Administrator:** `admin` / `admin123`
+1. **Create an Account (Student Sign-Up):**
+   - Navigate to `/register` on the login screen.
+   - Enter your **Full Name**, **Username**, **Email**, and **Password**.
+   - Public sign-ups are automatically registered as **Student** accounts.
+2. **Administrator & Placement Officer Provisioning:**
+   - Initialize an administrator account securely via CLI:
+     ```bash
+     python init_db.py --create-admin
+     ```
+   - System Administrators can promote accounts to Placement Officer or Administrator via `/admin/users`.
+3. **Optional Demo Mode (Sandbox Evaluation):**
+   - Set `DEMO_MODE=true` in your `.env` file to enable one-click evaluator buttons on `/login`.
+   - A visible "Demo Mode Active" notification banner appears across all views when enabled.
+4. **Google OAuth 2.0 (SSO):**
+   - Provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env` to enable genuine Google authentication.
 
 ---
 
@@ -136,25 +131,27 @@ Install the required packages using the virtual environment's pip:
 ```
 
 ### Step 4: Configure Database Settings (`.env`)
-The project reads credentials from `.env`. A default `.env` is already configured for local execution:
+The project reads credentials from `.env`. Copy `.env.example` to `.env` and fill in your settings:
 ```ini
 DB_HOST=localhost
 DB_PORT=3307
 DB_USER=root
-DB_PASSWORD=aimlb4
+DB_PASSWORD=your_mysql_password_here
 DB_NAME=placement_db
-SECRET_KEY=placement-data-analysis-secret-token-btech-aiml-2026
+SECRET_KEY=your_secure_random_secret_key_here
 FLASK_ENV=development
-FLASK_DEBUG=1
+DEBUG=false
+DEMO_MODE=false
 ```
-*(If your local MySQL runs on default port 3306 or has a different password, adjust `DB_PORT` and `DB_PASSWORD` accordingly).*
+*(If your local MySQL runs on default port 3306, adjust `DB_PORT` accordingly).*
 
-### Step 5: Initialize Schema & Seed Synthetic Data
+### Step 5: Initialize Schema & Create Administrator
 Execute the automated database setup script:
 ```powershell
 .\.venv\Scripts\python.exe init_db.py
+.\.venv\Scripts\python.exe init_db.py --create-admin
 ```
-*Output will confirm table creation and the insertion of initial synthetic sample records.*
+*Output will confirm table creation and prompt for administrator credentials.*
 
 ### Step 6: Start the Web Application
 Launch the Flask server:
@@ -174,13 +171,11 @@ Open your browser and navigate to: **`http://127.0.0.1:5000/`**
 
 ---
 
-## 5. Evaluation & Demo Login Credentials
+## 5. Security Architecture & Evaluation Roles
 
-For faculty evaluation, project viva review, and demonstration:
-- **Sign Up / New User:** Click **[Sign Up](https://educational-tony-sunglasses-punch.trycloudflare.com/register)** to create any personal or institutional username & password.
-- **Login with Google:** Click **"Login with Google Account"** on the login screen.
-- **Faculty / Placement Officer:** Click **"Faculty Officer"** (or use username `faculty` / password `faculty123`).
-- **System Administrator:** Click **"Administrator"** (or use username `admin` / password `admin123`).
+- **Student Account:** Sign up publicly via `/register` with any username and password.
+- **Placement Officer & Administrator:** Create via `python init_db.py --create-admin` or promote via Administrator User Management (`/admin/users`).
+- **Optional Demo Mode:** Set `DEMO_MODE=true` in `.env` to enable demonstration shortcuts for evaluation.
 
 ---
 

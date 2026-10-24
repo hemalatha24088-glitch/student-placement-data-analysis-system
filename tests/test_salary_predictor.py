@@ -2,15 +2,7 @@
 Unit tests for Machine Learning Salary Package (CTC) Regressor & Placement Bio-Data service.
 """
 import pytest
-from app import create_app
 from app.services.ml_service import salary_predictor_service
-
-@pytest.fixture
-def client():
-    app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
 
 def test_salary_regressor_training_and_metrics():
     """Verify that Random Forest Regressor trains properly on MySQL compensation data."""
@@ -74,8 +66,8 @@ def test_api_predict_salary(client):
     assert "prediction" in data
     assert data["prediction"]["predicted_ctc"] > 0
 
-def test_student_resume_route(client):
-    """Verify printable placement bio-data / resume route."""
-    response = client.get("/students/1/resume")
+def test_student_resume_route(officer_client):
+    """Verify printable placement bio-data / resume route (requires officer or admin session)."""
+    response = officer_client.get("/students/1/resume")
     assert response.status_code == 200
     assert b"Verified Candidate Bio-Data" in response.data or b"Placement Bio-Data" in response.data

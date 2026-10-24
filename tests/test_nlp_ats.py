@@ -11,13 +11,6 @@ from app.services.nlp_service import (
     SAMPLE_JOB_DESCRIPTIONS
 )
 
-@pytest.fixture
-def client():
-    app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
-
 def test_clean_text_normalization():
     """Verify text cleaning removes punctuation and normalizes whitespace."""
     raw = "  Python & Machine-Learning!  (SQL/NoSQL)   "
