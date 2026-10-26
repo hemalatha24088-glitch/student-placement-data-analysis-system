@@ -315,6 +315,90 @@ body {
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }
 
+/* Dashboard Sections & Structural Cleanliness */
+.dashboard-section {
+    margin-bottom: 2.25rem;
+}
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.15rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.section-title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--primary-900);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+}
+.section-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    background: var(--indigo-50);
+    color: var(--indigo-600);
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+[data-theme="dark"] .section-badge {
+    background: rgba(79, 70, 229, 0.15);
+    color: #a5b4fc;
+    border-color: rgba(165, 180, 252, 0.2);
+}
+.section-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+.kpi-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+@media (max-width: 1200px) {
+    .kpi-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 640px) {
+    .kpi-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.charts-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+@media (max-width: 1024px) {
+    .charts-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tables-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+@media (max-width: 1024px) {
+    .tables-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* KPI Cards Grid */
 .kpi-grid {
     display: grid;
@@ -351,6 +435,8 @@ body {
 .kpi-card.amber::before { background: var(--amber-500); }
 .kpi-card.emerald::before { background: var(--emerald-600); }
 .kpi-card.rose::before { background: var(--rose-500); }
+.kpi-card.cyan::before { background: #06b6d4; }
+.kpi-card.purple::before { background: #8b5cf6; }
 
 .kpi-header {
     display: flex;
