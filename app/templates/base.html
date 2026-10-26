@@ -131,11 +131,11 @@
                 {% endif %}
 
                 {% if current_user_role == 'admin' %}
-                <div class="nav-section-title">Administration</div>
+                <div class="nav-section-title">Administrator Tools (Admin Only)</div>
                 <a href="{{ url_for('admin.list_users') }}" class="nav-item {% if 'admin.list_users' in request.endpoint %}active{% endif %}">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
                     User Management
-                    <span style="background: rgba(168,85,247,0.25); color: #c084fc; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Admin</span>
+                    <span style="background: rgba(168,85,247,0.25); color: #c084fc; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: auto;">Admin Only</span>
                 </a>
                 {% endif %}
 
@@ -177,9 +177,24 @@
                     </span>
 
                     {% if session.get('username') %}
-                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">
-                            {{ session.get('full_name') }} <span style="font-size: 0.75rem; color: var(--indigo-600); font-weight: 700; text-transform: uppercase;">({{ session.get('role') }})</span>
-                        </span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            {% if current_user_role == 'admin' %}
+                                <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #9333ea; border: 1px solid rgba(168, 85, 247, 0.3); font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 9999px;">
+                                    🛡️ Administrator
+                                </span>
+                            {% elif current_user_role == 'placement_officer' %}
+                                <span class="badge" style="background: rgba(79, 70, 229, 0.15); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.3); font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 9999px;">
+                                    💼 Placement Officer
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 9999px;">
+                                    🎓 Student
+                                </span>
+                            {% endif %}
+                            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">
+                                {{ session.get('full_name') }}
+                            </span>
+                        </div>
                         <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary btn-sm" title="Change your password">Password</a>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm">Sign Out</a>
                     {% else %}
