@@ -9,6 +9,7 @@ from authlib.integrations.flask_client import OAuth
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.limiter import limiter
 from config import Config
@@ -21,6 +22,9 @@ talisman = Talisman()
 def create_app(config_class=Config):
     app = Flask(__name__, template_folder="templates", static_folder="static")
     app.config.from_object(config_class)
+
+    # Wrap WSGI application with ProxyFix to properly handle X-Forwarded-* headers from reverse proxies
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     # Ensure upload and log directories exist (handling serverless read-only filesystems)
     is_serverless = os.environ.get("VERCEL") == "1" or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
@@ -183,6 +187,13 @@ def create_app(config_class=Config):
         return str(val)
 
     # Custom HTTP Error Handlers (Zero Leaked Stack Traces)
+    from flask_wtf.csrf import CSRFError
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        flash("Your session security token expired or cookies were refreshed. Please sign in again.", "warning")
+        return render_template("auth/login.html", next_url=url_for("main.dashboard")), 400
+
     @app.errorhandler(403)
     def forbidden_error(e):
         return render_template("errors/403.html"), 403

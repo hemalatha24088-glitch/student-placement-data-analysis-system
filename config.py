@@ -50,6 +50,7 @@ class Config:
         "COOKIE_SECURE", "False"
     ).lower() in ("true", "1")
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+    WTF_CSRF_SSL_STRICT = False  # Allows smooth operation through reverse proxies and tunnels
 
     # Google OAuth 2.0 Credentials (Optional)
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
