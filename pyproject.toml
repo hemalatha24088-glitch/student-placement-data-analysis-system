@@ -39,3 +39,7 @@ filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::FutureWarning"
 ]
+
+[tool.vercel]
+entrypoint = "app:app"
+

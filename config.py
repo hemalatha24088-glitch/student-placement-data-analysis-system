@@ -7,27 +7,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Strict Environment Variable Validation
-_is_vercel = os.getenv("VERCEL") == "1"
 _secret_key = os.getenv("SECRET_KEY", "").strip()
 _db_password = os.getenv("DB_PASSWORD")
 
 if not _secret_key:
-    if _is_vercel:
-        _secret_key = "vercel-deployment-temp-secret-key-32chars"
-    else:
-        raise RuntimeError(
-            "FATAL CONFIGURATION ERROR: 'SECRET_KEY' environment variable is missing or empty. "
-            "Define SECRET_KEY in your .env file or deployment environment."
-        )
+    raise RuntimeError(
+        "FATAL CONFIGURATION ERROR: 'SECRET_KEY' environment variable is missing or empty. "
+        "Define SECRET_KEY in your .env file or deployment environment (Vercel Project Settings > Environment Variables)."
+    )
 
 if _db_password is None:
-    if _is_vercel:
-        _db_password = ""
-    else:
-        raise RuntimeError(
-            "FATAL CONFIGURATION ERROR: 'DB_PASSWORD' environment variable is missing. "
-            "Define DB_PASSWORD in your .env file or deployment environment."
-        )
+    raise RuntimeError(
+        "FATAL CONFIGURATION ERROR: 'DB_PASSWORD' environment variable is missing. "
+        "Define DB_PASSWORD in your .env file or deployment environment (Vercel Project Settings > Environment Variables)."
+    )
 
 
 class Config:
