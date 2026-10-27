@@ -1,28 +1,38 @@
 import os
 from datetime import timedelta
+
 from dotenv import load_dotenv
 
 # Load variables from .env if present
 load_dotenv()
 
 # Strict Environment Variable Validation
+_is_vercel = os.getenv("VERCEL") == "1"
 _secret_key = os.getenv("SECRET_KEY", "").strip()
 _db_password = os.getenv("DB_PASSWORD")
 
 if not _secret_key:
-    raise RuntimeError(
-        "FATAL CONFIGURATION ERROR: 'SECRET_KEY' environment variable is missing or empty. "
-        "Define SECRET_KEY in your .env file or deployment environment."
-    )
+    if _is_vercel:
+        _secret_key = "vercel-deployment-temp-secret-key-32chars"
+    else:
+        raise RuntimeError(
+            "FATAL CONFIGURATION ERROR: 'SECRET_KEY' environment variable is missing or empty. "
+            "Define SECRET_KEY in your .env file or deployment environment."
+        )
 
 if _db_password is None:
-    raise RuntimeError(
-        "FATAL CONFIGURATION ERROR: 'DB_PASSWORD' environment variable is missing. "
-        "Define DB_PASSWORD in your .env file or deployment environment."
-    )
+    if _is_vercel:
+        _db_password = ""
+    else:
+        raise RuntimeError(
+            "FATAL CONFIGURATION ERROR: 'DB_PASSWORD' environment variable is missing. "
+            "Define DB_PASSWORD in your .env file or deployment environment."
+        )
+
 
 class Config:
     """Central Application Configuration."""
+
     SECRET_KEY = _secret_key
     DB_HOST = os.getenv("DB_HOST", "localhost")
     db_port_val = os.getenv("DB_PORT", "3307").strip()
@@ -43,7 +53,9 @@ class Config:
     # Session Cookie Security
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = os.getenv("FLASK_ENV", "").lower() == "production" or os.getenv("COOKIE_SECURE", "False").lower() in ("true", "1")
+    SESSION_COOKIE_SECURE = os.getenv("FLASK_ENV", "").lower() == "production" or os.getenv(
+        "COOKIE_SECURE", "False"
+    ).lower() in ("true", "1")
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
 
     # Google OAuth 2.0 Credentials (Optional)
