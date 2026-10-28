@@ -60,6 +60,14 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     limiter.init_app(app)
 
+    # Auto-apply database schema migrations if database is available
+    if not app.config.get("TESTING"):
+        try:
+            from migrations.migrate import run_migrations
+            run_migrations()
+        except Exception as e:
+            app.logger.info(f"Database auto-migration check: {e}")
+
     # Initialize Talisman (Security Headers)
     if app.config.get("TESTING"):
         talisman.init_app(app, force_https=False, content_security_policy=None)
